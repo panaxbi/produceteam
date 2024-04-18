@@ -1,0 +1,60 @@
+{
+  "server": {
+    "request": "https://server.panax.io/request.asp",
+    "login": "POST https://server.panax.io/login.asp",
+    "logout": "https://server.panax.io/logout.asp",
+    "uploadValidation": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarValidaciones",
+    "uploadOVconfirmadas": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarOVconfirmadas",
+    "uploadStandardTimes": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarTiempoEstandar",
+    "uploadBlacklist": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarPolizasIgnoradas",
+    "applyPermissions": "POST https://server.panax.io/request.asp?FROM=%23panax.applyPermissions"
+  },
+  "sources": {
+    "^#(.+)": "assets/$1.xml",
+    "#": "#shell",
+    "#shell": null,
+    "#login": null,
+    "#settings": "settings.xml",
+    "#menu": "menus.xml",
+    "#sitemap": {
+      "server:request": {
+        "FROM": "#panax.getSitemap",
+        "parameters": "'${xo.session.user_login}'"
+      }
+    },
+    "#acceso_usuarios": {
+      "server:request": {
+        "FROM": "PanaxBI.acceso_usuarios"
+      }
+    }
+  },
+  "start": [ "loading.xslt" ],
+  "settings": {
+    "^#.*": {
+      "headers": {
+        "Cache-Control": "max-age=0",
+        "x-debugging": "true",
+        "expiry": 1
+      }
+    },
+    "#estado_resultados_semanal": {
+      "stylesheets": [
+        {
+          "href": "estado_resultados_semanal.xslt",
+          "target": "@#shell main"
+        }
+      ]
+    },
+    "^#estado_resultados.*": {
+      "^expiry": 1
+    },
+    "server:applyPermissions": {
+      "headers": {
+        "x-payload-parameter-name": "@input"
+      }
+    },
+    "#shell": {
+      "hash": ""
+    }
+  }
+}

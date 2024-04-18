@@ -1,0 +1,6 @@
+[submodule "xover"]
+	path = xover
+	url = https://github.com/panaxit/xover.git
+[submodule "server"]
+	path = server
+	url = https://github.com/panaxit/server.git
