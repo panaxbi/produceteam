@@ -83,6 +83,8 @@ xo.listener.on(['xo.Source:fetch', 'xo.Source:failure'], async function ({ setti
 Object.defineProperty(xo.session, 'login', {
     value: async function (username, password, connection_id) {
         try {
+            username = username.value
+            password = xover.cryptography.encodeMD5(password.value)
             xover.session.user_login = username
             xover.session.status = 'authorizing';
             let response = await xover.server.login(new URLSearchParams({ 'connection_id': connection_id }), { headers: { authorization: `Basic ${btoa(username + ':' + password)}` } });
@@ -717,10 +719,6 @@ xo.listener.on('mutate::html', function ({ mutations }) {
     if (mutations.size > 10) {
         mutations.clear();
     }
-})
-
-xo.listener.on('submit', async function () {
-    [...this.querySelectorAll(`[xo-slot]`)].filter(el => el.value && el.scope && el.scope.value === null).forEach(el => typeof (el.onchange) == 'function' ? el.onchange.call(el) : el.scope.set(el.value))
 })
 
 xover.listener.on('Response:failure?status=401', function ({ url }) {
