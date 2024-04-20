@@ -16,6 +16,7 @@
     "#login": null,
     "#settings": "settings.xml",
     "#menu": "menus.xml",
+    "#estado_resultados_semanal": "static/estado_resultados_semanal.xml",
     "#sitemap": {
       "server:request": {
         "FROM": "#panax.getSitemap",

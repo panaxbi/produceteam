@@ -1,0 +1,21 @@
+﻿<model>
+	<fechas>
+		<row year="2024" key="20240101" desc="01-Ene" month="1" month_desc="Enero" week="1" />
+		<row year="2024" key="20240108" desc="08-Ene" month="1" month_desc="Enero" week="2" />
+		<row year="2024" key="20240115" desc="15-Ene" month="1" month_desc="Enero" week="3" />
+		<row year="2024" key="20240122" desc="22-Ene" month="1" month_desc="Enero" week="4" />
+		<row year="2024" key="20240129" desc="29-Ene" month="1" month_desc="Enero" week="5" />
+		<row year="2024" key="20240205" desc="05-Feb" month="2" month_desc="Febrero" week="6" />
+		<row year="2024" key="20240212" desc="12-Feb" month="2" month_desc="Febrero" week="7" />
+		<row year="2024" key="20240219" desc="19-Feb" month="2" month_desc="Febrero" week="8" />
+		<row year="2024" key="20240226" desc="26-Feb" month="2" month_desc="Febrero" week="9" />
+		<row year="2024" key="20240304" desc="04-Mar" month="3" month_desc="Marzo" week="10" />
+		<row year="2024" key="20240311" desc="11-Mar" month="3" month_desc="Marzo" week="11" />
+		<row year="2024" key="20240318" desc="18-Mar" month="3" month_desc="Marzo" week="12" />
+		<row year="2024" key="20240325" desc="25-Mar" month="3" month_desc="Marzo" week="13" />
+		<row year="2024" key="20240401" desc="01-Abr" month="4" month_desc="Abril" week="14" />
+		<row year="2024" key="20240408" desc="08-Abr" month="4" month_desc="Abril" week="15" />
+		<row year="2024" key="20240415" desc="15-Abr" month="4" month_desc="Abril" week="16" />
+	</fechas>
+	<movimientos></movimientos>
+</model>
