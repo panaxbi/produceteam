@@ -12,7 +12,6 @@ xmlns:v="urn:schemas-microsoft-com:office:excel"
 xmlns:xo="http://panax.io/xover"
 exclude-result-prefixes="#default session sitemap shell"
 >
-	<xsl:import href="keys.xslt"/>
 	<xsl:import href="common.xslt"/>
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 
