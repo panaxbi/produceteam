@@ -722,3 +722,9 @@ xo.listener.on('mutate::html', function ({ mutations }) {
 xo.listener.on('render?store.tag=#login', function () {
     [...this.querySelectorAll(`[xo-slot]`)].filter(el => el.value && el.scope && el.scope.value === null).forEach(el => el.scope.set(el.value))
 })
+
+xover.listener.on('Response:failure?status=401', function ({ url }) {
+    if (['server.panax.io'].includes(url.host)) {
+        xo.session.status = 'unauthorized'
+    }
+})
