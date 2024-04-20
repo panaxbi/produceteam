@@ -719,8 +719,8 @@ xo.listener.on('mutate::html', function ({ mutations }) {
     }
 })
 
-xo.listener.on('render?store.tag=#login', function () {
-    [...this.querySelectorAll(`[xo-slot]`)].filter(el => el.value && el.scope && el.scope.value === null).forEach(el => el.scope.set(el.value))
+xo.listener.on('submit', async function () {
+    [...this.querySelectorAll(`[xo-slot]`)].filter(el => el.value && el.scope && el.scope.value === null).forEach(el => typeof (el.onchange) == 'function' ? el.onchange.call(el) : el.scope.set(el.value))
 })
 
 xover.listener.on('Response:failure?status=401', function ({ url }) {
