@@ -96,6 +96,47 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		</select>
 	</xsl:template>
 
+	<xsl:template mode="widget"  match="model[@env:store='#ventas_por_fecha_embarque']/@*">
+		<fieldset class="fecha_embarque">
+			<legend>Fecha de embarque</legend>
+			<div class="input-group">
+				<input class="form-control" name="fecha_embarque_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_inicio" value="{../@state:fecha_embarque_inicio}"/>
+				<input class="form-control" name="fecha_embarque_fin" min="{../@state:fecha_embarque_inicio}" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_fin" value="{../@state:fecha_embarque_fin}"/>
+			</div>
+		</fieldset>
+		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../cliente"/>
+	</xsl:template>
+
+	<xsl:template mode="headerText"  match="model/*">
+		<xsl:value-of select="name()"/>
+	</xsl:template>
+
+	<xsl:key name="state:selected" match="model/*/row/@desc[.=../../@state:selected]" use="generate-id()"/>
+	<xsl:key name="state:selected" match="model/commodity/row/@desc[.=../../../@state:commodity]" use="generate-id()"/>
+	<xsl:key name="state:selected" match="model/cliente/row/@desc[.=../../../@state:cliente]|model/agricultor/row/@desc[.=../../../@state:agricultor]" use="generate-id()"/>
+
+	<xsl:template mode="widget"  match="model/*">
+		<fieldset>
+			<legend style="text-transform:capitalize">
+				<xsl:apply-templates mode="headerText" select="."/>
+			</legend>
+			<select name="{name()}" class="form-select" xo-scope="{@xo:id}" xo-slot="state:selected">
+				<option value=""></option>
+				<xsl:for-each select="row/@desc">
+					<xsl:variable name="value" select="."/>
+					<xsl:variable name="desc" select="translate(.,'*','')"/>
+					<xsl:variable name="state:selected" select="key('state:selected',generate-id())"/>
+					<option value="{$value}">
+						<xsl:if test="$state:selected">
+							<xsl:attribute name="selected"/>
+						</xsl:if>
+						<xsl:value-of select="$desc"/>
+					</option>
+				</xsl:for-each>
+			</select>
+		</fieldset>
+	</xsl:template>
+
 	<xsl:template mode="widget"  match="model[@env:store='#estado_resultados_semanal']/@*">
 		<xsl:variable name="default_date">
 			<xsl:choose>

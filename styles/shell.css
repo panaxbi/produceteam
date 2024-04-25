@@ -30,6 +30,12 @@ body {
     overflow: auto
 }
 
+table tfoot {
+    position: sticky;
+    z-index: 910;
+    bottom: calc(var(--footer-height, 15px) - 15px);
+}
+
 *[onclick]:not([disabled]) {
     cursor: pointer;
 }
@@ -47,6 +53,11 @@ svg[disabled] {
 
 .editable.selection-begin input {
     outline: none
+}
+
+fieldset legend {
+    font-size: 1rem;
+    font-weight: bolder;
 }
     /*
 svg.xo-working {

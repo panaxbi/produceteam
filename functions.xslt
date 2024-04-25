@@ -5,7 +5,7 @@
 >
   <xsl:template name="format">
     <xsl:param name="value">0</xsl:param>
-    <xsl:param name="mask">'$#,##0.00###;-$#,##0.00###'</xsl:param>
+    <xsl:param name="mask">$#,##0.00###;-$#,##0.00###</xsl:param>
     <xsl:param name="value_for_invalid"></xsl:param>
     <xsl:choose>
       <xsl:when test="number($value)=$value">

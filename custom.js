@@ -87,7 +87,7 @@ Object.defineProperty(xo.session, 'login', {
             password = xover.cryptography.encodeMD5(password.value)
             xover.session.user_login = username
             xover.session.status = 'authorizing';
-            let response = await xover.server.login(new URLSearchParams({ 'connection_id': connection_id }), { headers: { authorization: `Basic ${btoa(username + ':' + password)}` } });
+            await xover.server.login(new URLSearchParams({ 'connection_id': connection_id }), { headers: { authorization: `Basic ${btoa(username + ':' + password)}` } }, (return_value, request) => { xo.session[`${request.url.host}:id`] = return_value.id }); //response.headers.get("x-session-id")
             xover.session.status = 'authorized';
             xover.stores.active.render();
         } catch (e) {
@@ -692,6 +692,12 @@ xo.listener.on(`beforeTransform?stylesheet.href=estado_resultados_semanal.xslt`,
     }
 })
 
+xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
+    for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
+        this.select(`//ventas/row[@${attr.localName}!="${attr.value}"]`).forEach(el => el.remove())
+    }
+})
+
 xo.listener.on("fetch::xo:response", function () {
     let new_node = this.selectFirst('xo:response//model');
     new_node instanceof Element && this.documentElement.replaceWith(new_node)
@@ -725,4 +731,31 @@ xover.listener.on('Response:failure?status=401', function ({ url }) {
     if (['server.panax.io'].includes(url.host)) {
         xo.session.status = 'unauthorized'
     }
+})
+
+xover.listener.on(`beforeFetch?request`, function ({ request }) {
+    let session_id = request.headers.get("x-session-id") || xo.session[`${request.url.host}:id`];
+    session_id && request.headers.set("x-session-id", session_id)
+})
+
+xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
+    store.source.definition["server:request"][`@${this.localName}`]=value
+    store.fetch()
+})
+
+xover.listener.on(`change::@state:selected`, function ({ value, store }) {
+    store.source.definition["server:request"][`@${this.parentNode.localName}`]=value
+    store.fetch()
+})
+
+xover.listener.on('click::.filterable', function(){
+    let scope = this.scope;
+    if (!(scope instanceof Attr)) return;
+    let model = scope.closest('model')
+    if (model.hasAttributeNS('http://panax.io/state/filter', `${scope.localName}`)) {
+        model.removeAttributeNS('http://panax.io/state/filter', `${scope.localName}`)
+    } else {
+        model.setAttributeNS('http://panax.io/state/filter', `filter:${scope.localName}`, scope.value)
+    }
+    console.log(this.scope)
 })
