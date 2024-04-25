@@ -8,7 +8,6 @@ xmlns:state="http://panax.io/state"
 xmlns:xo="http://panax.io/xover"
 exclude-result-prefixes="#default session sitemap shell state"
 >
-	<xsl:include href="../keys.xslt"/>
 	<xsl:output method="xml"
 	   omit-xml-declaration="yes"
 	   indent="yes"/>
