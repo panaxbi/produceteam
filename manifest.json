@@ -16,7 +16,16 @@
     "#login": null,
     "#settings": "settings.xml",
     "#menu": "menus.xml",
-    "#estado_resultados_semanal": "static/estado_resultados_semanal.xml",
+    "#estado_resultados_semanal": {
+      "server:request": {
+        "FROM": "PanaxBI.estado_resultados_semanal"
+      }
+    },
+    "#ventas_por_fecha_embarque": {
+      "server:request": {
+        "FROM": "PanaxBI.ventas_por_fecha_embarque"
+      }
+    },
     "#sitemap": {
       "server:request": {
         "FROM": "#panax.getSitemap",
@@ -42,6 +51,14 @@
       "stylesheets": [
         {
           "href": "estado_resultados_semanal.xslt",
+          "target": "@#shell main"
+        }
+      ]
+    },
+    "#ventas_por_fecha_embarque": {
+      "stylesheets": [
+        {
+          "href": "ventas_por_fecha_embarque.xslt",
           "target": "@#shell main"
         }
       ]
