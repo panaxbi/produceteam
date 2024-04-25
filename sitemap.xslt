@@ -8,6 +8,9 @@ xmlns:state="http://panax.io/state"
 xmlns:xo="http://panax.io/xover"
 exclude-result-prefixes="#default session sitemap shell state"
 >
+	<xsl:key name="item" match="item" use="'#any'"/>
+	<xsl:key name="menu-item" match="item[item]" use="@xo:id"/>
+
 	<xsl:include href="templates/sitemap.xslt"/>
 	<xsl:output method="xml"
 	   omit-xml-declaration="yes"
