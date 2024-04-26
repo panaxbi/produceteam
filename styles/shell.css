@@ -33,7 +33,7 @@ body {
 table tfoot {
     position: sticky;
     z-index: 910;
-    bottom: calc(var(--footer-height, 15px) - 15px);
+    bottom: calc(var(--footer-height, 15px)* -1);
 }
 
 *[onclick]:not([disabled]) {
@@ -250,6 +250,7 @@ h3, h4 {
     --bg-shell-footer: #fff;
     --menu-toggler: white;
     --nav-height: 65px;
+    --scrollbar-width: 15px;
 }
 
 header h1 {

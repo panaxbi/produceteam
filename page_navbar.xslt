@@ -97,6 +97,9 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model[@env:store='#ventas_por_fecha_embarque']/@*">
+		<style>
+			:root { --sections-filter-height: 86px; }
+		</style>
 		<fieldset class="fecha_embarque">
 			<legend>Fecha de embarque</legend>
 			<div class="input-group">

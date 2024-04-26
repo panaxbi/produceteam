@@ -44,9 +44,11 @@ th.rotate, td.rotate {
     /* Something you can count on */
     height: 140px;
     white-space: nowrap;
-    vertical-align: middle;
     text-align: center;
     text-transform: capitalize;
+    vertical-align: bottom;
+    padding-block-end: 2rem !important;
+    padding-inline-end: 1rem !important;
 }
 
     th.rotate > *, td.rotate > * {

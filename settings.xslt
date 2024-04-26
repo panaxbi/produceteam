@@ -62,6 +62,7 @@ exclude-result-prefixes="#default session sitemap shell"
         cursor: pointer;
 		align-self: end;
         z-index: 1002;
+		margin-right: var(--scrollbar-width,0);
     }
 
     .settings-toggle:hover {

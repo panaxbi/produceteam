@@ -38,7 +38,8 @@ exclude-result-prefixes="#default xsl px xsi xo data state"
           box-shadow: -5px 0 10px 0 rgba(0,0,0,.1);
           -webkit-transition: all .1s ease-in-out;
           transition: all .1s ease-in-out;
-          cursor: pointer
+          cursor: pointer;
+		  margin-right: var(--scrollbar-width,0);
         }
 
         .filters-toggle:hover {
