@@ -759,3 +759,7 @@ xover.listener.on('click::.filterable', function(){
     }
     console.log(this.scope)
 })
+
+xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({document}) {
+    document.selectFirst('//ventas').select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
+})

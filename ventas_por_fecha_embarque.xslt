@@ -108,12 +108,8 @@ exclude-result-prefixes="#default session sitemap shell"
 				<colgroup>
 					<col width="50"/>
 					<!-- #</th>-->
-					<col width="100"/>
-					<!-- Order PK			</th>-->
 					<col width="280"/>
 					<!-- Customer Name		</th>-->
-					<col width="100"/>
-					<!-- Order Date			</th>-->
 					<col width="100"/>
 					<!-- Ship Date			</th>-->
 					<col width="100"/>
@@ -135,10 +131,6 @@ exclude-result-prefixes="#default session sitemap shell"
 					<col width="100"/>
 					<!-- Amount Adjusted		</th>-->
 					<col width="100"/>
-					<!-- Unit of Sale		</th>-->
-					<col width="100"/>
-					<!-- Sales Type			</th>-->
-					<col width="100"/>
 					<!-- Commodity Name		</th>-->
 					<col width="100"/>
 					<!-- Variety Name		</th>-->
@@ -148,8 +140,6 @@ exclude-result-prefixes="#default session sitemap shell"
 					<!-- Size Name			</th>-->
 					<col width="100"/>
 					<!-- Label Code			</th>-->
-					<col width="100"/>
-					<!-- Grade Code			</th>-->
 					<col width="100"/>
 					<!-- Grower Code			</th>-->
 					<col width="100"/>
@@ -176,12 +166,10 @@ exclude-result-prefixes="#default session sitemap shell"
 				<thead class="freeze">
 					<tr>
 						<th scope="col">#</th>
-						<th scope="col">Order PK			</th>
 						<th scope="col">Customer Name		</th>
 						<th scope="col">Order Date			</th>
 						<th scope="col">Ship Date			</th>
 						<th scope="col">Invoice Date		</th>
-						<th scope="col">Post Date			</th>
 						<th scope="col">Order No.			</th>
 						<th scope="col">Ship To (Location)	</th>
 						<th scope="col">Qty (UOM)			</th>
@@ -189,14 +177,11 @@ exclude-result-prefixes="#default session sitemap shell"
 						<th scope="col">Amount Invoiced		</th>
 						<th scope="col">Unit Price			</th>
 						<th scope="col">Amount Adjusted		</th>
-						<th scope="col">Unit of Sale		</th>
-						<th scope="col">Sales Type			</th>
 						<th scope="col">Commodity Name		</th>
 						<th scope="col">Variety Name		</th>
 						<th scope="col">Pack Style Name		</th>
 						<th scope="col">Size Name			</th>
 						<th scope="col">Label Code			</th>
-						<th scope="col">Grade Code			</th>
 						<th scope="col">Grower Code			</th>
 						<th scope="col">Grower Name			</th>
 						<th scope="col">PO					</th>
@@ -216,7 +201,7 @@ exclude-result-prefixes="#default session sitemap shell"
 				<tfoot>
 					<tr>
 						<th></th>
-						<th colspan="8"></th>
+						<th colspan="6"></th>
 						<th>
 							<xsl:call-template name="format">
 								<xsl:with-param name="value" select="sum(//ventas/row/@qtym)"/>
@@ -242,7 +227,7 @@ exclude-result-prefixes="#default session sitemap shell"
 								<xsl:with-param name="value" select="sum(//ventas/row/@amt_ad)"/>
 							</xsl:call-template>
 						</th>
-						<th colspan="17">
+						<th colspan="14">
 							<!--<xsl:value-of select="avg(//ventas/row/@upce)"/>-->
 						</th>
 						<th>
