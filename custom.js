@@ -761,5 +761,6 @@ xover.listener.on('click::.filterable', function(){
 })
 
 xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({document}) {
-    document.selectFirst('//ventas').select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
+    let ventas = document.selectFirst('//ventas');
+    ventas && ventas.select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
 })
