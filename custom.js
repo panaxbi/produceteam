@@ -1,6 +1,18 @@
 xo.spaces["expanded"] = "http://panax.io/state/expanded";
 xo.spaces["visible"] = "http://panax.io/state/visible";
 xo.spaces["hidden"] = "http://panax.io/state/hidden";
+
+function onGoogleLogin(response) {
+    const responsePayload = xover.cryptography.decodeJwt(response.credential);
+    if ((xover.session.status || "unauthorized") == "unauthorized" && xover.session.id_token != response.credential) {
+        xover.session.user_login = responsePayload.email;
+        xover.session.id_token = response.credential;
+        xover.session.login(xover.session.user_login, response.credential).catch(() => {
+            xover.session.id_token = undefined;
+        })
+    }
+}
+
 async function progressiveRequest(params) {
     if (params instanceof Array) {
         params = Object.fromEntries(params);
@@ -75,16 +87,29 @@ async function progressiveRequest(params) {
     return response;
 }
 
+xo.listener.on('beforeFetch::#ventas_por_fecha_embarque', async function ({ settings = {} }) {
+    settings.progress = await xo.sources["loading.xslt"].render()
+    for (let render of settings.progress) {
+        progress = render.querySelector('i progress');
+        progress.style.display = 'inline';
+    }
+})
+
 xo.listener.on(['xo.Source:fetch', 'xo.Source:failure'], async function ({ settings = {} }) {
-    let progress = await settings.progress;
-    progress && progress.remove();
+    let progress = await settings.progress || [];
+    for (let render of progress) {
+        let progress = render.querySelector('i progress');
+        progress.value = 100;
+    }
+    progress.remove();
+
 })
 
 Object.defineProperty(xo.session, 'login', {
     value: async function (username, password, connection_id) {
         try {
-            username = username.value
-            password = xover.cryptography.encodeMD5(password.value)
+            username = username instanceof HTMLElement ? username.value : username;
+            password = password instanceof HTMLElement ? xover.cryptography.encodeMD5(password.value) : password;
             xover.session.user_login = username
             xover.session.status = 'authorizing';
             await xover.server.login(new URLSearchParams({ 'connection_id': connection_id }), { headers: { authorization: `Basic ${btoa(username + ':' + password)}` } }, (return_value, request) => { xo.session[`${request.url.host}:id`] = return_value.id }); //response.headers.get("x-session-id")
@@ -126,8 +151,8 @@ xo.listener.on('hashchange', function () {
 })
 
 xo.listener.on('progress', async function ({ percent }) {
-    let progress = await this.settings.progress;
-    if (progress) {
+    let progress = await this.settings.progress || [];
+    if (progress.length) {
         progress = [progress].flat(Infinity);
         let target = progress[0].parentNode?.querySelector('progress');
         if (target) {
@@ -696,6 +721,9 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
         this.select(`//ventas/row[@${attr.localName}!="${attr.value}"]`).forEach(el => el.remove())
     }
+
+    let avg = this.select(`//ventas/row/@upce`).reduce(Avg)
+    this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, avg);
 })
 
 xo.listener.on("fetch::xo:response", function () {
@@ -760,7 +788,47 @@ xover.listener.on('click::.filterable', function(){
     console.log(this.scope)
 })
 
+xover.listener.on('click::table .sortable', function(){
+    sortRows(this)
+})
+
 xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({document}) {
+    if (document instanceof Comment && document.data == 'ack:empty') {
+        throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
+    }
     let ventas = document.selectFirst('//ventas');
     ventas && ventas.select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
 })
+
+function sortRows(header) {
+    let index = header.$$("preceding-sibling::*").reduce((index, el) => { index += el.colSpan || 0; return index }, 0);
+    let getValue = (el) => {
+        let val = el.cells[index].getAttribute("value") || el.cells[index].textContent;
+        let parsed_value = parseFloat(val.replace(/^\$|^#|,/g, ''));
+        return isNaN(parsed_value) ? val : parsed_value;
+    };
+    let compare = (next, curr) => {
+        let valueCurr = getValue(curr);
+        let valueNext = getValue(next);
+        if (typeof (valueNext.localeCompare) == 'function') {
+            return valueNext.localeCompare(valueCurr, undefined, { sensitivity: 'accent', caseFirst: 'upper' });
+        } else {
+            return valueCurr > valueNext ? -1 : 0;
+        }
+    }
+    let tbody = header.closest('thead').selectFirst('following-sibling::tbody');
+    let rows = [...tbody.querySelectorAll("tr")];
+    if (header.classList.contains("sorted-desc")) {
+        header.classList.remove("sorted", "sorted-desc");
+        index = 0;
+        rows.sort(compare);
+    } else if (header.classList.contains("sorted")) {
+        header.classList.remove("sorted-asc");
+        header.classList.add("sorted", "sorted-desc");
+        rows = rows.reverse();
+    } else {
+        rows.sort(compare);
+        header.classList.add("sorted", "sorted-asc");
+    }
+    tbody.replaceChildren(...rows);
+}

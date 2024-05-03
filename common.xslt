@@ -17,22 +17,6 @@ xmlns="http://www.w3.org/1999/xhtml"
 		background:<xsl:value-of select="ancestor-or-self::*/@color"/> !important; color: white;
 	</xsl:template>
 
-	<xsl:template mode="headerText" match="*[@nom]|*[@nom]/@*">
-		<xsl:value-of select="ancestor-or-self::*[1]/@nom"/>
-	</xsl:template>
-
-	<xsl:template mode="headerText" match="*[@desc]|*[@desc]/@*">
-		<xsl:value-of select="ancestor-or-self::*[1]/@desc"/>
-	</xsl:template>
-
-	<xsl:template mode="headerText" match="fecha/@mes">
-		<xsl:value-of select="concat(substring(.,1,4),'-',substring(.,5))"/>
-	</xsl:template>
-
-	<xsl:template mode="headerText" match="fecha/@mes[substring(., string-length(.) - 1)='13' or string-length(.)=4]">
-		<xsl:value-of select="substring(.,1,4)"/>
-	</xsl:template>
-
 	<xsl:template mode="value" match="@status">
 		<xsl:value-of select="concat(translate(substring(.,1,1),$lowercase,$uppercase), substring(.,2))"/>
 	</xsl:template>

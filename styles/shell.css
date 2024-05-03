@@ -151,6 +151,14 @@ dialog {
     z-index: 2999;
 }
 
+.sorted-asc::after {
+    content: " \25B2";
+}
+
+.sorted-desc::after {
+    content: " \25BC";
+}
+
 /* This is the style for outside the dialog
 when the dialog is displayed
 to make it clear that it is a "modal dialog" and

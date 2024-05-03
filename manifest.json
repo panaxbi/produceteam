@@ -16,6 +16,7 @@
     "#login": null,
     "#settings": "settings.xml",
     "#menu": "menus.xml",
+    "#globalization": [ "assets/globalization/headerText.${xo.session.locale.split('-').shift()}.resx", "assets/globalization/headerText.resx" ],
     "#estado_resultados_semanal": {
       "server:request": {
         "FROM": "PanaxBI.estado_resultados_semanal"

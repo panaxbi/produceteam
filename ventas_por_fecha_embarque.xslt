@@ -14,11 +14,14 @@ xmlns:xo="http://panax.io/xover"
 exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="common.xslt"/>
+	<xsl:import href="headers.xslt"/>
 	<xsl:import href="functions.xslt"/>
+
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 	<xsl:key name="filter" match="model/@filter:*" use="local-name()"/>
 
-	<xsl:key name="state:hidden" match="@xo:id" use="name()"/>
+	<xsl:key name="state:hidden" match="@xo:*" use="name()"/>
+	<xsl:key name="state:hidden" match="@state:*" use="name()"/>
 
 	<xsl:key name="datatype" match="ventas/row/@od" use="'date'"/>
 	<xsl:key name="datatype" match="ventas/row/@sd" use="'date'"/>
@@ -34,6 +37,8 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="datatype" match="ventas/row/@qtym" use="'integer'"/>
 	<xsl:key name="datatype" match="ventas/row/@qtys" use="'integer'"/>
 	<xsl:key name="datatype" match="ventas/row/@qty_rcv" use="'integer'"/>
+
+	<xsl:key name="facts" match="//ventas/row/@*" use="name()"/>
 
 	<xsl:template mode="week" match="fechas/row/@*">
 		<xsl:value-of select="../@week"/>
@@ -102,6 +107,15 @@ exclude-result-prefixes="#default session sitemap shell"
 			<style>
 				<![CDATA[
 				table tbody td span.filterable { cursor: pointer }
+				table .sortable { cursor: pointer }
+				
+				table thead {
+					text-wrap: nowrap;
+				}
+				
+				td[xo-slot=amt],td[xo-slot=qtym],td[xo-slot=qtys],td[xo-slot=qty_rcv] {
+					text-align: end;
+				}
 			]]>
 			</style>
 			<table class="table table-striped">
@@ -164,82 +178,13 @@ exclude-result-prefixes="#default session sitemap shell"
 					<!-- Trouble No			</th>-->
 				</colgroup>
 				<thead class="freeze">
-					<tr>
-						<th scope="col">#</th>
-						<th scope="col">Customer Name		</th>
-						<th scope="col">Order Date			</th>
-						<th scope="col">Ship Date			</th>
-						<th scope="col">Invoice Date		</th>
-						<th scope="col">Order No.			</th>
-						<th scope="col">Ship To (Location)	</th>
-						<th scope="col">Qty (UOM)			</th>
-						<th scope="col">Qty (UOS)			</th>
-						<th scope="col">Amount Invoiced		</th>
-						<th scope="col">Unit Price			</th>
-						<th scope="col">Amount Adjusted		</th>
-						<th scope="col">Commodity Name		</th>
-						<th scope="col">Variety Name		</th>
-						<th scope="col">Pack Style Name		</th>
-						<th scope="col">Size Name			</th>
-						<th scope="col">Label Code			</th>
-						<th scope="col">Grower Code			</th>
-						<th scope="col">Grower Name			</th>
-						<th scope="col">PO					</th>
-						<th scope="col">Order Status		</th>
-						<th scope="col">Salesperson Code	</th>
-						<th scope="col">Warehouse Code		</th>
-						<th scope="col">Ship Terms Name		</th>
-						<th scope="col">Grower Lot			</th>
-						<th scope="col">Lot Received Date	</th>
-						<th scope="col">Qty Received		</th>
-						<th scope="col">Trouble No			</th>
-					</tr>
+					<xsl:apply-templates mode="header-row" select="//ventas/row[1]"/>
 				</thead>
 				<tbody>
 					<xsl:apply-templates mode="row" select="//ventas/row"/>
 				</tbody>
 				<tfoot>
-					<tr>
-						<th></th>
-						<th colspan="6"></th>
-						<th>
-							<xsl:call-template name="format">
-								<xsl:with-param name="value" select="sum(//ventas/row/@qtym)"/>
-								<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
-							</xsl:call-template>
-						</th>
-						<th>
-							<xsl:call-template name="format">
-								<xsl:with-param name="value" select="sum(//ventas/row/@qtys)"/>
-								<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
-							</xsl:call-template>
-						</th>
-						<th>
-							<xsl:call-template name="format">
-								<xsl:with-param name="value" select="sum(//ventas/row/@amt)"/>
-							</xsl:call-template>
-						</th>
-						<th>
-							<!--<xsl:value-of select="avg(//ventas/row/@upce)"/>-->
-						</th>
-						<th>
-							<xsl:call-template name="format">
-								<xsl:with-param name="value" select="sum(//ventas/row/@amt_ad)"/>
-							</xsl:call-template>
-						</th>
-						<th colspan="14">
-							<!--<xsl:value-of select="avg(//ventas/row/@upce)"/>-->
-						</th>
-						<th>
-							<xsl:call-template name="format">
-								<xsl:with-param name="value" select="sum(//ventas/row/@qty_rcv)"/>
-								<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
-							</xsl:call-template>
-						</th>
-						<th>
-							<!--<xsl:value-of select="avg(//ventas/row/@upce)"/>-->
-						</th>
-					</tr>
+					<xsl:apply-templates mode="footer-row" select="//ventas/row[1]"/>
 				</tfoot>
 			</table>
 		</main>
@@ -254,6 +199,63 @@ exclude-result-prefixes="#default session sitemap shell"
 		</tr>
 	</xsl:template>
 
+	<xsl:template mode="header-row" match="*">
+		<tr>
+			<th scope="col">#</th>
+			<xsl:apply-templates mode="header-cell" select="@*[not(key('state:hidden',name()))]"/>
+		</tr>
+	</xsl:template>
+
+	<xsl:template mode="footer-row" match="*">
+		<tr>
+			<th>#</th>
+			<xsl:apply-templates mode="footer-cell" select="@*[not(key('state:hidden',name()))]"/>
+		</tr>
+		<!--<tr>
+			<th></th>
+			<th colspan="6"></th>
+			<th>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="sum(//ventas/row/@qtym)"/>
+					<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+				</xsl:call-template>
+			</th>
+			<th>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="sum(//ventas/row/@qtys)"/>
+					<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+				</xsl:call-template>
+			</th>
+			<th>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="sum(//ventas/row/@amt)"/>
+				</xsl:call-template>
+			</th>
+			<th>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="//ventas/@state:avg_upce"/>
+				</xsl:call-template>
+			</th>
+			<th>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="sum(//ventas/row/@amt_ad)"/>
+				</xsl:call-template>
+			</th>
+			<th colspan="14">
+				--><!--<xsl:value-of select="avg(//ventas/row/@upce)"/>--><!--
+			</th>
+			<th>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="sum(//ventas/row/@qty_rcv)"/>
+					<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+				</xsl:call-template>
+			</th>
+			<th>
+				--><!--<xsl:value-of select="avg(//ventas/row/@upce)"/>--><!--
+			</th>
+		</tr>-->
+	</xsl:template>
+
 	<xsl:template mode="cell" match="@*">
 		<xsl:variable name="text-filter">
 			<xsl:if test="key('filter',name())">bg-info</xsl:if>
@@ -263,6 +265,63 @@ exclude-result-prefixes="#default session sitemap shell"
 				<xsl:apply-templates select="."/>
 			</span>
 		</td>
+	</xsl:template>
+
+	<xsl:template mode="header-cell" match="@*">
+		<th scope="col" class="sortable">
+			<xsl:apply-templates mode="headerText" select="."/>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="footer-cell" match="@*" priority="-1">
+		<th>
+			<xsl:comment>
+				<xsl:value-of select="name()"/>
+			</xsl:comment>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="footer-cell" match="key('datatype', 'integer')|key('datatype', 'number')">
+		<th>
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:apply-templates mode="aggregate" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="footer-cell" match="key('datatype', 'money')">
+		<th>
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:apply-templates mode="aggregate" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="aggregate" match="@*">
+		<xsl:value-of select="count(key('facts',name()))"/>
+	</xsl:template>
+
+	<xsl:template mode="aggregate" match="key('datatype', 'money')|key('datatype', 'integer')|key('datatype', 'number')">
+		<xsl:value-of select="sum(key('facts',name()))"/>
+	</xsl:template>
+
+	<xsl:template mode="aggregate" match="@upce" priority="1">
+		<xsl:value-of select="ancestor::ventas[1]/@state:avg_upce"/>
+	</xsl:template>
+
+	<xsl:template mode="footer-cell" match="key('datatype', 'avg')">
+		<th>
+			<xsl:call-template name="format">
+				<xsl:with-param name="value" select="sum(key('facts',name()))"/>
+				<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+			</xsl:call-template>
+		</th>
 	</xsl:template>
 
 	<xsl:template match="@*[starts-with(.,'*')]">
