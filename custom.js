@@ -766,9 +766,34 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
+//xover.listener.on(`beforeFetch?FROM=PanaxBI.ventas_por_fecha_embarque`, function ({ source }) {
+//    if (!source) return;
+//    if (xo.state.filterBy == 'order') {
+//        delete source.definition["server:request"]["@fecha_embarque_inicio"];
+//        delete source.definition["server:request"]["@fecha_embarque_fin"];
+//    } else if (xo.state.filterBy == 'ship_date') {
+//        delete source.definition["server:request"][`@order`]
+//    }
+//})
+
+xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin|@state:order`, function ({ value, store }) {
     store.source.definition["server:request"][`@${this.localName}`]=value
+    if (xo.state.filterBy == 'order') {
+        delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
+        delete store.source.definition["server:request"]["@fecha_embarque_fin"];
+    } else if (xo.state.filterBy == 'ship_date') {
+        delete store.source.definition["server:request"][`@order`]
+    }
     store.fetch()
+})
+
+xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
+    delete store.source.definition["server:request"][`@order`]
+})
+
+xover.listener.on(`change::@state:order`, function ({ value, store }) {
+    delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
+    delete store.source.definition["server:request"]["@fecha_embarque_fin"];
 })
 
 xover.listener.on(`change::@state:selected`, function ({ value, store }) {

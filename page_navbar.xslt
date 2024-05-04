@@ -20,6 +20,8 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 
 	<xsl:template mode="widget" match="@*"/>
 
+	<xsl:param name="state:filterBy">ship_date</xsl:param>
+
 	<xsl:key name="changed" match="@initial:*" use="concat(../@xo:id,'::',local-name())"/>
 	<xsl:template match="/">
 		<span class="page-menu">
@@ -48,7 +50,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				:root { --sections-filter-height: 16px; }
 			</style>
 			<nav class="navbar navbar-expand-md">
-				<form action="javascript:void(0);">
+				<form action="javascript:void(0);" onsubmit="section.source.fetch()">
 					<xsl:apply-templates mode="widget" select="model/@xo:id"/>
 				</form>
 				<ul id="shell_buttons" class="nav col-md justify-content-end list-unstyled d-flex">
@@ -99,13 +101,35 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	<xsl:template mode="widget"  match="model[@env:store='#ventas_por_fecha_embarque']/@*">
 		<style>
 			:root { --sections-filter-height: 86px; }
+			filter_by option {
+				font-size: 16pt;
+			}
 		</style>
-		<fieldset class="fecha_embarque">
-			<legend>Fecha de embarque</legend>
-			<div class="input-group">
+		<fieldset class="filter_by">
+			<legend>
+				<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
+					<option value="ship_date">
+						<xsl:if test="$state:filterBy='ship_date'">
+							<xsl:attribute name="selected"/>
+						</xsl:if> Fecha de embarque
+					</option>
+					<option value="order">
+						<xsl:if test="$state:filterBy='order'">
+							<xsl:attribute name="selected"/>
+						</xsl:if>Order No.
+					</option>
+				</select>
+			</legend>
+			<xsl:choose>
+				<xsl:when test="$state:filterBy='ship_date'"><div class="input-group">
 				<input class="form-control" name="fecha_embarque_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_inicio" value="{../@state:fecha_embarque_inicio}"/>
-				<input class="form-control" name="fecha_embarque_fin" min="{../@state:fecha_embarque_inicio}" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_fin" value="{../@state:fecha_embarque_fin}"/>
-			</div>
+				<input class="form-control" name="fecha_embarque_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_fin" value="{../@state:fecha_embarque_fin}"/>
+			</div></xsl:when>
+				<xsl:otherwise>
+					<input type="text" name="order" class="form-control" value="{../@state:order}" xo-slot="state:order"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			
 		</fieldset>
 		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../cliente"/>
 	</xsl:template>
