@@ -461,7 +461,7 @@ table
 														<xsl:value-of select="//security/@xo:id"/>
 													</xsl:attribute>
 													<xsl:attribute name="onclick">
-														<xsl:text/>scope.append(newAccess(<xsl:value-of select="$module"/>, <xsl:value-of select="$user"/>))<xsl:text/>
+														<xsl:text/>scope.append(newAccess(<xsl:value-of select="$module"/>, '<xsl:value-of select="$user"/>'))<xsl:text/>
 													</xsl:attribute>
 												</xsl:otherwise>
 											</xsl:choose>
