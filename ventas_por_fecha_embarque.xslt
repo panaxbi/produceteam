@@ -113,8 +113,12 @@ exclude-result-prefixes="#default session sitemap shell"
 					text-wrap: nowrap;
 				}
 				
-				td[xo-slot=amt],td[xo-slot=qtym],td[xo-slot=qtys],td[xo-slot=qty_rcv] {
+				td[xo-slot=amt],td[xo-slot=qtym],td[xo-slot=qtys],td[xo-slot=qty_rcv],td[xo-slot=trb],td[xo-slot=upce] {
 					text-align: end;
+				}
+				
+				tfoot {
+					font-weight: bolder;
 				}
 			]]>
 			</style>
@@ -208,7 +212,7 @@ exclude-result-prefixes="#default session sitemap shell"
 
 	<xsl:template mode="footer-row" match="*">
 		<tr>
-			<th>#</th>
+			<th></th>
 			<xsl:apply-templates mode="footer-cell" select="@*[not(key('state:hidden',name()))]"/>
 		</tr>
 		<!--<tr>
@@ -274,33 +278,44 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="footer-cell" match="@*" priority="-1">
-		<th>
+		<td>
 			<xsl:comment>
 				<xsl:value-of select="name()"/>
 			</xsl:comment>
-		</th>
+		</td>
 	</xsl:template>
 
-	<xsl:template mode="footer-cell" match="key('datatype', 'integer')|key('datatype', 'number')">
-		<th>
+	<xsl:template mode="footer-cell" match="key('datatype', 'number')">
+		<td>
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
 					<xsl:apply-templates mode="aggregate" select="."/>
 				</xsl:with-param>
 				<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
 			</xsl:call-template>
-		</th>
+		</td>
+	</xsl:template>
+
+	<xsl:template mode="footer-cell" match="key('datatype', 'integer')">
+		<td>
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:apply-templates mode="aggregate" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+			</xsl:call-template>
+		</td>
 	</xsl:template>
 
 	<xsl:template mode="footer-cell" match="key('datatype', 'money')">
-		<th>
+		<td>
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
 					<xsl:apply-templates mode="aggregate" select="."/>
 				</xsl:with-param>
 				<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
 			</xsl:call-template>
-		</th>
+		</td>
 	</xsl:template>
 
 	<xsl:template mode="aggregate" match="@*">
@@ -316,12 +331,12 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="footer-cell" match="key('datatype', 'avg')">
-		<th>
+		<td>
 			<xsl:call-template name="format">
 				<xsl:with-param name="value" select="sum(key('facts',name()))"/>
 				<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
 			</xsl:call-template>
-		</th>
+		</td>
 	</xsl:template>
 
 	<xsl:template match="@*[starts-with(.,'*')]">

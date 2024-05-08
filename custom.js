@@ -319,16 +319,20 @@ async function generateExcelFile(table, name) {
         let color = cell.style.color;
         let styleSheets = document.styleSheets;
         for (let styleSheet of [...styleSheets]) {
-            for (let rule of [...styleSheet.rules].filter(rule => rule.selectorText && (rule.style.border || rule.style.backgroundColor || rule.style.color) && cell.matches(rule.selectorText))) {
-                if (!border && rule.style.border) {
-                    cell.style.border = rule.style.border;
+            try {
+                for (let rule of [...styleSheet.rules].filter(rule => rule.selectorText && (rule.style.border || rule.style.backgroundColor || rule.style.color) && cell.matches(rule.selectorText))) {
+                    if (!border && rule.style.border) {
+                        cell.style.border = rule.style.border;
+                    }
+                    if (!backgroundColor && rule.style.backgroundColor) {
+                        cell.style.backgroundColor = rule.style.backgroundColor;
+                    }
+                    if (!color && rule.style.color) {
+                        cell.style.color = rule.style.color;
+                    }
                 }
-                if (!backgroundColor && rule.style.backgroundColor) {
-                    cell.style.backgroundColor = rule.style.backgroundColor;
-                }
-                if (!color && rule.style.color) {
-                    cell.style.color = rule.style.color;
-                }
+            } catch (e) {
+                console.warn(e)
             }
         }
     }
@@ -722,8 +726,9 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
         this.select(`//ventas/row[@${attr.localName}!="${attr.value}"]`).forEach(el => el.remove())
     }
 
-    let avg = this.select(`//ventas/row/@upce`).reduce(Avg)
-    this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, avg);
+    let amt = this.select(`//ventas/row/@amt`).reduce(Sum);
+    let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum);
+    this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
 })
 
 xo.listener.on("fetch::xo:response", function () {

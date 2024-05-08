@@ -430,7 +430,7 @@ table
 							Administrador
 						</td>-->
 							<td class="xl683051" style='border-top:none;border-left:none;'>
-								<xsl:value-of select='@username'/>
+								<xsl:value-of select='@name'/>
 							</td>
 							<!--<td class="xl683051" style='border-top:none;border-left:none'>Corporativo</td>-->
 							<xsl:for-each select='$modules'>
@@ -505,11 +505,5 @@ table
 
 	<xsl:template match="@name[.='getUserAccess']" priority="1">
 		<xsl:text>Acceso Usuarios</xsl:text>
-	</xsl:template>
-
-	<xsl:template match="@name[starts-with(.,'Auxiliar')]" priority="1">
-		<xsl:value-of select="substring(.,1,8)"/>
-		<xsl:text> </xsl:text>
-		<xsl:value-of select="substring(.,9)"/>
 	</xsl:template>
 </xsl:stylesheet>
