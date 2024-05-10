@@ -32,6 +32,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="datatype" match="ventas/row/@upce" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@ucos" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@tcos" use="'money'"/>
+	<xsl:key name="datatype" match="ventas/row/@pfit" use="'money'"/>
 
 	<xsl:key name="datatype" match="ventas/row/@amt" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@amt_ad" use="'number'"/>
@@ -40,7 +41,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="datatype" match="ventas/row/@qtys" use="'integer'"/>
 	<xsl:key name="datatype" match="ventas/row/@qty_rcv" use="'integer'"/>
 
-	<xsl:key name="facts" match="//ventas/row/@*" use="name()"/>
+	<xsl:key name="facts" match="//ventas/row/@*[.!='']" use="name()"/>
 
 	<xsl:template mode="week" match="fechas/row/@*">
 		<xsl:value-of select="../@week"/>
@@ -113,6 +114,14 @@ exclude-result-prefixes="#default session sitemap shell"
 				
 				table thead {
 					text-wrap: nowrap;
+				}
+				
+				table tfoot .money
+				, table tbody .money
+				, table tbody .number
+				, table tfoot .number
+				{
+					text-align: end;
 				}
 				
 				td[xo-slot=amt],td[xo-slot=qtym],td[xo-slot=qtys],td[xo-slot=qty_rcv],td[xo-slot=trb],td[xo-slot=upce] {
@@ -248,7 +257,9 @@ exclude-result-prefixes="#default session sitemap shell"
 				</xsl:call-template>
 			</th>
 			<th colspan="14">
-				--><!--<xsl:value-of select="avg(//ventas/row/@upce)"/>--><!--
+				-->
+		<!--<xsl:value-of select="avg(//ventas/row/@upce)"/>-->
+		<!--
 			</th>
 			<th>
 				<xsl:call-template name="format">
@@ -257,16 +268,29 @@ exclude-result-prefixes="#default session sitemap shell"
 				</xsl:call-template>
 			</th>
 			<th>
-				--><!--<xsl:value-of select="avg(//ventas/row/@upce)"/>--><!--
+				-->
+		<!--<xsl:value-of select="avg(//ventas/row/@upce)"/>-->
+		<!--
 			</th>
 		</tr>-->
+	</xsl:template>
+
+	<xsl:template mode="cell-class" match="key('datatype', 'number')">
+		<xsl:text/> number<xsl:text/>
+	</xsl:template>
+
+	<xsl:template mode="cell-class" match="key('datatype', 'money')">
+		<xsl:text/> number<xsl:text/>
 	</xsl:template>
 
 	<xsl:template mode="cell" match="@*">
 		<xsl:variable name="text-filter">
 			<xsl:if test="key('filter',name())">bg-info</xsl:if>
 		</xsl:variable>
-		<td class="text-nowrap {$text-filter}">
+		<xsl:variable name="classes">
+			<xsl:apply-templates mode="cell-class" select="."/>
+		</xsl:variable>
+		<td class="text-nowrap {$text-filter} {$classes}">
 			<span class="filterable">
 				<xsl:apply-templates select="."/>
 			</span>
@@ -288,7 +312,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="footer-cell" match="key('datatype', 'number')">
-		<td>
+		<td class="number">
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
 					<xsl:apply-templates mode="aggregate" select="."/>
@@ -310,7 +334,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="footer-cell" match="key('datatype', 'money')">
-		<td>
+		<td class="money">
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
 					<xsl:apply-templates mode="aggregate" select="."/>
@@ -330,6 +354,10 @@ exclude-result-prefixes="#default session sitemap shell"
 
 	<xsl:template mode="aggregate" match="@upce" priority="1">
 		<xsl:value-of select="ancestor::ventas[1]/@state:avg_upce"/>
+	</xsl:template>
+
+	<xsl:template mode="footer-cell" match="@ucos" priority="1">
+		<td></td>
 	</xsl:template>
 
 	<xsl:template mode="footer-cell" match="key('datatype', 'avg')">

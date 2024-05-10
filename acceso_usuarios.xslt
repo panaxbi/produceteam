@@ -262,7 +262,7 @@ table
 	mso-number-format:General;
 	text-align:center;
 	vertical-align:bottom;
-	background:#92D050;
+	background:limegreen;
 	mso-pattern:black none;
 	white-space:nowrap;}
 .xl743051
@@ -280,7 +280,7 @@ table
 	mso-number-format:General;
 	text-align:center;
 	vertical-align:bottom;
-	background:red;
+	background:var(--disabled-module,#dee2e6);
 	mso-pattern:black none;
 	white-space:nowrap;}
 .xl753051
@@ -358,12 +358,20 @@ table
 	white-space:nowrap;}
 	]]>
 		</style>
-		<style><![CDATA[
+		<style>
+			<![CDATA[
 			table td, table th {
 				padding-block:.3rem !important;
 				padding-inline:.5rem !important;
 			}
 			
+			.inherited {
+				background: palegreen;
+			}
+			
+			.revoked {
+				background: red;
+			}
 			]]>
 		</style>
 		<xsl:variable name="users" select="users/user"/>
@@ -374,6 +382,7 @@ table
 				<colgroup>
 					<!--<col width="203" style='mso-width-source:userset;mso-width-alt:7424;width:152pt'/>-->
 					<col width="262" style='mso-width-source:userset;mso-width-alt:9581;width:197pt'/>
+					<col width="262" style='mso-width-source:userset;mso-width-alt:9581;width:100pt'/>
 					<!--<col width="77" style='mso-width-source:userset;mso-width-alt:2816;width:58pt'/>-->
 					<!--<col class="xl723051" width="79" span="3" style='mso-width-source:userset;
  mso-width-alt:2889;width:59pt'/>
@@ -387,7 +396,7 @@ table
  2669;width:55pt'/>
 				<col class="xl723051" width="99" style='mso-width-source:userset;mso-width-alt:
  3620;width:74pt'/>-->
-					<col width='70' style="width:70px" span="3"/>
+					<col width='70' style="width:70px" span="{count(//modules/module)}"/>
 				</colgroup>
 				<!--<tr height="25" style='height:90.75pt; '>
 					-->
@@ -411,6 +420,7 @@ table
 					<tr height="25" style='height:190.75pt;' class='freeze'>
 						<!--<td height="25" class="xl653051" style='height:18.75pt'>Usuario</td>-->
 						<td class="xl653051" style='border-left:none;margin-left:15px'>Correo</td>
+						<td class="xl653051" style='border-left:none;margin-left:15px'>Rol</td>
 						<!--<td class="xl653051" style='border-left:none'>División</td>-->
 						<xsl:for-each select='$modules'>
 							<th class="xl713051 rotate" style='border-left:none;'>
@@ -424,47 +434,80 @@ table
 				<tbody>
 					<xsl:for-each select="$users">
 						<xsl:variable name="user" select="@id"/>
+						<xsl:variable name="role" select="@role"/>
 						<tr height="20" style='height:15.0pt'>
 							<!--<td height="20" class="xl683051" style='height:15.0pt;border-top:none'>
 							BI ADMIN -
 							Administrador
 						</td>-->
 							<td class="xl683051" style='border-top:none;border-left:none;'>
-								<xsl:value-of select='@name'/>
+								<xsl:value-of select='@id'/>
+							</td>
+							<td class="xl683051" style='border-top:none;border-left:none;'>
+								<xsl:value-of select='@role'/>
 							</td>
 							<!--<td class="xl683051" style='border-top:none;border-left:none'>Corporativo</td>-->
 							<xsl:for-each select='$modules'>
 								<xsl:variable name="module" select="@id"/>
-								<xsl:variable name="access" select="key('access',concat($user,'::',$module))"/>
+								<xsl:variable name="access" select="key('access',concat($user,'::',$module))|key('access',concat($role,'::',$module))"/>
 								<xsl:variable name="changed_style">
 									<xsl:if test="$access/../@state:new or $access!=$access/../@initial:level">outline: solid 2pt yellow;</xsl:if>
 								</xsl:variable>
-								<td class="xl743051" xo-scope="{$access/../@xo:id}" style="cursor:pointer; {$changed_style}">
+								<td class="xl743051" style="cursor:pointer; {$changed_style}">
+									<xsl:variable name="access_value">
+										<xsl:choose>
+											<xsl:when test="$access[../@user=$user]=0">0</xsl:when>
+											<xsl:when test="$access=1">1</xsl:when>
+											<xsl:otherwise>0</xsl:otherwise>
+										</xsl:choose>
+									</xsl:variable>
 									<xsl:choose>
-										<xsl:when test="$access=1">
+										<xsl:when test="$access/../@user=$user">
+											<xsl:attribute name="xo-scope">
+												<xsl:value-of select="$access[../@user=$user]/../@xo:id"/>
+											</xsl:attribute>
 											<xsl:attribute name="xo-slot">level</xsl:attribute>
-											<xsl:attribute name="onclick">scope.parentNode.filter("self::access[not(@state:new)]").forEach(node => node.set("state:dirty","")); scope.set(0); scope.parentNode.filter("self::access[@state:new]").remove();</xsl:attribute>
-											<xsl:attribute name="class">xl733051</xsl:attribute>
+											<xsl:attribute name="onclick">
+												<xsl:text>scope.set(</xsl:text>
+												<xsl:choose>
+													<xsl:when test="$access[../@user=$user]=0">''</xsl:when>
+													<xsl:when test="$access=1">''</xsl:when>
+													<xsl:otherwise>1</xsl:otherwise>
+												</xsl:choose>
+												<xsl:text>)</xsl:text>
+											</xsl:attribute>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:attribute name="xo-scope">
+												<xsl:value-of select="//security/@xo:id"/>
+											</xsl:attribute>
+											<xsl:attribute name="onclick">
+												<xsl:text/>scope.append(newAccess(<xsl:value-of select="$module"/>, '<xsl:value-of select="$user"/>', 1-<xsl:value-of select="$access_value"/>))<xsl:text/>
+											</xsl:attribute>
+										</xsl:otherwise>
+									</xsl:choose>
+
+									<xsl:choose>
+										<xsl:when test="$access=1 and not($access[../@user=$user]=0)">
+											<!--<xsl:attribute name="onclick">scope.parentNode.filter("self::access[not(@state:new)]").forEach(node => node.set("state:dirty","")); scope.set(0); scope.parentNode.filter("self::access[@state:new]").remove();</xsl:attribute>-->
+											<xsl:attribute name="class">
+												<xsl:text>xl733051</xsl:text>
+												<xsl:choose>
+													<xsl:when test="not($access[.=1]/../@user=$user)"> inherited</xsl:when>
+												</xsl:choose>
+											</xsl:attribute>
 											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
 												<path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
 												<path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
 											</svg>
 										</xsl:when>
 										<xsl:otherwise>
-											<xsl:choose>
-												<xsl:when test="$access">
-													<xsl:attribute name="onclick">scope.set(1)</xsl:attribute>
-													<xsl:attribute name="xo-slot">level</xsl:attribute>
-												</xsl:when>
-												<xsl:otherwise>
-													<xsl:attribute name="xo-scope">
-														<xsl:value-of select="//security/@xo:id"/>
-													</xsl:attribute>
-													<xsl:attribute name="onclick">
-														<xsl:text/>scope.append(newAccess(<xsl:value-of select="$module"/>, '<xsl:value-of select="$user"/>'))<xsl:text/>
-													</xsl:attribute>
-												</xsl:otherwise>
-											</xsl:choose>
+											<xsl:attribute name="class">
+												<xsl:text>xl743051</xsl:text>
+												<xsl:choose>
+													<xsl:when test="$access[.=0]/../@user=$user"> revoked</xsl:when>
+												</xsl:choose>
+											</xsl:attribute>
 											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
 												<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
 												<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -480,16 +523,19 @@ table
 			</table>
 			<script>
 				<![CDATA[
-				function newAccess(module, user) {
-					return xo.xml.createNode(`<access xmlns:state="http://panax.io/state" state:new="true" state:dirty="true" module="${module}" user="${user}" level="1" />`)
+				function newAccess(module, user, value) {
+					return xo.xml.createNode(`<access xmlns:state="http://panax.io/state" state:new="true" state:dirty="true" module="${module}" user="${user}" level="${value}" />`)
 				}
 				
 				xo.listener.on(['change::access/@level', 'append::access'], function ({ element, attribute, old, value }) {
 					attribute = attribute || element.getAttributeNodeOrMock("level");
 					let initial_value = element.getAttributeNodeNS('http://panax.io/state/initial', attribute.localName);
-					if (value !== null && !initial_value) {
+					let new_line = element.getAttributeNodeNS('http://panax.io/state', "new");
+					if (new_line && attribute.value == value) {
+						element.remove()
+					} else if (value !== null && !initial_value) {
 						element.set(`initial:${attribute.localName}`, old);
-					} else if (initial_value.value === value) {
+					} else if (initial_value.value == value) {
 						initial_value.remove();
 					}
 					element.set(`prev:${attribute.localName}`, old);
