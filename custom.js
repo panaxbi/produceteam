@@ -88,6 +88,7 @@ async function progressiveRequest(params) {
 }
 
 xo.listener.on('beforeFetch::#ventas_por_fecha_embarque', async function ({ settings = {} }) {
+    return;
     settings.progress = await xo.sources["loading.xslt"].render()
     for (let render of settings.progress) {
         progress = render.querySelector('i progress');

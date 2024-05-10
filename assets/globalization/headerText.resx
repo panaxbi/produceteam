@@ -162,6 +162,9 @@
   <data name="@pck" xml:space="preserve">
     <value>Pack Style Name</value>
   </data>
+  <data name="@pfit" xml:space="preserve">
+    <value>Profit/Loss</value>
+  </data>
   <data name="@po" xml:space="preserve">
     <value>PO</value>
   </data>
@@ -186,8 +189,14 @@
   <data name="@sze" xml:space="preserve">
     <value>Size Name</value>
   </data>
+  <data name="@tcos" xml:space="preserve">
+    <value>Total Cost</value>
+  </data>
   <data name="@trb" xml:space="preserve">
     <value>Trouble No</value>
+  </data>
+  <data name="@ucos" xml:space="preserve">
+    <value>Unit Cost</value>
   </data>
   <data name="@upce" xml:space="preserve">
     <value>Unit Price</value>
