@@ -712,11 +712,11 @@ xo.listener.on(`change::@state:date`, function ({ value, event }) {
 })
 
 xo.listener.on(`beforeTransform?stylesheet.href=estado_resultados_semanal.xslt`, function ({ document }) {
-    let start_week = this.selectFirst(`//fechas/@state:start-week`)
+    let start_week = this.selectFirst(`//fechas/@state:start_week`)
     if (start_week) {
         this.select(`//fechas/row[@desc="${start_week}"]`).forEach(el => el.select(`preceding-sibling::*`).remove())
     }
-    let end_week = this.selectFirst(`//fechas/@state:end-week`)
+    let end_week = this.selectFirst(`//fechas/@state:end_week`)
     if (end_week) {
         this.select(`//fechas/row[@desc="${end_week}"]`).forEach(el => el.select(`following-sibling::*`).remove())
     }
@@ -730,6 +730,12 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     let amt = this.select(`//ventas/row/@amt`).reduce(Sum);
     let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum);
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
+})
+
+xo.listener.on(`beforeTransform?stylesheet.href=detalle_gastos_operativos.xslt`, function ({ document }) {
+    for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
+        this.select(`//movimientos/row[not(@xsi:type="mock")][@${attr.localName}!="${attr.value}"]`).forEach(el => el.remove())
+    }
 })
 
 xo.listener.on("fetch::xo:response", function () {
@@ -782,13 +788,14 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
 //    }
 //})
 
-xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin|@state:order`, function ({ value, store }) {
+xover.listener.on(`change?value::@state:fecha_embarque_inicio|@state:fecha_embarque_fin|@state:order|@state:purchase_order`, function ({ value, store }) {
     store.source.definition["server:request"][`@${this.localName}`]=value
     if (xo.state.filterBy == 'order') {
         delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
         delete store.source.definition["server:request"]["@fecha_embarque_fin"];
     } else if (xo.state.filterBy == 'ship_date') {
         delete store.source.definition["server:request"][`@order`]
+        delete store.source.definition["server:request"][`@purchase_order`]
     }
     store.fetch()
 })
@@ -797,15 +804,34 @@ xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fi
     delete store.source.definition["server:request"][`@order`]
 })
 
-xover.listener.on(`change::@state:order`, function ({ value, store }) {
+xover.listener.on(`change::@state:order|@state:purchase_order`, function ({ value, store }) {
     delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
     delete store.source.definition["server:request"]["@fecha_embarque_fin"];
 })
 
-xover.listener.on(`change::@state:selected`, function ({ value, store }) {
-    store.source.definition["server:request"][`@${this.parentNode.localName}`]=value
+xover.listener.on(`change::@state:start_week|@state:end_week`, function ({ element, store }) {
+    store.source.definition["server:request"]["@start_week"] = element.getAttribute("state:start_week")
+    store.source.definition["server:request"]["@end_week"] = element.getAttribute("state:end_week")
     store.fetch()
 })
+
+xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_week|@state:end_week`, function () {
+    /*Prevents auto fetch*/
+    event.stopImmediatePropagation()
+})
+
+xover.listener.on(`change::@state:selected`, function ({ value, store }) {
+    store.source.definition["server:request"][`@${this.parentNode.localName}`] = value
+    store.fetch()
+})
+
+mostrarRegistros = function () {
+    let scope = this.scope;
+    if (!(scope instanceof Attr)) return;
+    let store = this.store;
+    store.source.definition["server:request"]["@max_records"] = scope.value
+    store.fetch()
+}
 
 xover.listener.on('click::.filterable', function(){
     let scope = this.scope;
@@ -823,7 +849,11 @@ xover.listener.on('click::table .sortable', function(){
     sortRows(this)
 })
 
-xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({document}) {
+xo.listener.on("fetch::#detalle_gastos_operativos", function ({ source }) {
+    delete source.definition["server:request"]["@max_records"]
+})
+
+xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({ document }) {
     if (document instanceof Comment && document.data == 'ack:empty') {
         throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     }

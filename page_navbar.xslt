@@ -116,7 +116,12 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 					<option value="order">
 						<xsl:if test="$state:filterBy='order'">
 							<xsl:attribute name="selected"/>
-						</xsl:if>Order No.
+						</xsl:if>Sales Order
+					</option>
+					<option value="purchase_order">
+						<xsl:if test="$state:filterBy='purchase_order'">
+							<xsl:attribute name="selected"/>
+						</xsl:if>Purchase Order
 					</option>
 				</select>
 			</legend>
@@ -126,7 +131,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				<input class="form-control" name="fecha_embarque_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_fin" value="{../@state:fecha_embarque_fin}"/>
 			</div></xsl:when>
 				<xsl:otherwise>
-					<input type="text" name="order" class="form-control" value="{../@state:order}" xo-slot="state:order"/>
+					<input type="text" name="{$state:filterBy}" class="form-control" value="{../@state:*[local-name()=$state:filterBy]}" xo-slot="state:{$state:filterBy}"/>
 				</xsl:otherwise>
 			</xsl:choose>
 			
@@ -134,13 +139,9 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../cliente"/>
 	</xsl:template>
 
-	<xsl:template mode="headerText"  match="model/*">
-		<xsl:value-of select="name()"/>
-	</xsl:template>
-
-	<xsl:key name="state:selected" match="model/*/row/@desc[.=../../@state:selected]" use="generate-id()"/>
-	<xsl:key name="state:selected" match="model/commodity/row/@desc[.=../../../@state:commodity]" use="generate-id()"/>
-	<xsl:key name="state:selected" match="model/cliente/row/@desc[.=../../../@state:cliente]|model/agricultor/row/@desc[.=../../../@state:agricultor]" use="generate-id()"/>
+	<xsl:key name="state:selected" match="model/*/row[@id=../@state:selected]/@desc" use="generate-id()"/>
+	<xsl:key name="state:selected" match="model/commodity/row[@id=../../@state:commodity]/@desc" use="generate-id()"/>
+	<xsl:key name="state:selected" match="model/cliente/row[@id=../../@state:cliente]/@desc|model/agricultor/row[@id=../../@state:agricultor]/@desc" use="generate-id()"/>
 
 	<xsl:template mode="widget"  match="model/*">
 		<fieldset>
@@ -150,7 +151,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 			<select name="{name()}" class="form-select" xo-scope="{@xo:id}" xo-slot="state:selected">
 				<option value=""></option>
 				<xsl:for-each select="row/@desc">
-					<xsl:variable name="value" select="."/>
+					<xsl:variable name="value" select="../@id"/>
 					<xsl:variable name="desc" select="translate(.,'*','')"/>
 					<xsl:variable name="state:selected" select="key('state:selected',generate-id())"/>
 					<option value="{$value}">
@@ -164,7 +165,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		</fieldset>
 	</xsl:template>
 
-	<xsl:template mode="widget"  match="model[@env:store='#estado_resultados_semanal']/@*">
+	<xsl:template mode="widget"  match="model[@env:store='#estado_resultados_semanal' or @env:store='#detalle_gastos_operativos']/@*">
 		<xsl:variable name="default_date">
 			<xsl:choose>
 				<xsl:when test="../fechas/@state:current_date_er">
@@ -181,34 +182,34 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 			</xsl:choose>
 		</xsl:variable>
 		<xsl:variable name="curr_month" select="../fechas/row[@mes=$default_date]/@mes"/>
-		<xsl:variable name="start-week" select="../fechas/@state:start-week"/>
-		<xsl:variable name="end-week" select="../fechas/@state:end-week"/>
+		<xsl:variable name="start_week" select="../fechas/@state:start_week"/>
+		<xsl:variable name="end_week" select="../fechas/@state:end_week"/>
 
 		<style>
 			:root { --sections-filter-height: 54px; }
 		</style>
-		<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:start-week">
+		<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:start_week">
 			<option value=""></option>
-			<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:end-week]/following-sibling::*/@desc"/>
+			<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:end_week]/following-sibling::*/@desc"/>
 			<xsl:for-each select="../fechas/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
 				<xsl:sort select="." data-type="number" order="descending"/>
 				<xsl:variable name="value" select="."/>
 				<option value="{.}">
-					<xsl:if test=".=$start-week">
+					<xsl:if test=".=$start_week">
 						<xsl:attribute name="selected"/>
 					</xsl:if>
 					<xsl:value-of select="$value"/>
 				</option>
 			</xsl:for-each>
 		</select>
-		<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:end-week">
+		<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:end_week">
 			<option value=""></option>
-			<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:start-week]/preceding-sibling::*/@desc"/>
+			<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:start_week]/preceding-sibling::*/@desc"/>
 			<xsl:for-each select="../fechas/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
 				<xsl:sort select="." data-type="number" order="descending"/>
 				<xsl:variable name="value" select="."/>
 				<option value="{.}">
-					<xsl:if test=".=$end-week">
+					<xsl:if test=".=$end_week">
 						<xsl:attribute name="selected"/>
 					</xsl:if>
 					<xsl:value-of select="$value"/>
@@ -217,6 +218,11 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				</option>
 			</xsl:for-each>
 		</select>
+		<xsl:apply-templates mode="button" select="//movimientos[not(*)]/@state:record_count[.&gt;0]"/>
+	</xsl:template>
+
+	<xsl:template mode="button" match="*/@state:record_count">
+		<button class="btn btn-success text-nowrap" onclick="mostrarRegistros.call(this)">Mostrar los <xsl:value-of select="."/> resultados</button>
 	</xsl:template>
 
 	<xsl:key name="active_tracto" match="model/tractos/@state:selected" use="."/>

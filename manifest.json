@@ -22,6 +22,11 @@
         "FROM": "PanaxBI.estado_resultados_semanal"
       }
     },
+    "#detalle_gastos_operativos": {
+      "server:request": {
+        "FROM": "PanaxBI.detalle_gastos_operativos"
+      }
+    },
     "#ventas_por_fecha_embarque": {
       "server:request": {
         "FROM": "PanaxBI.ventas_por_fecha_embarque"

@@ -168,6 +168,9 @@
   <data name="@po" xml:space="preserve">
     <value>PO</value>
   </data>
+  <data name="@pov" xml:space="preserve">
+    <value>Vendor</value>
+  </data>
   <data name="@qtym" xml:space="preserve">
     <value>Qty (UOM)</value>
   </data>
@@ -207,7 +210,10 @@
   <data name="@wh" xml:space="preserve">
     <value>Warehouse Code</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value />
+  <data name="agricultor" xml:space="preserve">
+    <value>Grower</value>
+  </data>
+  <data name="cliente" xml:space="preserve">
+    <value>Customer</value>
   </data>
 </root>

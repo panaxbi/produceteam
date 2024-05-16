@@ -8,13 +8,13 @@
   exclude-result-prefixes="xo xsl globalization"
 >
 
-	<xsl:template mode="globalization:headerText" match="@*">
+	<xsl:template mode="globalization:headerText" match="@*|*" priority="-1">
 		<xsl:value-of select="name()"/>	
 	</xsl:template>
 	
 	<xsl:param name="globalization:headerText">#globalization</xsl:param>
 	
-	<xsl:template mode="headerText" match="@*">
+	<xsl:template mode="headerText" match="@*|*">
 		<xsl:apply-templates mode="globalization:headerText" select="."/>
 	</xsl:template>
 
