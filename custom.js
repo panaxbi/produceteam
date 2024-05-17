@@ -788,14 +788,18 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
 //    }
 //})
 
-xover.listener.on(`change?value::@state:fecha_embarque_inicio|@state:fecha_embarque_fin|@state:order|@state:purchase_order`, function ({ value, store }) {
+xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin|@state:order|@state:purchase_order`, function ({ value, store }) {
     store.source.definition["server:request"][`@${this.localName}`]=value
+    xo.state.filterBy = xo.state.filterBy || 'ship_date'
     if (xo.state.filterBy == 'order') {
+        delete store.source.definition["server:request"][`@order`]
+    }
+    if (xo.state.filterBy == 'purchase_order') {
+        delete store.source.definition["server:request"][`@purchase_order`]
+    }
+    if (xo.state.filterBy !== 'ship_date') {
         delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
         delete store.source.definition["server:request"]["@fecha_embarque_fin"];
-    } else if (xo.state.filterBy == 'ship_date') {
-        delete store.source.definition["server:request"][`@order`]
-        delete store.source.definition["server:request"][`@purchase_order`]
     }
     store.fetch()
 })

@@ -22,6 +22,9 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 
 	<xsl:param name="state:filterBy">ship_date</xsl:param>
 
+	<xsl:key name="data" match="model/movimientos" use="'*'"/>
+	<xsl:key name="data" match="model/ventas" use="'*'"/>
+
 	<xsl:key name="changed" match="@initial:*" use="concat(../@xo:id,'::',local-name())"/>
 	<xsl:template match="/">
 		<span class="page-menu">
@@ -52,6 +55,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 			<nav class="navbar navbar-expand-md">
 				<form action="javascript:void(0);" onsubmit="section.source.fetch()">
 					<xsl:apply-templates mode="widget" select="model/@xo:id"/>
+					<xsl:apply-templates mode="button" select="key('data','*')[not(*)]/@state:record_count[.&gt;0]"/>
 				</form>
 				<ul id="shell_buttons" class="nav col-md justify-content-end list-unstyled d-flex">
 					<xsl:apply-templates mode="buttons"/>
@@ -218,7 +222,6 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				</option>
 			</xsl:for-each>
 		</select>
-		<xsl:apply-templates mode="button" select="//movimientos[not(*)]/@state:record_count[.&gt;0]"/>
 	</xsl:template>
 
 	<xsl:template mode="button" match="*/@state:record_count">
