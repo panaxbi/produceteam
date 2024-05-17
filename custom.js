@@ -869,7 +869,7 @@ function sortRows(header) {
     let index = header.$$("preceding-sibling::*").reduce((index, el) => { index += el.colSpan || 0; return index }, 0);
     let getValue = (el) => {
         let val = el.cells[index].getAttribute("value") || el.cells[index].textContent;
-        let parsed_value = parseFloat(val.replace(/^\$|^#|,/g, ''));
+        let parsed_value = +val.replace(/^\$|^#|,/g, '');
         return isNaN(parsed_value) ? val : parsed_value;
     };
     let compare = (next, curr) => {
