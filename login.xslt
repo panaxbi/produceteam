@@ -14,12 +14,17 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 
 	<xsl:param name="session:user_login"/>
 	<xsl:param name="session:status"/>
-  <xsl:param name="session:connection_id"/>
-  <xsl:param name="year">new Date().getFullYear()</xsl:param>
+	<xsl:param name="session:connection_id"/>
+	<xsl:param name="year">new Date().getFullYear()</xsl:param>
 	<xsl:param name="js:secure"><![CDATA[location.protocol.indexOf('https')!=-1 || location.hostname=='localhost']]></xsl:param>
 
 	<xsl:template match="/*" priority="-1">
 		<div class="login">
+			<xsl:if test="$js:secure='true'">
+				<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css"/>
+				<script src="https://accounts.google.com/gsi/client" async="" defer=""></script>
+				<!--<script src="https://apis.google.com/js/platform.js" async="" defer=""></script>-->
+			</xsl:if>
 			<style>
 				<![CDATA[
 .login {
@@ -81,7 +86,13 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 				<img src="assets/logo.png" alt="" height="72" class="mx-auto"/>
 				<h1 class="h3 mb-3 font-weight-normal mx-auto">Bienvenido</h1>
 				<label for="username" class="sr-only">Username</label>
-				<input type="text" id="username" class="form-control" placeholder="Username" autocomplete="username" required="" autofocus="" oninvalid="this.setCustomValidity('Escriba su usuario')" oninput="this.setCustomValidity('')"/>
+				<input type="text" id="username" class="form-control" placeholder="Username" autocomplete="username" required="" autofocus="" oninvalid="this.setCustomValidity('Escriba su usuario')" oninput="this.setCustomValidity('')" value="{$session:user_login}" xo-slot="username">
+					<xsl:if test="@username">
+						<xsl:attribute name="value">
+							<xsl:value-of select="@username"/>
+						</xsl:attribute>
+					</xsl:if>
+				</input>
 				<label for="password" class="sr-only">Password</label>
 				<input type="password" id="password" class="form-control" placeholder="Password" autocomplete="current-password" required="" oninvalid="this.setCustomValidity('Escriba su contraseña')" oninput="this.setCustomValidity('')">
 					<xsl:if test="$session:status='authorizing' or $session:status='authorized'">
@@ -101,8 +112,27 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 						<xsl:otherwise>Ingresar</xsl:otherwise>
 					</xsl:choose>
 				</button>
-				<p class="mt-5 mb-3 text-muted mx-auto">©Panax 2022 - <xsl:value-of select="$year"/>
-      </p>
+				<xsl:if test="$js:secure='true'">
+					<div class="container" xo-static="self::*">
+						<!--<div class="g-signin2" data-onsuccess="onGoogleLogin" ></div>-->
+						<div id="g_id_onload"
+						data-client_id="270948980384-srj6iq2gtedjrs30m7cduts5olaf4v4u.apps.googleusercontent.com"
+						data-callback="onGoogleLogin"
+						data-auto_prompt="true">
+						</div>
+						<div class="g_id_signin signup_button"
+							 data-type="standard"
+							 data-size="large"
+							 data-theme="outline"
+							 data-text="sign_in_with"
+							 data-shape="rectangular"
+							 data-logo_alignment="left">
+						</div>
+					</div>
+				</xsl:if>
+				<p class="mt-5 mb-3 text-muted mx-auto">
+					©Panax 2022 - <xsl:value-of select="$year"/>
+				</p>
 			</form>
 			<!--<script>
 				document.getElementById("username").addEventListener("animationstart", function() {
