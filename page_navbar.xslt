@@ -71,7 +71,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		<style>
 			:root { --sections-filter-height: 86px; }
 			filter_by option {
-				font-size: 16pt;
+			font-size: 16pt;
 			}
 		</style>
 		<fieldset class="filter_by">
@@ -140,6 +140,41 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				</xsl:for-each>
 			</select>
 		</fieldset>
+	</xsl:template>
+
+	<xsl:template mode="headerText" match="model[@env:store='#ventas_por_fecha_embarque']/fechas">
+		<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
+			<option value="ship_date">
+				<xsl:if test="$state:filterBy='ship_date'">
+					<xsl:attribute name="selected"/>
+				</xsl:if> Fecha de embarque
+			</option>
+			<option value="order">
+				<xsl:if test="$state:filterBy='order'">
+					<xsl:attribute name="selected"/>
+				</xsl:if>Sales Order
+			</option>
+			<option value="purchase_order">
+				<xsl:if test="$state:filterBy='purchase_order'">
+					<xsl:attribute name="selected"/>
+				</xsl:if>Purchase Order
+			</option>
+		</select>
+	</xsl:template>
+
+	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos']/semanas|model[@env:store='#detalle_gastos_operativos']/fechas">
+		<select style="font-weight: bold; padding: 1px 5px; background-color: transparent;" class="form-select" onchange="xo.state.filterBy=this.value">
+			<option value="weeks">
+				<xsl:if test="$state:filterBy='weeks'">
+					<xsl:attribute name="selected"/>
+				</xsl:if> Weeks
+			</option>
+			<option value="dates">
+				<xsl:if test="$state:filterBy='dates'">
+					<xsl:attribute name="selected"/>
+				</xsl:if>Dates
+			</option>
+		</select>
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model/fechas">
@@ -256,6 +291,41 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				<xsl:apply-templates mode="headerText" select="."/>
 			</legend>
 			<div class="input-group">
+				<input class="form-control" name="fecha_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_inicio" value="{@state:fecha_inicio}"/>
+				<input class="form-control" name="fecha_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_fin" value="{@state:fecha_fin}"/>
+			</div>
+		</fieldset>
+	</xsl:template>
+
+	<xsl:template mode="widget" match="model/semanas">
+		<xsl:variable name="default_date">
+			<xsl:choose>
+				<xsl:when test="../fechas/@state:current_date_er">
+					<xsl:value-of select="../fechas/@state:current_date_er"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:for-each select="../fechas/@key">
+						<xsl:sort order="descending" select="."/>
+						<xsl:if test="position()=1">
+							<xsl:value-of select="."/>
+						</xsl:if>
+					</xsl:for-each>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="curr_month" select="../fechas/row[@mes=$default_date]/@mes"/>
+		<xsl:variable name="start_week" select="../fechas/@state:start_week"/>
+		<xsl:variable name="end_week" select="../fechas/@state:end_week"/>
+
+		<style>
+			:root { --sections-filter-height: 54px; }
+		</style>
+
+		<fieldset>
+			<legend style="text-transform:capitalize">
+				<xsl:apply-templates mode="headerText" select="."/>
+			</legend>
+			<div class="input-group">
 				<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:start_week">
 					<option value=""></option>
 					<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:end_week]/following-sibling::*/@desc"/>
@@ -291,7 +361,8 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model[@env:store='#detalle_gastos_operativos']/@*">
-		<xsl:apply-templates mode="widget" select="../account|../fechas"/>
+		
+		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
 	<xsl:template mode="button" match="*/@state:record_count">

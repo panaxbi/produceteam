@@ -812,11 +812,28 @@ xover.listener.on(`change::@state:order|@state:purchase_order`, function ({ valu
     delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
     delete store.source.definition["server:request"]["@fecha_embarque_fin"];
 })
-
 xover.listener.on(`change::@state:start_week|@state:end_week`, function ({ element, store }) {
+    xo.state.filterBy = xo.state.filterBy || 'weeks'
     store.source.definition["server:request"]["@start_week"] = element.getAttribute("state:start_week")
     store.source.definition["server:request"]["@end_week"] = element.getAttribute("state:end_week")
     store.fetch()
+
+})
+xover.listener.on(`change::@state:fecha_inicio|@state:fecha_fin`, function ({ element, store }) {
+    xo.state.filterBy = xo.state.filterBy || 'dates'
+    store.source.definition["server:request"]["@fecha_inicio"] = element.getAttribute("state:fecha_inicio")
+    store.source.definition["server:request"]["@fecha_fin"] = element.getAttribute("state:fecha_fin")
+    store.fetch()
+})
+xover.listener.on(`beforeFetch::#detalle_gastos_operativos`, function ({ source }) {
+    if (xo.state.filterBy != 'dates') {
+        delete source.definition["server:request"]["@fecha_inicio"]
+        delete source.definition["server:request"]["@fecha_fin"]
+    }
+    if (xo.state.filterBy != 'weeks') {
+        delete source.definition["server:request"]["@start_week"]
+        delete source.definition["server:request"]["@end_week"]
+    }
 })
 
 xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_week|@state:end_week`, function () {
