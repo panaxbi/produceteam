@@ -55,17 +55,25 @@ svg[disabled] {
     outline: none
 }
 
+fieldset legend select {
+    font-weight: bold !important;
+    padding: 1px 5px !important;
+    background-color: transparent !important;
+}
+
 fieldset legend {
     font-size: 1rem;
     font-weight: bolder;
+    text-transform: capitalize;
 }
-    /*
+
+/*
 svg.xo-working {
     animation: pulse 1s ease-in-out infinite;
 }*/
-    .hidden {
-        display: none;
-    }
+.hidden {
+    display: none;
+}
 
 .xo-working {
     animation: blink 1s linear infinite;

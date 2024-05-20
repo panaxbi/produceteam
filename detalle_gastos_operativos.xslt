@@ -39,9 +39,17 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="rows" match="//movimientos/row[not(@xsi:type)]" use="name(..)"/>
 	<xsl:key name="facts" match="//movimientos/row/@*[.!='' and namespace-uri()='']" use="name()"/>
 
+	<xsl:key name="groupBy" match="model/account/row/@key" use="name(../..)"/>
+	<xsl:key name="groupBy" match="model/movimientos[not(row/@xsi:type)]" use="''"/>
+
+	<xsl:key name="data" match="//movimientos/row" use="@Account"/>
+
 	<xsl:template mode="week" match="fechas/row/@*">
 		<xsl:value-of select="../@week"/>
 	</xsl:template>
+
+	<xsl:param name="data_node">'movimientos'</xsl:param>
+	<xsl:param name="state:groupBy"></xsl:param>
 
 	<xsl:template match="/">
 		<main xmlns="http://www.w3.org/1999/xhtml">
@@ -106,7 +114,10 @@ exclude-result-prefixes="#default session sitemap shell"
 			<style>
 				<![CDATA[
 				table tbody td span.filterable { cursor: pointer }
+				table tbody td span.groupable { cursor: pointer }
+
 				table .sortable { cursor: pointer }
+				table .groupable { cursor: pointer }
 				
 				table thead {
 					text-wrap: nowrap;
@@ -127,21 +138,52 @@ exclude-result-prefixes="#default session sitemap shell"
 				tfoot {
 					font-weight: bolder;
 				}
+				
+				:root {
+					--sticky-top: 34px;
+				}
 			]]>
 			</style>
 			<table class="table table-striped">
-				<xsl:apply-templates mode="colgroup" select="key('mock','movimientos')[1]"/>
+				<xsl:apply-templates mode="colgroup" select="key('mock',$data_node)[1]"/>
 				<thead class="freeze">
-					<xsl:apply-templates mode="header-row" select="key('mock','movimientos')[1]"/>
+					<xsl:apply-templates mode="header-row" select="key('mock',$data_node)[1]"/>
 				</thead>
-				<tbody>
-					<xsl:apply-templates mode="row" select="key('rows','movimientos')"/>
-				</tbody>
+				<xsl:apply-templates mode="bodies" select="key('groupBy',$state:groupBy)"/>
 				<tfoot>
-					<xsl:apply-templates mode="footer-row" select="key('mock','movimientos')[1]"/>
+					<xsl:apply-templates mode="footer-row" select="key('mock',$data_node)[1]"/>
 				</tfoot>
 			</table>
 		</main>
+	</xsl:template>
+
+	<xsl:template mode="bodies" match="@*">
+		<xsl:variable name="rows" select="key('data',.)"/>
+		<tbody class="table-group-divider">
+			<tr class="header sticky">
+				<th scope="row"></th>
+				<th colspan="4">
+					<strong>
+						<xsl:value-of select="../@desc"/>
+					</strong>
+				</th>
+				<th colspan="{count(key('mock',$data_node)[1]/@*[not(key('state:hidden',name()))])-4}">
+					<strong>
+						<xsl:call-template name="format">
+							<xsl:with-param name="value" select="sum($rows/@Debit[.!='']|$rows/@Credit[.!=''])"/>
+						</xsl:call-template>
+					</strong>
+				</th>
+			</tr>
+			<xsl:apply-templates mode="row" select="$rows"/>
+		</tbody>
+	</xsl:template>
+
+	<xsl:template mode="bodies" match="*">
+		<xsl:variable name="rows" select="key('rows',name())"/>
+		<tbody>
+			<xsl:apply-templates mode="row" select="$rows"/>
+		</tbody>
 	</xsl:template>
 
 	<xsl:template mode="colgroup" match="*">
@@ -259,6 +301,12 @@ exclude-result-prefixes="#default session sitemap shell"
 
 	<xsl:template mode="header-cell" match="@*">
 		<th scope="col" class="sortable">
+			<xsl:apply-templates mode="headerText" select="."/>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="header-cell" match="@Account">
+		<th scope="col" class="groupable">
 			<xsl:apply-templates mode="headerText" select="."/>
 		</th>
 	</xsl:template>

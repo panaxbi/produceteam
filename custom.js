@@ -143,10 +143,6 @@ xo.listener.on('beforeRender?!store.stylesheets.length::model[not(//processing-i
     store.addStylesheet({ href: tag.substring(1).split(/\?/, 1).shift() + '.xslt', target: "@#shell main" });
 })
 
-xo.listener.on(['beforeFetch::#polizas', 'beforeFetch::#capital_trabajo', 'beforeFetch::#flujo_efectivo', 'beforeFetch::#razones_financieras', 'beforeFetch::#concentrado_er_balance', 'beforeFetch::#productividad_individual'], function () {
-    this.settings.progress = xo.sources["loading.xslt"].render();
-})
-
 xo.listener.on('hashchange', function () {
     typeof (toggleSidebar) === 'function' && toggleSidebar(false)
 })
@@ -778,62 +774,56 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-//xover.listener.on(`beforeFetch?FROM=PanaxBI.ventas_por_fecha_embarque`, function ({ source }) {
-//    if (!source) return;
-//    if (xo.state.filterBy == 'order') {
-//        delete source.definition["server:request"]["@fecha_embarque_inicio"];
-//        delete source.definition["server:request"]["@fecha_embarque_fin"];
-//    } else if (xo.state.filterBy == 'ship_date') {
-//        delete source.definition["server:request"][`@order`]
-//    }
-//})
+xover.listener.on(`beforeFetch::#detalle_gastos_operativos`, function ({ source, document }) {
+    delete source.definition["server:request"]["@fecha_inicio"];
+    delete source.definition["server:request"]["@fecha_fin"];
+    delete source.definition["server:request"]["@start_week"];
+    delete source.definition["server:request"]["@end_week"];
 
-xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin|@state:order|@state:purchase_order`, function ({ value, store }) {
-    store.source.definition["server:request"][`@${this.localName}`]=value
-    xo.state.filterBy = xo.state.filterBy || 'ship_date'
+    if (xo.state.filterBy == 'dates') {
+        source.definition["server:request"]["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
+        source.definition["server:request"]["@fecha_fin"] = document.selectFirst("//@state:fecha_inicio");
+    } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
+        source.definition["server:request"]["@start_week"] = document.selectFirst("//@state:start_week")
+        source.definition["server:request"]["@end_week"] = document.selectFirst("//@state:end_week")
+    }
+})
+
+xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source, document }) {
+    delete source.definition["server:request"][`@order`]
+    delete source.definition["server:request"][`@purchase_order`]
+    delete source.definition["server:request"]["@fecha_embarque_inicio"];
+    delete source.definition["server:request"]["@fecha_embarque_fin"];
+    delete source.definition["server:request"]["@start_week"];
+    delete source.definition["server:request"]["@end_week"];
+
     if (xo.state.filterBy == 'order') {
-        delete store.source.definition["server:request"][`@order`]
+        source.definition["server:request"][`@order`] = document.selectFirst("//@state:order");
+    } else if (xo.state.filterBy == 'purchase_order') {
+        source.definition["server:request"][`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
+        source.definition["server:request"]["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
+        source.definition["server:request"]["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
     }
-    if (xo.state.filterBy == 'purchase_order') {
-        delete store.source.definition["server:request"][`@purchase_order`]
-    }
-    if (xo.state.filterBy !== 'ship_date') {
-        delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
-        delete store.source.definition["server:request"]["@fecha_embarque_fin"];
-    }
-    store.fetch()
 })
 
 xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
-    delete store.source.definition["server:request"][`@order`]
+    xo.state.filterBy = 'ship_date'
+    store.fetch()
 })
 
 xover.listener.on(`change::@state:order|@state:purchase_order`, function ({ value, store }) {
-    delete store.source.definition["server:request"]["@fecha_embarque_inicio"];
-    delete store.source.definition["server:request"]["@fecha_embarque_fin"];
+    xo.state.filterBy = this.localName.toLowerCase()
+    store.fetch()
 })
 xover.listener.on(`change::@state:start_week|@state:end_week`, function ({ element, store }) {
-    xo.state.filterBy = xo.state.filterBy || 'weeks'
-    store.source.definition["server:request"]["@start_week"] = element.getAttribute("state:start_week")
-    store.source.definition["server:request"]["@end_week"] = element.getAttribute("state:end_week")
+    xo.state.filterBy = 'weeks'
     store.fetch()
 
 })
 xover.listener.on(`change::@state:fecha_inicio|@state:fecha_fin`, function ({ element, store }) {
-    xo.state.filterBy = xo.state.filterBy || 'dates'
-    store.source.definition["server:request"]["@fecha_inicio"] = element.getAttribute("state:fecha_inicio")
-    store.source.definition["server:request"]["@fecha_fin"] = element.getAttribute("state:fecha_fin")
+    xo.state.filterBy = 'dates'
     store.fetch()
-})
-xover.listener.on(`beforeFetch::#detalle_gastos_operativos`, function ({ source }) {
-    if (xo.state.filterBy != 'dates') {
-        delete source.definition["server:request"]["@fecha_inicio"]
-        delete source.definition["server:request"]["@fecha_fin"]
-    }
-    if (xo.state.filterBy != 'weeks') {
-        delete source.definition["server:request"]["@start_week"]
-        delete source.definition["server:request"]["@end_week"]
-    }
 })
 
 xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_week|@state:end_week`, function () {
@@ -854,7 +844,7 @@ mostrarRegistros = function () {
     store.fetch()
 }
 
-xover.listener.on('click::.filterable', function(){
+xover.listener.on('click::.filterable', function () {
     let scope = this.scope;
     if (!(scope instanceof Attr)) return;
     let model = scope.closest('model')
@@ -866,8 +856,13 @@ xover.listener.on('click::.filterable', function(){
     console.log(this.scope)
 })
 
-xover.listener.on('click::table .sortable', function(){
+xover.listener.on('click::table .sortable', function () {
     sortRows(this)
+})
+
+xover.listener.on('click::table .groupable', function () {
+    let groupBy = this.scope.nodeName.toLowerCase()
+    xo.state.groupBy = xo.state.groupBy == groupBy ? '' : groupBy;
 })
 
 xo.listener.on("fetch::#detalle_gastos_operativos", function ({ source }) {
@@ -884,33 +879,49 @@ xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({ document }) {
 
 function sortRows(header) {
     let index = header.$$("preceding-sibling::*").reduce((index, el) => { index += el.colSpan || 0; return index }, 0);
+    let direction = 1;
     let getValue = (el) => {
         let val = el.cells[index].getAttribute("value") || el.cells[index].textContent;
         let parsed_value = +val.replace(/^\$|^#|,/g, '');
         return isNaN(parsed_value) ? val : parsed_value;
     };
     let compare = (next, curr) => {
+        if (curr.classList.contains("header") || next.classList.contains("header")) {
+            return 0;
+        }
         let valueCurr = getValue(curr);
         let valueNext = getValue(next);
         if (typeof (valueNext.localeCompare) == 'function') {
-            return valueNext.localeCompare(valueCurr, undefined, { sensitivity: 'accent', caseFirst: 'upper' });
+            return direction * valueNext.localeCompare(valueCurr, undefined, { sensitivity: 'accent', caseFirst: 'upper' });
         } else {
-            return valueCurr > valueNext ? -1 : 0;
+            return direction * (valueCurr - valueNext);
         }
     }
-    let tbody = header.closest('thead').selectFirst('following-sibling::tbody');
-    let rows = [...tbody.querySelectorAll("tr")];
+    for (let tbody of header.closest('table').select('tbody')) {
+        let rows = [...tbody.querySelectorAll("tr")];
+        if (header.classList.contains("sorted-desc")) {
+            index = 0;
+            rows.sort(compare);
+        } else if (header.classList.contains("sorted")) {
+            direction = -1;
+            rows.sort(compare);
+        } else {
+            rows.sort(compare);
+        }
+        tbody.replaceChildren(...rows);
+    }
     if (header.classList.contains("sorted-desc")) {
         header.classList.remove("sorted", "sorted-desc");
-        index = 0;
-        rows.sort(compare);
     } else if (header.classList.contains("sorted")) {
         header.classList.remove("sorted-asc");
         header.classList.add("sorted", "sorted-desc");
-        rows = rows.reverse();
     } else {
-        rows.sort(compare);
         header.classList.add("sorted", "sorted-asc");
     }
-    tbody.replaceChildren(...rows);
 }
+
+xo.listener.on('xover-initialized', function ({ progress_renders }) {
+    if ('#loading' in xover.manifest.sources) {
+        progress_renders.concat(xover.sources['#loading'].render());
+    }
+})

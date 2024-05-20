@@ -163,7 +163,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	</xsl:template>
 
 	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos']/semanas|model[@env:store='#detalle_gastos_operativos']/fechas">
-		<select style="font-weight: bold; padding: 1px 5px; background-color: transparent;" class="form-select" onchange="xo.state.filterBy=this.value">
+		<select class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="weeks">
 				<xsl:if test="$state:filterBy='weeks'">
 					<xsl:attribute name="selected"/>
