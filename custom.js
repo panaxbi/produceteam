@@ -782,7 +782,7 @@ xover.listener.on(`beforeFetch::#detalle_gastos_operativos`, function ({ source,
 
     if (xo.state.filterBy == 'dates') {
         source.definition["server:request"]["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
-        source.definition["server:request"]["@fecha_fin"] = document.selectFirst("//@state:fecha_inicio");
+        source.definition["server:request"]["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
     } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
         source.definition["server:request"]["@start_week"] = document.selectFirst("//@state:start_week")
         source.definition["server:request"]["@end_week"] = document.selectFirst("//@state:end_week")
