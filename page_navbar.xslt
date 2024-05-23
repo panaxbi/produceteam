@@ -162,7 +162,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		</select>
 	</xsl:template>
 
-	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos']/semanas|model[@env:store='#detalle_gastos_operativos']/fechas">
+	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos' or @env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo']/*[self::semanas|self::fechas]">
 		<select class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="weeks">
 				<xsl:if test="$state:filterBy='weeks'">
@@ -300,11 +300,11 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	<xsl:template mode="widget" match="model/semanas">
 		<xsl:variable name="default_date">
 			<xsl:choose>
-				<xsl:when test="../fechas/@state:current_date_er">
-					<xsl:value-of select="../fechas/@state:current_date_er"/>
+				<xsl:when test="@state:current_date_er">
+					<xsl:value-of select="@state:current_date_er"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:for-each select="../fechas/@key">
+					<xsl:for-each select="@key">
 						<xsl:sort order="descending" select="."/>
 						<xsl:if test="position()=1">
 							<xsl:value-of select="."/>
@@ -313,9 +313,9 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:variable name="curr_month" select="../fechas/row[@mes=$default_date]/@mes"/>
-		<xsl:variable name="start_week" select="../fechas/@state:start_week"/>
-		<xsl:variable name="end_week" select="../fechas/@state:end_week"/>
+		<xsl:variable name="curr_month" select="row[@mes=$default_date]/@mes"/>
+		<xsl:variable name="start_week" select="@state:start_week"/>
+		<xsl:variable name="end_week" select="@state:end_week"/>
 
 		<style>
 			:root { --sections-filter-height: 54px; }
@@ -326,10 +326,10 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				<xsl:apply-templates mode="headerText" select="."/>
 			</legend>
 			<div class="input-group">
-				<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:start_week">
+				<select class="form-select" xo-scope="{@xo:id}" xo-slot="state:start_week">
 					<option value=""></option>
-					<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:end_week]/following-sibling::*/@desc"/>
-					<xsl:for-each select="../fechas/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
+					<xsl:variable name="inactive-dates" select="row[@desc=../@state:end_week]/following-sibling::*/@desc"/>
+					<xsl:for-each select="row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
 						<xsl:sort select="." data-type="number" order="descending"/>
 						<xsl:variable name="value" select="."/>
 						<option value="{.}">
@@ -340,10 +340,10 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 						</option>
 					</xsl:for-each>
 				</select>
-				<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:end_week">
+				<select class="form-select" xo-scope="{@xo:id}" xo-slot="state:end_week">
 					<option value=""></option>
-					<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:start_week]/preceding-sibling::*/@desc"/>
-					<xsl:for-each select="../fechas/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
+					<xsl:variable name="inactive-dates" select="row[@desc=../@state:start_week]/preceding-sibling::*/@desc"/>
+					<xsl:for-each select="row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
 						<xsl:sort select="." data-type="number" order="descending"/>
 						<xsl:variable name="value" select="."/>
 						<option value="{.}">
@@ -360,9 +360,12 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		</fieldset>
 	</xsl:template>
 
-	<xsl:template mode="widget"  match="model[@env:store='#detalle_gastos_operativos']/@*">
-		
+	<xsl:template mode="widget"  match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos']/@*">
 		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
+	</xsl:template>
+
+	<xsl:template mode="widget"  match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo']/@*">
+		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
 	<xsl:template mode="button" match="*/@state:record_count">

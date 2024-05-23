@@ -350,7 +350,7 @@ async function generateExcelFile(table, name) {
 }
 
 xo.listener.on("mousedown", function (event) {
-    if (!(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
+    if (!(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') && window.getComputedStyle(this).cursor == 'cell'))) return
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (!parent_container) return;
     let parent_cell = this.closest('.cell,td,th');
@@ -417,6 +417,7 @@ xo.listener.on("mouseup", function (event) {
     if (parent_container) {
         let selection_started = parent_container.querySelector(".selection-begin");
         let cells = selection.cells;
+        return; //área deshabiltada
         if (selection_started) {
             let cell = window.getComputedStyle(this).cursor == 'cell' && this || this.closest(".cell");
             cell && cell.classList.add("selection-end");
@@ -720,7 +721,7 @@ xo.listener.on(`beforeTransform?stylesheet.href=estado_resultados_semanal.xslt`,
 
 xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
     for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
-        this.select(`//ventas/row[@${attr.localName}!="${attr.value}"]`).forEach(el => el.remove())
+        this.select(`//ventas/row[${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
     }
 
     let amt = this.select(`//ventas/row/@amt`).reduce(Sum);
@@ -728,9 +729,10 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
 })
 
-xo.listener.on(`beforeTransform?stylesheet.href=detalle_gastos_operativos.xslt`, function ({ document }) {
+xo.listener.on(`beforeTransform?stylesheet.href=detalle_movimientos_operativos.xslt`, function ({ document }) {
+    xo.state.groupBy = 'account'
     for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
-        this.select(`//movimientos/row[not(@xsi:type="mock")][@${attr.localName}!="${attr.value}"]`).forEach(el => el.remove())
+        this.select(`//movimientos/row[not(@xsi:type="mock")][${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
     }
 })
 
@@ -774,36 +776,36 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-xover.listener.on(`beforeFetch::#detalle_gastos_operativos`, function ({ source, document }) {
-    delete source.definition["server:request"]["@fecha_inicio"];
-    delete source.definition["server:request"]["@fecha_fin"];
-    delete source.definition["server:request"]["@start_week"];
-    delete source.definition["server:request"]["@end_week"];
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`,`beforeFetch::#detalle_ingresos_operativos`,`beforeFetch::#ingresos_operativos`,`beforeFetch::#gastos_operativos`,`beforeFetch::#balance_operativo`], function ({ source, document, parameters }) {
+    delete parameters["@fecha_inicio"];
+    delete parameters["@fecha_fin"];
+    delete parameters["@start_week"];
+    delete parameters["@end_week"];
 
     if (xo.state.filterBy == 'dates') {
-        source.definition["server:request"]["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
-        source.definition["server:request"]["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
+        parameters["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
+        parameters["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
     } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
-        source.definition["server:request"]["@start_week"] = document.selectFirst("//@state:start_week")
-        source.definition["server:request"]["@end_week"] = document.selectFirst("//@state:end_week")
+        parameters["@start_week"] = document.selectFirst("//semanas/@state:start_week")
+        parameters["@end_week"] = document.selectFirst("//semanas/@state:end_week")
     }
 })
 
-xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source, document }) {
-    delete source.definition["server:request"][`@order`]
-    delete source.definition["server:request"][`@purchase_order`]
-    delete source.definition["server:request"]["@fecha_embarque_inicio"];
-    delete source.definition["server:request"]["@fecha_embarque_fin"];
-    delete source.definition["server:request"]["@start_week"];
-    delete source.definition["server:request"]["@end_week"];
+xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source, document, parameters }) {
+    delete parameters[`@order`]
+    delete parameters[`@purchase_order`]
+    delete parameters["@fecha_embarque_inicio"];
+    delete parameters["@fecha_embarque_fin"];
+    delete parameters["@start_week"];
+    delete parameters["@end_week"];
 
     if (xo.state.filterBy == 'order') {
-        source.definition["server:request"][`@order`] = document.selectFirst("//@state:order");
+        parameters[`@order`] = document.selectFirst("//@state:order");
     } else if (xo.state.filterBy == 'purchase_order') {
-        source.definition["server:request"][`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
     } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
-        source.definition["server:request"]["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
-        source.definition["server:request"]["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
+        parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
+        parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
     }
 })
 
@@ -845,15 +847,20 @@ mostrarRegistros = function () {
 }
 
 xover.listener.on('click::.filterable', function () {
-    let scope = this.scope;
-    if (!(scope instanceof Attr)) return;
-    let model = scope.closest('model')
-    if (model.hasAttributeNS('http://panax.io/state/filter', `${scope.localName}`)) {
-        model.removeAttributeNS('http://panax.io/state/filter', `${scope.localName}`)
-    } else {
-        model.setAttributeNS('http://panax.io/state/filter', `filter:${scope.localName}`, scope.value)
+    if (!selection.cells.length || selection.cells.concat(this).includes(this.closest('td,.cell'))) {
+        let filters = selection.cells.concat(this).map(cell => cell.scope).reduce((result,scope) => { result[scope.localName]=(result[scope.localName] || []); result[scope.localName].push(scope.value); return result}, {});
+        let scope = this.scope;
+        let model = scope.closest("model");
+        if (model.hasAttributeNS('http://panax.io/state/filter', `${scope.localName}`)) {
+            model.removeAttributeNS('http://panax.io/state/filter', `${scope.localName}`)
+            delete filters[scope.localName]
+        }
+
+        
+        for (let key of Object.keys(filters)) {
+            model.setAttributeNS('http://panax.io/state/filter', `filter:${key}`, filters[key].distinct().join("|"))
+        }
     }
-    console.log(this.scope)
 })
 
 xover.listener.on('click::table .sortable', function () {
@@ -865,7 +872,7 @@ xover.listener.on('click::table .groupable', function () {
     xo.state.groupBy = xo.state.groupBy == groupBy ? '' : groupBy;
 })
 
-xo.listener.on("fetch::#detalle_gastos_operativos", function ({ source }) {
+xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#detalle_ingresos|#detalle_egresos", function ({ source }) {
     delete source.definition["server:request"]["@max_records"]
 })
 

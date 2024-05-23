@@ -106,8 +106,12 @@ svg.xo-working {
     background-color: yellow !important
 }
 
+td.cell:hover {
+    background-color: aliceblue;
+}
+
 td.selected { /*.selection-enabled:not(:has(.bottom-selection)) .cell.selected*/
-    background-color: lightblue;
+    background-color: lightblue !important;
 }
 
 .cell.selected.border-left, .cell.selected.left-selection {
@@ -167,16 +171,13 @@ dialog {
     content: " \25BC";
 }
 
-/* This is the style for outside the dialog
-when the dialog is displayed
-to make it clear that it is a "modal dialog" and
-the user cannot interact with anything outside it. */
-::backdrop, /* for native <dialog> */
-dialog + .backdrop {
-    /* for dialog-polyfill */
-    /* a transparent shade of gray */
-    background: repeating-linear-gradient( 45deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) 1px, rgba(0, 0, 0, 0.3) 1px, rgba(0, 0, 0, 0.3) 20px );
+::backdrop, dialog + .backdrop {
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) 1px, rgba(0, 0, 0, 0.3) 1px, rgba(0, 0, 0, 0.3) 20px);
     backdrop-filter: blur(2px);
+}
+
+.dialog #details-left {
+    display: none;
 }
 
 button.close {
@@ -423,7 +424,6 @@ footer {
 /*---------------------------------------------------------------------*/
 iframe {
     display: block;
-    background: #000;
     border: none;
     height: 100vh;
     width: 100vw;
@@ -1147,11 +1147,6 @@ figure {
 }
 
 /**ccc***************************/
-
-* {
-    margin: 0;
-    padding: 0;
-}
 
 html {
     height: 100%;

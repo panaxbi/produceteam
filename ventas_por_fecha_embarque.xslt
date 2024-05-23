@@ -133,7 +133,7 @@ exclude-result-prefixes="#default session sitemap shell"
 				}
 			]]>
 			</style>
-			<table class="table table-striped">
+			<table class="table table-striped selection-enabled">
 				<colgroup>
 					<col width="50"/>
 					<!-- #</th>-->
@@ -290,8 +290,8 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:variable name="classes">
 			<xsl:apply-templates mode="cell-class" select="."/>
 		</xsl:variable>
-		<td class="text-nowrap {$text-filter} {$classes}">
-			<span class="filterable">
+		<td class="text-nowrap {$text-filter} {$classes} cell domain-{name()}">
+			<span class="filterable cancel-bubble">
 				<xsl:apply-templates select="."/>
 			</span>
 		</td>

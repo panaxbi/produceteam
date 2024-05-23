@@ -47,7 +47,7 @@ body {
 }
 
 aside * {
-  scrollbar-width: thin;
+  <!--scrollbar-width: thin;-->
   scrollbar-color: rgba(50, 62, 72, 0.9);
 }
 

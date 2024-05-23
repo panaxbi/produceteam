@@ -8,6 +8,7 @@ xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
+xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:x="urn:schemas-microsoft-com:office:excel"
 xmlns:v="urn:schemas-microsoft-com:office:excel"
@@ -34,6 +35,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="datatype" match="movimientos/row/@Debit" use="'money'"/>
 	<xsl:key name="datatype" match="movimientos/row/@Credit" use="'money'"/>
 	<xsl:key name="datatype" match="movimientos/row/@Balance" use="'money'"/>
+	<xsl:key name="datatype" match="movimientos/row/@Amount" use="'money'"/>
 
 	<xsl:key name="mock" match="//movimientos/row[@xsi:type]" use="name(..)"/>
 	<xsl:key name="rows" match="//movimientos/row[not(@xsi:type)]" use="name(..)"/>
@@ -144,7 +146,7 @@ exclude-result-prefixes="#default session sitemap shell"
 				}
 			]]>
 			</style>
-			<table class="table table-striped">
+			<table class="table table-striped selection-enabled">
 				<xsl:apply-templates mode="colgroup" select="key('mock',$data_node)[1]"/>
 				<thead class="freeze">
 					<xsl:apply-templates mode="header-row" select="key('mock',$data_node)[1]"/>
@@ -167,10 +169,32 @@ exclude-result-prefixes="#default session sitemap shell"
 						<xsl:value-of select="../@desc"/>
 					</strong>
 				</th>
-				<th colspan="{count(key('mock',$data_node)[1]/@*[not(key('state:hidden',name()))])-4}">
+				<th colspan="{count(key('mock',$data_node)[1]/@*[not(key('state:hidden',name()))])-4}" class="money">
 					<strong>
 						<xsl:call-template name="format">
 							<xsl:with-param name="value" select="sum($rows/@Debit[.!='']|$rows/@Credit[.!=''])"/>
+						</xsl:call-template>
+					</strong>
+				</th>
+			</tr>
+			<xsl:apply-templates mode="row" select="$rows"/>
+		</tbody>
+	</xsl:template>
+
+	<xsl:template mode="bodies" match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos']//@*">
+		<xsl:variable name="rows" select="key('data',.)"/>
+		<tbody class="table-group-divider">
+			<tr class="header sticky">
+				<th scope="row"></th>
+				<th colspan="3">
+					<strong>
+						<xsl:value-of select="../@desc"/>
+					</strong>
+				</th>
+				<th colspan="{count(key('mock',$data_node)[1]/@*[not(key('state:hidden',name()))])-4}" class="money">
+					<strong>
+						<xsl:call-template name="format">
+							<xsl:with-param name="value" select="sum($rows/@Amount[.!=''])"/>
 						</xsl:call-template>
 					</strong>
 				</th>
@@ -292,7 +316,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:variable name="classes">
 			<xsl:apply-templates mode="cell-class" select="."/>
 		</xsl:variable>
-		<td class="text-nowrap {$text-filter} {$classes}">
+		<td class="text-nowrap {$text-filter} {$classes} cell domain-{name()}">
 			<span class="filterable">
 				<xsl:apply-templates select="."/>
 			</span>
@@ -306,6 +330,12 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="header-cell" match="@Account">
+		<th scope="col" class="groupable">
+			<xsl:apply-templates mode="headerText" select="."/>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="header-cell" match="@Type">
 		<th scope="col" class="groupable">
 			<xsl:apply-templates mode="headerText" select="."/>
 		</th>
