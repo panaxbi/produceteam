@@ -1,12 +1,14 @@
 ﻿<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xo="http://panax.io/xover"
-  xmlns:sitemap="http://panax.io/sitemap"
+  xmlns:data="http://panax.io/data"
   xmlns:state="http://panax.io/state"
-  xmlns:layout="http://panax.io/layout/view/form"
   xmlns:env="http://panax.io/state/environment"
-  exclude-result-prefixes="xo xsl sitemap layout"
+  exclude-result-prefixes="xo xsl"
 >
+	<xsl:import href="functions.xslt"/>
+
+	<xsl:key name="data_type" match="path-to-attrib" use="'type'"/>
 	<xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'" />
 	<xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
 
@@ -86,5 +88,33 @@ xmlns="http://www.w3.org/1999/xhtml"
 			</xsl:choose>
 			<xsl:apply-templates mode="headerText" select="."/>
 		</button>
+	</xsl:template>
+
+	<xsl:template match="key('data_type', 'money')">
+		<xsl:call-template name="format">
+			<xsl:with-param name="value" select="."></xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<xsl:template match="key('data_type', 'number')">
+		<xsl:call-template name="format">
+			<xsl:with-param name="value" select="number(.)"></xsl:with-param>
+			<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<xsl:template match="key('data_type', 'integer')">
+		<xsl:call-template name="format">
+			<xsl:with-param name="value" select="number(.)"></xsl:with-param>
+			<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<xsl:template match="key('data_type', 'date')">
+		<xsl:value-of select="substring(.,1,4)"/>
+		<xsl:text>-</xsl:text>
+		<xsl:value-of select="substring(.,5,2)"/>
+		<xsl:text>-</xsl:text>
+		<xsl:value-of select="substring(.,7,2)"/>
 	</xsl:template>
 </xsl:stylesheet>

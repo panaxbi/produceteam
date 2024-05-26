@@ -895,7 +895,7 @@ function sortRows(header) {
     let direction = 1;
     let getValue = (el) => {
         let val = el.cells[index].getAttribute("value") || el.cells[index].textContent;
-        let parsed_value = +val.replace(/^\$|^#|,/g, '');
+        let parsed_value = +val.replace(/\$|^#|,/g, '');
         return isNaN(parsed_value) ? val : parsed_value;
     };
     let compare = (next, curr) => {
@@ -907,7 +907,7 @@ function sortRows(header) {
         if (typeof (valueNext.localeCompare) == 'function') {
             return direction * valueNext.localeCompare(valueCurr, undefined, { sensitivity: 'accent', caseFirst: 'upper' });
         } else {
-            return direction * (valueCurr - valueNext);
+            return direction * (valueNext - valueCurr);
         }
     }
     [...header.parentNode.querySelectorAll('.sorted')].filter(th => th != header).forEach(th => th.classList.remove('sorted-desc', 'sorted-asc', 'sorted'));

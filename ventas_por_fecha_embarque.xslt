@@ -18,7 +18,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:import href="functions.xslt"/>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
-	<xsl:key name="filter" match="model/@filter:*" use="local-name()"/>
+	<xsl:key name="filter" match="@filter:*" use="local-name()"/>
 
 	<xsl:key name="state:hidden" match="@xo:*" use="name()"/>
 	<xsl:key name="state:hidden" match="@state:*" use="name()"/>
@@ -298,8 +298,10 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="header-cell" match="@*">
-		<th scope="col" class="sortable">
-			<xsl:apply-templates mode="headerText" select="."/>
+		<th scope="col">
+			<label class="sortable">
+				<xsl:apply-templates mode="headerText" select="."/>
+			</label>
 		</th>
 	</xsl:template>
 

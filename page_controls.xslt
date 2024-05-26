@@ -11,10 +11,6 @@ xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 exclude-result-prefixes="#default xsl px xsi xo data state"
 >
-	<xsl:import href="common.xslt"/>
-	<xsl:output method="xml"
-		 omit-xml-declaration="yes"
-		 indent="yes"/>
 	<xsl:param name="site:seed">''</xsl:param>
 	<xsl:param name="state:touched"/>
 
