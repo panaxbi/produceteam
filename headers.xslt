@@ -33,4 +33,8 @@
 	<xsl:template mode="headerText" match="fecha/@mes[substring(., string-length(.) - 1)='13' or string-length(.)=4]">
 		<xsl:value-of select="substring(.,1,4)"/>
 	</xsl:template>
+
+	<xsl:template mode="headerText" match="model/*/@*">
+		<xsl:value-of select="."/>
+	</xsl:template>
 </xsl:stylesheet>

@@ -163,11 +163,11 @@ dialog {
     z-index: 2999;
 }
 
-.sorted-asc::after {
+.sorted-asc label::after {
     content: " \25B2";
 }
 
-.sorted-desc::after {
+.sorted-desc label::after {
     content: " \25BC";
 }
 
@@ -2558,6 +2558,10 @@ a.dropdown-item.notif.d-flex.align-items-center:hover {
 
 .text-center {
     text-align: center !important;
+}
+
+th .dropdown svg {
+    margin-right: 5px;
 }
 
 a.dropdown-item.item_category:hover {

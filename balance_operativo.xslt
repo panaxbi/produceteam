@@ -114,9 +114,9 @@ exclude-result-prefixes="#default session sitemap shell"
 					</tr>
 					<tr class="text-center">
 						<th></th>
-						<th scope="col">Income</th>
-						<th scope="col">Expense</th>
-						<th scope="col">Difference</th>
+						<th scope="col" class="sortable">Income</th>
+						<th scope="col" class="sortable">Expense</th>
+						<th scope="col" class="sortable">Difference</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -130,8 +130,8 @@ exclude-result-prefixes="#default session sitemap shell"
 
 						<xsl:variable name="class_balance">
 							<xsl:choose>
-								<xsl:when test="$balance &gt; 0">success</xsl:when>
-								<xsl:when test="$balance &lt; 0">danger</xsl:when>
+								<xsl:when test="$balance &gt; 0">danger</xsl:when>
+								<xsl:when test="$balance &lt; 0">success</xsl:when>
 							</xsl:choose>
 						</xsl:variable>
 						<th scope="row">
@@ -168,8 +168,8 @@ exclude-result-prefixes="#default session sitemap shell"
 
 		<xsl:variable name="class_balance">
 			<xsl:choose>
-				<xsl:when test="$balance &gt; 0">success</xsl:when>
-				<xsl:when test="$balance &lt; 0">danger</xsl:when>
+				<xsl:when test="$balance &gt; 0">danger</xsl:when>
+				<xsl:when test="$balance &lt; 0">success</xsl:when>
 			</xsl:choose>
 		</xsl:variable>
 		<tr>

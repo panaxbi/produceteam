@@ -729,9 +729,14 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
 })
 
-xo.listener.on(`beforeTransform?stylesheet.href=detalle_movimientos_operativos.xslt`, function ({ document }) {
-    xo.state.groupBy = 'account'
-    for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
+xo.listener.on(`beforeTransform::model[*/@filter:*]`, function ({ document }) {
+    for (let attr of this.select(`//@filter:*`)) {
+        attr.parentNode.select(`row[${attr.value.split("|").map(value => `not(@${attr.localName}="${value}")`).join(" and ")}]`).forEach(el => el.remove())
+    }
+})
+
+xo.listener.on([`beforeTransform::model[*/@filter:*]`, `beforeTransform?stylesheet.href=auxiliar_cuentas.xslt`], function () {
+    for (let attr of this.select(`//@filter:*`)) {
         this.select(`//movimientos/row[not(@xsi:type="mock")][${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
     }
 })
@@ -776,7 +781,7 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`,`beforeFetch::#detalle_ingresos_operativos`,`beforeFetch::#ingresos_operativos`,`beforeFetch::#gastos_operativos`,`beforeFetch::#balance_operativo`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`,`beforeFetch::#auxiliar_cuentas`,`beforeFetch::#balance_operativo`], function ({ source, document, parameters }) {
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
     delete parameters["@start_week"];
@@ -851,25 +856,26 @@ xover.listener.on('click::.filterable', function () {
         let filters = selection.cells.concat(this).map(cell => cell.scope).reduce((result,scope) => { result[scope.localName]=(result[scope.localName] || []); result[scope.localName].push(scope.value); return result}, {});
         let scope = this.scope;
         let model = scope.closest("model");
-        if (model.hasAttributeNS('http://panax.io/state/filter', `${scope.localName}`)) {
-            model.removeAttributeNS('http://panax.io/state/filter', `${scope.localName}`)
+        let target = scope.selectSingleNode(`ancestor::*[parent::model]`);
+        if (target.hasAttributeNS('http://panax.io/state/filter', `${scope.localName}`)) {
+            target.removeAttributeNS('http://panax.io/state/filter', `${scope.localName}`)
             delete filters[scope.localName]
         }
 
         
         for (let key of Object.keys(filters)) {
-            model.setAttributeNS('http://panax.io/state/filter', `filter:${key}`, filters[key].distinct().join("|"))
+            target.setAttributeNS('http://panax.io/state/filter', `filter:${key}`, filters[key].distinct().join("|"))
         }
     }
 })
 
 xover.listener.on('click::table .sortable', function () {
-    sortRows(this)
+    sortRows.call(this, this.closest('td,th'))
 })
 
 xover.listener.on('click::table .groupable', function () {
     let groupBy = this.scope.nodeName.toLowerCase()
-    xo.state.groupBy = xo.state.groupBy == groupBy ? '' : groupBy;
+    xo.state.groupBy = xo.state.groupBy == groupBy ? null : groupBy;
 })
 
 xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#detalle_ingresos|#detalle_egresos", function ({ source }) {
@@ -904,6 +910,7 @@ function sortRows(header) {
             return direction * (valueCurr - valueNext);
         }
     }
+    [...header.parentNode.querySelectorAll('.sorted')].filter(th => th != header).forEach(th => th.classList.remove('sorted-desc', 'sorted-asc', 'sorted'));
     for (let tbody of header.closest('table').select('tbody')) {
         let rows = [...tbody.querySelectorAll("tr")];
         if (header.classList.contains("sorted-desc")) {

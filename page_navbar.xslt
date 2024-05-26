@@ -283,7 +283,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		<xsl:variable name="end_week" select="../fechas/@state:end_week"/>
 
 		<style>
-			:root { --sections-filter-height: 54px; }
+			:root { --sections-filter-height: 86px; }
 		</style>
 
 		<fieldset>
@@ -318,7 +318,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		<xsl:variable name="end_week" select="@state:end_week"/>
 
 		<style>
-			:root { --sections-filter-height: 54px; }
+			:root { --sections-filter-height: 86px; }
 		</style>
 
 		<fieldset>
@@ -364,7 +364,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
-	<xsl:template mode="widget"  match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo']/@*">
+	<xsl:template mode="widget"  match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas']/@*">
 		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
