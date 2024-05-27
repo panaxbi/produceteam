@@ -939,3 +939,7 @@ xo.listener.on('xover-initialized', function ({ progress_renders }) {
         progress_renders.concat(xover.sources['#loading'].render());
     }
 })
+
+xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
+    return { "message": "Unauthorized" };
+})
