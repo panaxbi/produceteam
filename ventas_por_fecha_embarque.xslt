@@ -28,14 +28,16 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="datatype" match="ventas/row/@ivd" use="'date'"/>
 	<xsl:key name="datatype" match="ventas/row/@pd" use="'date'"/>
 	<xsl:key name="datatype" match="ventas/row/@lot_rd" use="'date'"/>
+	<xsl:key name="datatype" match="ventas/row/@clm_dt" use="'date'"/>
 
 	<xsl:key name="datatype" match="ventas/row/@upce" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@ucos" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@tcos" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@pfit" use="'money'"/>
+	<xsl:key name="datatype" match="ventas/row/@pce" use="'money'"/>
 
 	<xsl:key name="datatype" match="ventas/row/@amt" use="'money'"/>
-	<xsl:key name="datatype" match="ventas/row/@amt_ad" use="'number'"/>
+	<xsl:key name="datatype" match="ventas/row/@amt_ad" use="'money'"/>
 
 	<xsl:key name="datatype" match="ventas/row/@qtym" use="'integer'"/>
 	<xsl:key name="datatype" match="ventas/row/@qtys" use="'integer'"/>

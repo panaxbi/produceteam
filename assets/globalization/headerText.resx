@@ -159,6 +159,9 @@
   <data name="@os" xml:space="preserve">
     <value>Order Status</value>
   </data>
+  <data name="@pce" xml:space="preserve">
+    <value>Final Price</value>
+  </data>
   <data name="@pck" xml:space="preserve">
     <value>Pack Style Name</value>
   </data>
