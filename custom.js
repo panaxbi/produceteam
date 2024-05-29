@@ -781,13 +781,22 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`,`beforeFetch::#auxiliar_cuentas`,`beforeFetch::#balance_operativo`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`,`beforeFetch::#auxiliar_cuentas`,`beforeFetch::#balance_operativo`,`beforeFetch::#detalle_problemas`], function ({ source, document, parameters }) {
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
     delete parameters["@start_week"];
     delete parameters["@end_week"];
+    delete parameters[`@trouble`]
+    delete parameters[`@order`]
+    delete parameters[`@purchase_order`]
 
-    if (xo.state.filterBy == 'dates') {
+    if (xo.state.filterBy == 'order') {
+        parameters[`@order`] = document.selectFirst("//@state:order");
+    } else if (xo.state.filterBy == 'purchase_order') {
+        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+    } else if (xo.state.filterBy == 'trouble') {
+        parameters[`@trouble`] = document.selectFirst("//@state:trouble");
+    } else if (xo.state.filterBy == 'dates') {
         parameters["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
         parameters["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
     } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
@@ -941,5 +950,5 @@ xo.listener.on('xover-initialized', function ({ progress_renders }) {
 })
 
 xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
-    return { "message": "Unauthorized" };
+    return { "message": "" };
 })
