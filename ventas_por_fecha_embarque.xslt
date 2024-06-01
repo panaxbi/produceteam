@@ -35,6 +35,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="datatype" match="ventas/row/@tcos" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@pfit" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@pce" use="'money'"/>
+	<xsl:key name="datatype" match="ventas/row/@pce_ad" use="'money'"/>
 
 	<xsl:key name="datatype" match="ventas/row/@amt" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@amt_ad" use="'money'"/>

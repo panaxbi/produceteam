@@ -162,6 +162,9 @@
   <data name="@pce" xml:space="preserve">
     <value>Final Price</value>
   </data>
+  <data name="@pce_ad" xml:space="preserve">
+    <value>Price Adjusted</value>
+  </data>
   <data name="@pck" xml:space="preserve">
     <value>Pack Style Name</value>
   </data>
