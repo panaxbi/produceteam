@@ -417,7 +417,6 @@ xo.listener.on("mouseup", function (event) {
     if (parent_container) {
         let selection_started = parent_container.querySelector(".selection-begin");
         let cells = selection.cells;
-        return; //área deshabiltada
         if (selection_started) {
             let cell = window.getComputedStyle(this).cursor == 'cell' && this || this.closest(".cell");
             cell && cell.classList.add("selection-end");
@@ -509,7 +508,8 @@ Object.defineProperty(selection, 'cells', {
                 target.querySelector('.valor').classList.remove('d-none');
                 let sum = selection.sum();
                 //let map = selection.groupDimensions()
-                target.valor.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(sum);
+                let config = selection.every(el => el.classList.contains("money")) ?{ style: 'currency', currency: 'USD' } : {};
+                target.valor.value = !isNaN(sum) ? new Intl.NumberFormat('en-US', config).format(sum) : '';
 
                 target.querySelector('.formula').classList.add('d-none');
                 if (selection.length == 1) {
@@ -789,11 +789,14 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     delete parameters[`@trouble`]
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
+    delete parameters[`@grower_lot`]
 
     if (xo.state.filterBy == 'order') {
         parameters[`@order`] = document.selectFirst("//@state:order");
     } else if (xo.state.filterBy == 'purchase_order') {
         parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+    } else if (xo.state.filterBy == 'grower_lot') {
+        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
     } else if (xo.state.filterBy == 'trouble') {
         parameters[`@trouble`] = document.selectFirst("//@state:trouble");
     } else if (xo.state.filterBy == 'dates') {
@@ -808,6 +811,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
 xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source, document, parameters }) {
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
+    delete parameters[`@grower_lot`]
     delete parameters["@fecha_embarque_inicio"];
     delete parameters["@fecha_embarque_fin"];
     delete parameters["@start_week"];
@@ -817,6 +821,8 @@ xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source,
         parameters[`@order`] = document.selectFirst("//@state:order");
     } else if (xo.state.filterBy == 'purchase_order') {
         parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+    } else if (xo.state.filterBy == 'grower_lot') {
+        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
     } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
         parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
         parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
@@ -828,7 +834,7 @@ xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fi
     store.fetch()
 })
 
-xover.listener.on(`change::@state:order|@state:purchase_order`, function ({ value, store }) {
+xover.listener.on(`change::@state:order|@state:purchase_order|@state:grower_lot`, function ({ value, store }) {
     xo.state.filterBy = this.localName.toLowerCase()
     store.fetch()
 })

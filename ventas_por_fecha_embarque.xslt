@@ -283,7 +283,7 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="cell-class" match="key('datatype', 'money')">
-		<xsl:text/> number<xsl:text/>
+		<xsl:text/> money<xsl:text/>
 	</xsl:template>
 
 	<xsl:template mode="cell" match="@*">

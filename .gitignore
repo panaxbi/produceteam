@@ -347,3 +347,4 @@ healthchecksdb
 /templates/Clientes Pinsa Gasopipas 2022.htm
 *.config
 /.manifest
+/cache

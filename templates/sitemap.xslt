@@ -184,7 +184,6 @@ li.sidebar-item.menu > a {
 ]]>
 			</style>
 			<div style="height:100%; overflow-y:scroll; margin-bottom: var(--margin-bottom)">
-				<a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">&#215;</a>
 				<ul class="sidebar-nav">
 					<xsl:apply-templates/>
 				</ul>

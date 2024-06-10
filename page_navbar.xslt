@@ -93,6 +93,11 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 							<xsl:attribute name="selected"/>
 						</xsl:if>Purchase Order
 					</option>
+					<option value="grower_lot">
+						<xsl:if test="$state:filterBy='grower_lot'">
+							<xsl:attribute name="selected"/>
+						</xsl:if>Grower Lot
+					</option>
 				</select>
 			</legend>
 			<xsl:choose>
@@ -159,6 +164,11 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				<xsl:if test="$state:filterBy='purchase_order'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Purchase Order
+			</option>
+			<option value="grower_lot">
+				<xsl:if test="$state:filterBy='grower_lot'">
+					<xsl:attribute name="selected"/>
+				</xsl:if>Grower Lot
 			</option>
 		</select>
 	</xsl:template>
