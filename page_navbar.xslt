@@ -5,14 +5,15 @@ xmlns:xo="http://panax.io/xover"
 xmlns:px="http://panax.io/entity"
 xmlns:data="http://panax.io/source"
 xmlns:meta="http://panax.io/metadata"
-xmlns:site="http://panax.io/site"
 xmlns:state="http://panax.io/state"
+xmlns:site="http://panax.io/site"
+xmlns:site-state="http://panax.io/site/state"
 xmlns:initial="http://panax.io/state/initial"
 xmlns:search="http://panax.io/state/search"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:widget="http://panax.io/widget"
-exclude-result-prefixes="#default xsl px xsi xo data site widget state"
+exclude-result-prefixes="#default xsl px xsi xo data site-state widget state"
 >
 	<xsl:import href="headers.xslt"/>
 	<xsl:import href="common.xslt"/>
@@ -20,7 +21,7 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 
 	<xsl:template mode="widget" match="@*"/>
 
-	<xsl:param name="state:filterBy"></xsl:param>
+	<xsl:param name="site-state:filterBy"></xsl:param>
 
 	<xsl:key name="data" match="model/movimientos" use="'*'"/>
 	<xsl:key name="data" match="model/ventas" use="'*'"/>
@@ -79,17 +80,17 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 			<legend>
 				<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
 					<option value="ship_date">
-						<xsl:if test="$state:filterBy='' or $state:filterBy='ship_date'">
+						<xsl:if test="$site-state:filterBy='' or $site-state:filterBy='ship_date'">
 							<xsl:attribute name="selected"/>
 						</xsl:if> Fecha de embarque
 					</option>
 					<option value="order">
-						<xsl:if test="$state:filterBy='order'">
+						<xsl:if test="$site-state:filterBy='order'">
 							<xsl:attribute name="selected"/>
 						</xsl:if>Sales Order
 					</option>
 					<option value="purchase_order">
-						<xsl:if test="$state:filterBy='purchase_order'">
+						<xsl:if test="$site-state:filterBy='purchase_order'">
 							<xsl:attribute name="selected"/>
 						</xsl:if>Purchase Order
 					</option>
@@ -101,14 +102,14 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 				</select>
 			</legend>
 			<xsl:choose>
-				<xsl:when test="$state:filterBy='' or $state:filterBy='ship_date'">
+				<xsl:when test="$site-state:filterBy='' or $site-state:filterBy='ship_date'">
 					<div class="input-group">
 						<input class="form-control" name="fecha_embarque_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_inicio" value="{../@state:fecha_embarque_inicio}"/>
 						<input class="form-control" name="fecha_embarque_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_fin" value="{../@state:fecha_embarque_fin}"/>
 					</div>
 				</xsl:when>
 				<xsl:otherwise>
-					<input type="text" name="{$state:filterBy}" class="form-control" value="{../@state:*[local-name()=$state:filterBy]}" xo-slot="state:{$state:filterBy}"/>
+					<input type="text" name="{$site-state:filterBy}" class="form-control" value="{../@state:*[local-name()=$site-state:filterBy]}" xo-slot="state:{$site-state:filterBy}"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</fieldset>
@@ -151,17 +152,17 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	<xsl:template mode="headerText" match="model[@env:store='#ventas_por_fecha_embarque']/fechas">
 		<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="ship_date">
-				<xsl:if test="$state:filterBy='' or $state:filterBy='ship_date'">
+				<xsl:if test="$site-state:filterBy='' or $site-state:filterBy='ship_date'">
 					<xsl:attribute name="selected"/>
 				</xsl:if> Fecha de embarque
 			</option>
 			<option value="order">
-				<xsl:if test="$state:filterBy='order'">
+				<xsl:if test="$site-state:filterBy='order'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Sales Order
 			</option>
 			<option value="purchase_order">
-				<xsl:if test="$state:filterBy='purchase_order'">
+				<xsl:if test="$site-state:filterBy='purchase_order'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Purchase Order
 			</option>
@@ -176,12 +177,12 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos' or @env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#detalle_problemas']/*[self::semanas|self::fechas]">
 		<select class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="weeks">
-				<xsl:if test="$state:filterBy='weeks'">
+				<xsl:if test="$site-state:filterBy='weeks'">
 					<xsl:attribute name="selected"/>
 				</xsl:if> Weeks
 			</option>
 			<option value="dates">
-				<xsl:if test="$state:filterBy='dates'">
+				<xsl:if test="$site-state:filterBy='dates'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Dates
 			</option>
@@ -191,27 +192,27 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	<xsl:template mode="headerText" match="model[@env:store='#detalle_problemas']/*[self::semanas|self::fechas]|model[@env:store='#detalle_problemas']/@state:*">
 		<select class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="weeks">
-				<xsl:if test="$state:filterBy='weeks'">
+				<xsl:if test="$site-state:filterBy='weeks'">
 					<xsl:attribute name="selected"/>
 				</xsl:if> Weeks
 			</option>
 			<option value="dates">
-				<xsl:if test="$state:filterBy='dates'">
+				<xsl:if test="$site-state:filterBy='dates'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Dates
 			</option>
 			<option value="trouble">
-				<xsl:if test="$state:filterBy='trouble'">
+				<xsl:if test="$site-state:filterBy='trouble'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Trouble
 			</option>
 			<option value="purchase_order">
-				<xsl:if test="$state:filterBy='purchase_order'">
+				<xsl:if test="$site-state:filterBy='purchase_order'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Purchase Order
 			</option>
 			<option value="order">
-				<xsl:if test="$state:filterBy='order'">
+				<xsl:if test="$site-state:filterBy='order'">
 					<xsl:attribute name="selected"/>
 				</xsl:if>Sales Order
 			</option>
@@ -402,15 +403,15 @@ exclude-result-prefixes="#default xsl px xsi xo data site widget state"
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos']/@*">
-		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
+		<xsl:apply-templates mode="widget" select="../account|../semanas[not($site-state:filterBy='dates')]|../fechas[$site-state:filterBy='dates']"/>
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas']/@*">
-		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
+		<xsl:apply-templates mode="widget" select="../semanas[not($site-state:filterBy='dates')]|../fechas[$site-state:filterBy='dates']"/>
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model[@env:store='#detalle_problemas']/@*">
-		<xsl:apply-templates mode="widget" select="../semanas[$state:filterBy='weeks' or string($state:filterBy)='']|../fechas[$state:filterBy='dates']|../@state:trouble[$state:filterBy='trouble']|../@state:purchase_order[$state:filterBy='purchase_order']|../@state:order[$state:filterBy='order']|../commodity|../cliente"/>
+		<xsl:apply-templates mode="widget" select="../semanas[$site-state:filterBy='weeks' or string($site-state:filterBy)='']|../fechas[$site-state:filterBy='dates']|../@state:trouble[$site-state:filterBy='trouble']|../@state:purchase_order[$site-state:filterBy='purchase_order']|../@state:order[$site-state:filterBy='order']|../commodity|../cliente"/>
 	</xsl:template>
 
 	<xsl:template mode="widget"  match="model/@state:*">
