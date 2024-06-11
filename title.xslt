@@ -1,16 +1,14 @@
 ﻿<xsl:stylesheet version="1.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
-xmlns:js="http://panax.io/xover/javascript"
 xmlns:site="http://panax.io/site"
 xmlns:state="http://panax.io/state"
 xmlns:px="http://panax.io/entity"
-exclude-result-prefixes="#default xsl px site"
 >
 	<xsl:output method="xml"
 	   omit-xml-declaration="yes"
 	   indent="yes"/>
-	<xsl:param name="site:seed">''</xsl:param>
+	<xsl:param name="site:seed"></xsl:param>
 
 	<xsl:template match="/">
 		<h1>

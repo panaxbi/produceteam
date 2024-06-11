@@ -1,6 +1,6 @@
 ﻿<xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:js="http://panax.io/xover/javascript"
+    xmlns:js="http://panax.io/languages/javascript"
     xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="js">
 	<xsl:output method="xml" indent="no" />
 	<xsl:param name="js:icon"><![CDATA[[...document.querySelectorAll('link[type = "image/x-icon"]')].map(el => el && el.getAttribute("href"))[0]]]></xsl:param>

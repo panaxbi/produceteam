@@ -806,6 +806,10 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
         parameters["@start_week"] = document.selectFirst("//semanas/@state:start_week")
         parameters["@end_week"] = document.selectFirst("//semanas/@state:end_week")
     }
+    for (let [key, value] of xo.site.searchParams.params) {
+        parameters["@get_dims"] = 0
+        parameters[key] = value
+    }
 })
 
 xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source, document, parameters }) {

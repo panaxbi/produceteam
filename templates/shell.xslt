@@ -1,12 +1,10 @@
 ﻿<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml"
-xmlns:x="http://panax.io/xover"
 xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
 xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:source="http://panax.io/xover/binding/source"
 xmlns:xlink="http://www.w3.org/1999/xlink"
-exclude-result-prefixes="#default x session sitemap shell state source"
 >
   <xsl:output method="xml"
 	   omit-xml-declaration="yes"
@@ -84,7 +82,7 @@ exclude-result-prefixes="#default x session sitemap shell state source"
           <div>
             <!--Logo-->
             <a href="/" title="Ir a la página principal">
-              <img class="logo" src="assets/logo.png" height="40px"/>
+              <img id="logo" class="logo" src="assets/logo.png" height="40px"/>
             </a>
           </div>
           <div class="anteanter_section search"></div>
@@ -132,21 +130,6 @@ exclude-result-prefixes="#default x session sitemap shell state source"
     <header class="hpadding0">
       <h1 xo-source="active" xo-stylesheet="title.xslt"></h1>
     </header>
-  </xsl:template>
-
-  <xsl:template mode="nav.search.menu" match="*">
-    <div class="category_items">
-      <div class="form-group col-auto my-1">
-        <select class="form-control search_pandc" id="exampleFormControlSelect1">
-          <option>Todas las categorías</option>
-          <xsl:for-each select="//source:categorias/x:r">
-            <option>
-              <xsl:value-of select="@NombreCategoria"/>
-            </option>
-          </xsl:for-each>
-        </select>
-      </div>
-    </div>
   </xsl:template>
 
 </xsl:stylesheet>

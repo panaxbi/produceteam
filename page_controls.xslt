@@ -3,13 +3,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
 xmlns:xo="http://panax.io/xover"
 xmlns:px="http://panax.io/entity"
-xmlns:data="http://panax.io/source"
 xmlns:site="http://panax.io/site"
 xmlns:state="http://panax.io/state"
 xmlns:initial="http://panax.io/state/initial"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-exclude-result-prefixes="#default xsl px xsi xo data state"
 >
 	<xsl:param name="site:seed">''</xsl:param>
 	<xsl:param name="state:touched"/>

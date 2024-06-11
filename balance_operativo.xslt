@@ -1,7 +1,6 @@
 ﻿<xsl:stylesheet version="1.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
-xmlns:js="http://panax.io/xover/javascript"
 xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
 xmlns:shell="http://panax.io/shell"
@@ -177,10 +176,12 @@ exclude-result-prefixes="#default session sitemap shell"
 				Total <xsl:value-of select="."/>
 			</th>
 			<td class="money">
-				<xsl:call-template name="format">
-					<xsl:with-param name="value" select="$income"></xsl:with-param>
-					<xsl:with-param name="mask">$###,##0;$-###,##0</xsl:with-param>
-				</xsl:call-template>
+				<a href="?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}#detalle_ingresos_operativos">
+					<xsl:call-template name="format">
+						<xsl:with-param name="value" select="$income"></xsl:with-param>
+						<xsl:with-param name="mask">$###,##0;$-###,##0</xsl:with-param>
+					</xsl:call-template>
+				</a>
 			</td>
 			<td class="money">
 				<xsl:call-template name="format">
