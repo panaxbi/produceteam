@@ -807,7 +807,6 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
         parameters["@end_week"] = document.selectFirst("//semanas/@state:end_week")
     }
     for (let [key, value] of xo.site.searchParams.params) {
-        parameters["@get_dims"] = 0
         parameters[key] = value
     }
 })
@@ -899,6 +898,10 @@ xover.listener.on('click::table .groupable', function () {
 
 xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#detalle_ingresos|#detalle_egresos", function ({ source }) {
     delete source.definition["server:request"]["@max_records"]
+
+    if (xo.site.searchParams.params.size) {
+        debugger
+    }
 })
 
 xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({ document }) {

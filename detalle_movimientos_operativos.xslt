@@ -1,15 +1,16 @@
 ﻿<xsl:stylesheet version="1.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
-xmlns:js="http://panax.io/xover/javascript"
 xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
+xmlns:data="http://panax.io/data"
 xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:datagrid="http://panaxbi.com/widget/datagrid"
 xmlns:x="urn:schemas-microsoft-com:office:excel"
 xmlns:v="urn:schemas-microsoft-com:office:excel"
 xmlns:xo="http://panax.io/xover"
@@ -17,7 +18,7 @@ exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>
-	<xsl:import href="functions.xslt"/>
+	<xsl:import href="widgets/datagrid.xslt"/>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 	<xsl:key name="filter" match="@filter:*" use="local-name()"/>
@@ -26,16 +27,16 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="state:hidden" match="@state:*" use="name()"/>
 	<xsl:key name="state:hidden" match="@xsi:*" use="name()"/>
 
-	<xsl:key name="datatype" match="movimientos/row/@Description" use="'description'"/>
-	<xsl:key name="datatype" match="movimientos/row/@AccountName" use="'description'"/>
+	<xsl:key name="data_type" match="movimientos//@Description" use="'description'"/>
+	<xsl:key name="data_type" match="movimientos//@AccountName" use="'description'"/>
 
-	<xsl:key name="datatype" match="movimientos/row/@TransDate" use="'date'"/>
-	<xsl:key name="datatype" match="movimientos/row/@PostDate" use="'date'"/>
+	<xsl:key name="data_type" match="movimientos//@TransDate" use="'date'"/>
+	<xsl:key name="data_type" match="movimientos//@PostDate" use="'date'"/>
 
-	<xsl:key name="datatype" match="movimientos/row/@Debit" use="'money'"/>
-	<xsl:key name="datatype" match="movimientos/row/@Credit" use="'money'"/>
-	<xsl:key name="datatype" match="movimientos/row/@Balance" use="'money'"/>
-	<xsl:key name="datatype" match="movimientos/row/@Amount" use="'money'"/>
+	<xsl:key name="data_type" match="movimientos//@Debit" use="'money'"/>
+	<xsl:key name="data_type" match="movimientos//@Credit" use="'money'"/>
+	<xsl:key name="data_type" match="movimientos//@Balance" use="'money'"/>
+	<xsl:key name="data_type" match="movimientos//@Amount" use="'money'"/>
 
 	<xsl:key name="mock" match="//movimientos/row[@xsi:type]" use="name(..)"/>
 	<xsl:key name="rows" match="//movimientos/row[not(@xsi:type)]" use="name(..)"/>
@@ -44,118 +45,25 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="groupBy" match="model/account/row/@key" use="name(../..)"/>
 	<xsl:key name="groupBy" match="model/movimientos[not(row/@xsi:type)]" use="''"/>
 
-	<xsl:key name="data" match="//movimientos/row" use="@Account"/>
+	<xsl:key name="data" match="//movimientos[not(row/@xsi:type)]/row" use="@Account"/>
+	<xsl:key name="data" match="/model/movimientos[not(row/@xsi:type)]/row" use="'*'"/>
 
 	<xsl:template mode="week" match="fechas/row/@*">
 		<xsl:value-of select="../@week"/>
 	</xsl:template>
 
+	<xsl:key name="data:group" match="model/account/row/@key" use="name(../..)"/>
+	<xsl:key name="data:group" match="model/movimientos[not(row/@xsi:type)]" use="'*'"/>
+
+	<xsl:key name="x-dimension" match="//movimientos[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
+	<xsl:key name="y-dimension" match="//movimientos[not(row/@xsi:type)]/*" use="name(..)"/>
+	
 	<xsl:param name="data_node">'movimientos'</xsl:param>
-	<xsl:param name="state:groupBy"></xsl:param>
+	<xsl:param name="state:groupBy">*</xsl:param>
 
 	<xsl:template match="/">
 		<main xmlns="http://www.w3.org/1999/xhtml">
-			<style>
-				<![CDATA[
-        table td.freeze {
-          background-color: white;
-        }
-
-        table thead.freeze > tr td, table thead.freeze > tr th {
-          position: sticky;
-        }
-
-        table > thead.freeze > tr:nth-child(1) > td, table > thead.freeze > tr:nth-child(1) > th {
-          top: 0px;
-        }
-
-        table > thead.freeze > tr:nth-child(2) > td, table > thead.freeze > tr:nth-child(2) > th {
-          top: 20px;
-        }
-
-        table > thead.freeze > tr:nth-child(3) > td, table > thead.freeze > tr:nth-child(3) > th {
-          top: 40px;
-        }
-
-        table > thead.freeze > tr:nth-child(4) > td, table > thead.freeze > tr:nth-child(4) > th {
-          top: 60px;
-        }
-
-        table > thead.freeze > tr:nth-child(5) > td, table > thead.freeze > tr:nth-child(5) > th {
-          top: 80px;
-        }
-
-        table tr.freeze td.freeze, table tr.freeze th.freeze {
-          z-index: 911;
-        }
-
-        table tr.freeze td.freeze img, table tr.freeze th.freeze img {
-          z-index: 912;
-        }
-
-        table thead.freeze tr {
-          background-color: white;
-        }
-		
-		.sticky {
-			position: sticky;
-			top: var(--sticky-top, 45px);
-			background-color: var(--sticky-bg-color, white);
-		}
-		
-		div:has(>table) {
-			width: fit-content;
-		}
-			
-		table {
-			margin-right: 50px;
-			max-width: max-content;
-		}
-			]]>
-			</style>
-			<style>
-				<![CDATA[
-				table tbody td span.filterable { cursor: pointer }
-				table tbody td span.groupable { cursor: pointer }
-
-				table .sortable { cursor: pointer }
-				table .groupable { cursor: pointer }
-				
-				table thead {
-					text-wrap: nowrap;
-				}
-				
-				table tfoot .money
-				, table tbody .money
-				, table tbody .number
-				, table tfoot .number
-				{
-					text-align: end;
-				}
-				
-				td[xo-slot=amt],td[xo-slot=qtym],td[xo-slot=qtys],td[xo-slot=qty_rcv],td[xo-slot=trb],td[xo-slot=upce] {
-					text-align: end;
-				}
-				
-				tfoot {
-					font-weight: bolder;
-				}
-				
-				:root {
-					--sticky-top: 34px;
-				}
-			]]>
-			</style>
-			<table class="table table-striped selection-enabled">
-				<xsl:apply-templates mode="colgroup" select="key('mock',$data_node)[1]"/>
-				<thead class="freeze">
-					<xsl:apply-templates mode="header-row" select="key('mock',$data_node)[1]"/>
-				</thead>
-				<xsl:apply-templates mode="bodies" select="key('groupBy',$state:groupBy)"/>
-				<tfoot>
-					<xsl:apply-templates mode="footer-row" select="key('mock',$data_node)[1]"/>
-				</tfoot>
-			</table>
+			<xsl:apply-templates mode="datagrid:widget" select="model/movimientos"/>
 		</main>
 	</xsl:template>
 
@@ -224,7 +132,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		<col width="100"/>
 	</xsl:template>
 
-	<xsl:template mode="colgroup-col" match="key('datatype','description')">
+	<xsl:template mode="colgroup-col" match="key('data_type','description')">
 		<xsl:comment>
 			<xsl:value-of select="name()"/>
 		</xsl:comment>
@@ -301,11 +209,11 @@ exclude-result-prefixes="#default session sitemap shell"
 		</tr>-->
 	</xsl:template>
 
-	<xsl:template mode="cell-class" match="key('datatype', 'number')">
+	<xsl:template mode="cell-class" match="key('data_type', 'number')">
 		<xsl:text/> number<xsl:text/>
 	</xsl:template>
 
-	<xsl:template mode="cell-class" match="key('datatype', 'money')">
+	<xsl:template mode="cell-class" match="key('data_type', 'money')">
 		<xsl:text/> number<xsl:text/>
 	</xsl:template>
 
@@ -351,7 +259,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		</td>
 	</xsl:template>
 
-	<xsl:template mode="footer-cell" match="key('datatype', 'number')">
+	<xsl:template mode="footer-cell" match="key('data_type', 'number')">
 		<td class="number">
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
@@ -362,7 +270,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		</td>
 	</xsl:template>
 
-	<xsl:template mode="footer-cell" match="key('datatype', 'integer')">
+	<xsl:template mode="footer-cell" match="key('data_type', 'integer')">
 		<td>
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
@@ -373,7 +281,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		</td>
 	</xsl:template>
 
-	<xsl:template mode="footer-cell" match="key('datatype', 'money')">
+	<xsl:template mode="footer-cell" match="key('data_type', 'money')">
 		<td class="money">
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
@@ -388,7 +296,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:value-of select="count(key('facts',name()))"/>
 	</xsl:template>
 
-	<xsl:template mode="aggregate" match="key('datatype', 'money')|key('datatype', 'integer')|key('datatype', 'number')">
+	<xsl:template mode="aggregate" match="key('data_type', 'money')|key('data_type', 'integer')|key('data_type', 'number')">
 		<xsl:value-of select="sum(key('facts',name()))"/>
 	</xsl:template>
 
@@ -400,7 +308,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		<td></td>
 	</xsl:template>
 
-	<xsl:template mode="footer-cell" match="key('datatype', 'avg')">
+	<xsl:template mode="footer-cell" match="key('data_type', 'avg')">
 		<td>
 			<xsl:call-template name="format">
 				<xsl:with-param name="value" select="sum(key('facts',name()))"/>
@@ -413,27 +321,27 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:value-of select="substring-after(.,'*')"/>
 	</xsl:template>
 
-	<xsl:template match="key('datatype', 'money')">
+	<xsl:template match="key('data_type', 'money')">
 		<xsl:call-template name="format">
 			<xsl:with-param name="value" select="."></xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
-	<xsl:template match="key('datatype', 'number')">
+	<xsl:template match="key('data_type', 'number')">
 		<xsl:call-template name="format">
 			<xsl:with-param name="value" select="number(.)"></xsl:with-param>
 			<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
-	<xsl:template match="key('datatype', 'integer')">
+	<xsl:template match="key('data_type', 'integer')">
 		<xsl:call-template name="format">
 			<xsl:with-param name="value" select="number(.)"></xsl:with-param>
 			<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
-	<xsl:template match="key('datatype', 'date')">
+	<xsl:template match="key('data_type', 'date')">
 		<xsl:value-of select="substring(.,1,4)"/>
 		<xsl:text>-</xsl:text>
 		<xsl:value-of select="substring(.,5,2)"/>

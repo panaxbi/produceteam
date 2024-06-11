@@ -176,12 +176,12 @@ exclude-result-prefixes="#default session sitemap shell"
 				Total <xsl:value-of select="."/>
 			</th>
 			<td class="money">
-				<a href="?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}#detalle_ingresos_operativos">
+				<!--<a href="?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}#detalle_ingresos_operativos">-->
 					<xsl:call-template name="format">
 						<xsl:with-param name="value" select="$income"></xsl:with-param>
 						<xsl:with-param name="mask">$###,##0;$-###,##0</xsl:with-param>
 					</xsl:call-template>
-				</a>
+				<!--</a>-->
 			</td>
 			<td class="money">
 				<xsl:call-template name="format">
