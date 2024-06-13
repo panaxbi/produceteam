@@ -5,6 +5,7 @@ xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
 xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
+xmlns:store="http://panax.io/store"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
@@ -53,6 +54,8 @@ exclude-result-prefixes="#default session sitemap shell"
 
 	<xsl:param name="data_node">'movimientos'</xsl:param>
 	<xsl:param name="state:groupBy"></xsl:param>
+	<xsl:param name="store:searchParams"></xsl:param>
+	<xsl:param name="store:tag"></xsl:param>
 
 	<xsl:template match="/">
 		<style>
@@ -87,9 +90,15 @@ exclude-result-prefixes="#default session sitemap shell"
 					--sticky-top: 34px;
 				}
 				
-				tbody [scope=row] {
+				[xo-source="#balance_operativo"] tbody [scope=row] {
 					background-color: #fc0;
 					font-weight: bolder;
+				}
+				
+				[xo-source="#balance_operativo"] a {
+					text-decoration: none;
+					color: inherit;
+					cursor: pointer;
 				}
 			]]>
 		</style>
@@ -176,18 +185,20 @@ exclude-result-prefixes="#default session sitemap shell"
 				Total <xsl:value-of select="."/>
 			</th>
 			<td class="money">
-				<!--<a href="?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}#detalle_ingresos_operativos">-->
+				<a href="?value={$income}#detalle_ingresos_operativos?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}&amp;{$store:searchParams}&amp;@classification={../@key}">
 					<xsl:call-template name="format">
 						<xsl:with-param name="value" select="$income"></xsl:with-param>
 						<xsl:with-param name="mask">$###,##0;$-###,##0</xsl:with-param>
 					</xsl:call-template>
-				<!--</a>-->
+				</a>
 			</td>
 			<td class="money">
-				<xsl:call-template name="format">
-					<xsl:with-param name="value" select="$expense"></xsl:with-param>
-					<xsl:with-param name="mask">$###,##0;$-###,##0</xsl:with-param>
-				</xsl:call-template>
+				<a href="?value={$expense}#detalle_gastos_operativos?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}&amp;{$store:searchParams}&amp;@classification={../@key}">
+					<xsl:call-template name="format">
+						<xsl:with-param name="value" select="$expense"></xsl:with-param>
+						<xsl:with-param name="mask">$###,##0;$-###,##0</xsl:with-param>
+					</xsl:call-template>
+				</a>
 			</td>
 			<td class="money table-{$class_balance}">
 				<xsl:call-template name="format">

@@ -54,4 +54,10 @@ exclude-result-prefixes="#default session sitemap shell"
 			<xsl:apply-templates mode="datagrid:widget" select="model/movimientos"/>
 		</main>
 	</xsl:template>
+
+	<xsl:template mode="datagrid:cell-content" match="@Amount">
+		<a class="link" href="?value={.}#detalle_movimientos?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}&amp;@account={../@Code}">
+			<xsl:apply-templates select="."/>
+		</a>
+	</xsl:template>
 </xsl:stylesheet>

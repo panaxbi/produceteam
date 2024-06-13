@@ -7,10 +7,11 @@
     "uploadOVconfirmadas": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarOVconfirmadas",
     "uploadStandardTimes": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarTiempoEstandar",
     "uploadBlacklist": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarPolizasIgnoradas",
-    "applyPermissions": "POST https://server.panax.io/request.asp?FROM=%23panax.applyPermissions"
+    "applyPermissions": "POST https://server.panax.io/request.asp?FROM=%23panax.applyPermissions",
+    "pokemon": "https://pokeapi.co/api/v2/pokemon/"
   },
   "sources": {
-    "^#(.+)": {
+    "^#([^?]+)(\\?.*)?": {
       "server:request": {
         "FROM": "PanaxBI.$1"
       }
@@ -55,6 +56,14 @@
       ]
     },
     "#detalle_gastos_operativos": {
+      "stylesheets": [
+        {
+          "href": "detalle_movimientos_operativos.xslt",
+          "target": "@#shell main"
+        }
+      ]
+    },
+    "#detalle_movimientos": {
       "stylesheets": [
         {
           "href": "detalle_movimientos_operativos.xslt",

@@ -11,13 +11,12 @@ xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:datagrid="http://panaxbi.com/widget/datagrid"
-xmlns:x="urn:schemas-microsoft-com:office:excel"
-xmlns:v="urn:schemas-microsoft-com:office:excel"
 xmlns:xo="http://panax.io/xover"
 exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="../functions.xslt"/>
 	<xsl:key name="state:hidden" match="@*[namespace-uri()!='']" use="name()"/>
+	<xsl:key name="state:collapsed" match="*[@state:collapsed]" use="@key"/>
 
 	<xsl:key name="data:filter" match="@filter:*" use="local-name()"/>
 	<xsl:key name="data_type" match="node-expected/@*" use="'type'"/>
@@ -126,9 +125,19 @@ exclude-result-prefixes="#default session sitemap shell"
 				:root {
 					--sticky-top: 34px;
 				}
+				
+				.datagrid a {
+					text-decoration: none;
+					color: inherit;
+					cursor: pointer;
+				}
+				
+				tbody .header th[scope="row"] {
+					text-align: center;
+				}
 			]]>
 		</style>
-		<table class="table table-striped selection-enabled">
+		<table class="table table-striped selection-enabled datagrid">
 			<xsl:apply-templates mode="datagrid:colgroup" select=".">
 				<xsl:with-param name="x-dimension" select="$x-dimensions"/>
 			</xsl:apply-templates>
@@ -215,6 +224,8 @@ exclude-result-prefixes="#default session sitemap shell"
 		</tr>
 	</xsl:template>
 
+	<xsl:template mode="datagrid:row" match="row[key('state:collapsed', @Account)]"/>
+
 	<xsl:template mode="datagrid:header-row" match="*">
 		<xsl:param name="x-dimension" select="node-expected"/>
 		<tr>
@@ -249,10 +260,14 @@ exclude-result-prefixes="#default session sitemap shell"
 			<xsl:apply-templates mode="datagrid:cell-class" select="."/>
 		</xsl:variable>
 		<td xo-scope="inherit" xo-slot="{name()}" class="text-nowrap {$text-filter} {$classes} cell domain-{name()}">
-			<span class="filterable">
-				<xsl:apply-templates select="$cell"/>
-			</span>
+			<xsl:apply-templates mode="datagrid:cell-content" select="$cell"/>
 		</td>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:cell-content" match="@*">
+		<span class="filterable">
+			<xsl:apply-templates select="."/>
+		</span>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:header-cell" match="@*">
@@ -390,6 +405,22 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:template match="@*[starts-with(.,'*')]">
 		<xsl:value-of select="substring-after(.,'*')"/>
 	</xsl:template>
+	
+	<xsl:key name="datagrid:group" use="'collapsed'" match="row[@state:collapsed='true']/@*" />
+
+	<xsl:template mode="datagrid:group-buttons" match="@*">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-square" viewBox="0 0 16 16" style="cursor:pointer;" xo-slot="state:collapsed" onclick="scope.toggle('true')">
+			<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"></path>
+			<path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"></path>
+		</svg>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:group-buttons" match="row[@state:collapsed='true']/@*" priority="1">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16" style="cursor:pointer;" xo-slot="state:collapsed" onclick="scope.remove()">
+			<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"></path>
+			<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+		</svg>
+	</xsl:template>
 
 	<xsl:template mode="datagrid:tbody-header" match="@*">
 		<xsl:param name="dimensions" select="."/>
@@ -397,7 +428,9 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:param name="y-dimension" select="node-expected"/>
 		<xsl:param name="rows" select="key('data',.)"/>
 		<tr class="header sticky">
-			<th scope="row"></th>
+			<th scope="row">
+				<xsl:apply-templates mode="datagrid:group-buttons" select="."/>
+			</th>
 			<th colspan="{count($x-dimension)-1}">
 				<strong>
 					<xsl:value-of select="../@desc"/>

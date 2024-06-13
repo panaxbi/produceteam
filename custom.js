@@ -13,6 +13,10 @@ function onGoogleLogin(response) {
     }
 }
 
+xover.listener.on('beforeRender::#login', function () {
+    [...document.querySelectorAll(`script[src*="accounts.google.com"]`)].remove()
+})
+
 async function progressiveRequest(params) {
     if (params instanceof Array) {
         params = Object.fromEntries(params);
@@ -505,11 +509,25 @@ Object.defineProperty(selection, 'cells', {
                     }
                     return value;
                 }
-                target.querySelector('.valor').classList.remove('d-none');
                 let sum = selection.sum();
                 //let map = selection.groupDimensions()
-                let config = selection.every(el => el.classList.contains("money")) ?{ style: 'currency', currency: 'USD' } : {};
-                target.valor.value = !isNaN(sum) ? new Intl.NumberFormat('en-US', config).format(sum) : '';
+                let config = selection.every(el => el.classList.contains("money")) ? { style: 'currency', currency: 'USD' } : {};
+                target.querySelector('.valor').classList.remove('d-none');
+                target.valor.value = !isNaN(sum) ? new Intl.NumberFormat('en-US', config).format(sum) : sum;
+                let detalle = target.querySelector('.detalle');
+                if (detalle) {
+                    detalle.classList.add('d-none')
+                    if (isNaN(sum) && detalle && sum.match(/^\d{3}-\d{3}/)) {
+                        detalle.classList.remove('d-none')
+                        let link = detalle.querySelector('a')
+                        let url = xover.URL(link.href);
+                        let [tag, search = ''] = url.hash.split("?");
+                        let searchParams = new URLSearchParams(search);
+                        searchParams.set("@account", `'${sum}'`)
+                        url.hash = tag + '?' + searchParams.toString()
+                        link.href = url.href;
+                    }
+                }
 
                 target.querySelector('.formula').classList.add('d-none');
                 if (selection.length == 1) {
@@ -530,16 +548,22 @@ Object.defineProperty(selection, 'cells', {
 
         Object.defineProperty(result, 'sum', {
             value: function () {
-                return this.map(el => {
+                let concat = this.some(el => !el.closest('.money,.number'));
+                let values = this.map((el, ix, array) => {
                     let dims = ["div", "rs", "un", "prod", "cta", "indicador", "cl", "fecha", "value"];
                     let cell = el.select(dims.map(dim => `ancestor-or-self::*/@${dim}[1]`).join("|")).filter(attr => attr.value).reduce((cell, attr) => { cell[attr.name] = attr.value || ''; return cell }, {});
 
                     if (!cell.hasOwnProperty("value")) {
                         let value = (el.querySelector("input") || el).value;
-                        cell["value"] = parseFloat(value.replace(/%|\$|,/g, '').replace(/\(/g, '-')) || 0;
+                        if (concat) {
+                            cell["value"] = value;
+                        } else {
+                            cell["value"] = parseFloat(value.replace(/%|\$|,/g, '').replace(/\(/g, '-')) || 0;
+                        }
                     }
-                    return parseFloat(cell["value"] || 0)
-                }).filter(value => isFinite(value)).reduce((sum, item) => sum + item, 0)
+                    return concat ? cell["value"] : parseFloat(cell["value"] || 0)
+                })
+                return concat ? (values).distinct().filter(value => value).join(", ") : values.reduce((sum, item) => sum + item, 0)
             }, writable: false, configurable: false, enumerable: false
         })
 
@@ -781,7 +805,7 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`,`beforeFetch::#auxiliar_cuentas`,`beforeFetch::#balance_operativo`,`beforeFetch::#detalle_problemas`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`], function ({ source, document, parameters }) {
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
     delete parameters["@start_week"];
@@ -871,7 +895,7 @@ mostrarRegistros = function () {
 
 xover.listener.on('click::.filterable', function () {
     if (!selection.cells.length || selection.cells.concat(this).includes(this.closest('td,.cell'))) {
-        let filters = selection.cells.concat(this).map(cell => cell.scope).reduce((result,scope) => { result[scope.localName]=(result[scope.localName] || []); result[scope.localName].push(scope.value); return result}, {});
+        let filters = selection.cells.concat(this).map(cell => cell.scope).reduce((result, scope) => { result[scope.localName] = (result[scope.localName] || []); result[scope.localName].push(scope.value); return result }, {});
         let scope = this.scope;
         let model = scope.closest("model");
         let target = scope.selectSingleNode(`ancestor::*[parent::model]`);
@@ -880,7 +904,7 @@ xover.listener.on('click::.filterable', function () {
             delete filters[scope.localName]
         }
 
-        
+
         for (let key of Object.keys(filters)) {
             target.setAttributeNS('http://panax.io/state/filter', `filter:${key}`, filters[key].distinct().join("|"))
         }

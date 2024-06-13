@@ -2,19 +2,14 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
 xmlns:session="http://panax.io/session"
-xmlns:sitemap="http://panax.io/sitemap"
 xmlns:data="http://panax.io/data"
-xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:datagrid="http://panaxbi.com/widget/datagrid"
-xmlns:x="urn:schemas-microsoft-com:office:excel"
-xmlns:v="urn:schemas-microsoft-com:office:excel"
 xmlns:xo="http://panax.io/xover"
-exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>
@@ -38,19 +33,11 @@ exclude-result-prefixes="#default session sitemap shell"
 	<xsl:key name="data_type" match="movimientos//@Balance" use="'money'"/>
 	<xsl:key name="data_type" match="movimientos//@Amount" use="'money'"/>
 
-	<xsl:key name="mock" match="//movimientos/row[@xsi:type]" use="name(..)"/>
 	<xsl:key name="rows" match="//movimientos/row[not(@xsi:type)]" use="name(..)"/>
 	<xsl:key name="facts" match="//movimientos/row/@*[.!='' and namespace-uri()='']" use="name()"/>
 
-	<xsl:key name="groupBy" match="model/account/row/@key" use="name(../..)"/>
-	<xsl:key name="groupBy" match="model/movimientos[not(row/@xsi:type)]" use="''"/>
-
 	<xsl:key name="data" match="//movimientos[not(row/@xsi:type)]/row" use="@Account"/>
 	<xsl:key name="data" match="/model/movimientos[not(row/@xsi:type)]/row" use="'*'"/>
-
-	<xsl:template mode="week" match="fechas/row/@*">
-		<xsl:value-of select="../@week"/>
-	</xsl:template>
 
 	<xsl:key name="data:group" match="model/account/row/@key" use="name(../..)"/>
 	<xsl:key name="data:group" match="model/movimientos[not(row/@xsi:type)]" use="'*'"/>
@@ -65,6 +52,12 @@ exclude-result-prefixes="#default session sitemap shell"
 		<main xmlns="http://www.w3.org/1999/xhtml">
 			<xsl:apply-templates mode="datagrid:widget" select="model/movimientos"/>
 		</main>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:cell-content" match="@Amount">
+		<a class="link" href="?value={.}#detalle_{translate(/*/@env:store,'#','')}?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}&amp;@account={../@Code}">
+			<xsl:apply-templates select="."/>
+		</a>
 	</xsl:template>
 
 	<xsl:template mode="bodies" match="@*">
