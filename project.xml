@@ -67,10 +67,10 @@
 			<item title="Cuentas por cobrar se agrega a este reporte" type="feature" xo:id="item_32a25b18_6687_417d_826c_95a728a36fa9"/>
 		</item>
 		<item title="Dashboard con gráficas" type="report" xo:id="item_c2b71f47_dfe0_40ec_8f1b_8d305ccec3da"/>
-		<item title="Auxiliar de cuentas" type="report" xo:id="item_94a77eaf_0e78_4270_b198_f038d2fcda78">
-			<item title="Auxiliar de cuentas detalladas" type="feature" xo:id="item_9fd7e198_f112_44ae_bc8a_05e37eef8fc3" xmlns:height="http://panax.io/state/height" height:description="86" xmlns:width="http://panax.io/state/width" width:description="1134" description="Te lleva al reporte de Detalle de Cuentas"/>
+		<item title="Auxiliar de cuentas" type="report" xo:id="item_94a77eaf_0e78_4270_b198_f038d2fcda78" state:active="true" percent="100">
+			<item xmlns:height="http://panax.io/state/height" xmlns:width="http://panax.io/state/width" title="Auxiliar de cuentas detalladas" type="feature" xo:id="item_9fd7e198_f112_44ae_bc8a_05e37eef8fc3" height:description="86" width:description="1134" description="Te lleva al reporte de Detalle de Cuentas" percent="100"/>
 		</item>
-		<item title="Comparativa de movimientos operativos" type="report" xo:id="item_22e08388_5b4a_4d68_88b5_7ac912468acb" state:active="true" xmlns:height="http://panax.io/state/height" height:description="86" xmlns:width="http://panax.io/state/width" width:description="1134" description="Seleccionar las cuentas de ingreso y las cuentas de egreso y mostrarlas como el reporte de balance"/>
+		<item xmlns:height="http://panax.io/state/height" xmlns:width="http://panax.io/state/width" title="Comparativa de movimientos operativos" type="report" xo:id="item_22e08388_5b4a_4d68_88b5_7ac912468acb" height:description="86" width:description="1134" description="Seleccionar las cuentas de ingreso y las cuentas de egreso y mostrarlas como el reporte de balance" percent="100"/>
 	</item>
 	<item xmlns:height="http://panax.io/state/height" xmlns:width="http://panax.io/state/width" title="Tickets" xo:id="item_e6b34c5c_eb94_4ae0_8355_badda34f901c" height:description="86" width:description="1134" state:selected="true">
 		<item title="20240531 - Registros faltantes en reporte de ventas por fecha de embarque" xo:id="item_6cf218de_f423_43d2_bb4c_d095306cc825" height:description="86" width:description="1134" description="El cliente reporta que el detalle de los registros no corresponden a los que se muestran en isolve. Se anexan imágenes de isolve y la evidencia de que en PanaxBI no funciona" height:comment="86" width:comment="1134" comment="Se corrige en la base de datos. Se genera prueba unitaria con nombre sales_order_20240531_01. Se anexan validaciones en excel y evidencia de corrección en PanaxBI" percent="100">
@@ -87,5 +87,5 @@
 		</item>
 		<item title="20240515 - Agrupación y PO duplicada" xo:id="item_21ed318d_2268_4bc2_bcbb_6954c286aa05"/>
 		<item title="20240524 - PO con reempaque y cambio de presentación" xo:id="item_2f15f4e2_6193_44a3_ae4e_3f376034670b"/>
-	</item>
+		<item title="20240611 - Login de google no se muestra" xo:id="item_051ba590_da78_42b1_9b4f_c4660cbd9942" height:description="86" width:description="1134" description="Cuando se termina la sesión, el botón de acceder con Google no vuelve a aparecer" comment="Se corrige con la nueva versión" percent="100"/></item>
 </gantt>
