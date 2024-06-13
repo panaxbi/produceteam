@@ -90,12 +90,12 @@ exclude-result-prefixes="#default session sitemap shell"
 					--sticky-top: 34px;
 				}
 				
-				[xo-source="#balance_operativo"] tbody [scope=row] {
+				[xo-source^="#balance_operativo"] tbody [scope=row] {
 					background-color: #fc0;
 					font-weight: bolder;
 				}
 				
-				[xo-source="#balance_operativo"] a {
+				[xo-source^="#balance_operativo"] a {
 					text-decoration: none;
 					color: inherit;
 					cursor: pointer;
