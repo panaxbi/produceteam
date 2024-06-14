@@ -751,6 +751,10 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     let amt = this.select(`//ventas/row/@amt`).reduce(Sum);
     let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum);
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
+    let tcos = this.select(`//ventas/row/@tcos`).reduce(Sum);
+    let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum);
+    this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt - tcos - amt_ad ) / qtym);
+
 })
 
 xo.listener.on(`beforeTransform::model[*/@filter:*]`, function ({ document }) {

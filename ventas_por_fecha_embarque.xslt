@@ -361,6 +361,10 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:value-of select="ancestor::ventas[1]/@state:avg_upce"/>
 	</xsl:template>
 
+	<xsl:template mode="aggregate" match="@pce" priority="1">
+		<xsl:value-of select="ancestor::ventas[1]/@state:avg_pce"/>
+	</xsl:template>
+
 	<xsl:template mode="footer-cell" match="@ucos" priority="1">
 		<td></td>
 	</xsl:template>
