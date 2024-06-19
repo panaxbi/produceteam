@@ -296,14 +296,18 @@ xo.listener.on('click::.dropdown li', function () {
 		<xsl:value-of select="../@id"/>
 	</xsl:template>
 
-	<xsl:template mode="combobox:display-text" match="@*">
-		<xsl:param name="dataset" select="node-expected"/>
-		<xsl:value-of select="$dataset[../@id=current()]"/>
+	<xsl:template mode="combobox:option-value" match="*[@key]/@*">
+		<xsl:value-of select="../@key"/>
 	</xsl:template>
 
-	<xsl:template mode="combobox:option-selected" match="*[@id]/@*">
+	<xsl:template mode="combobox:display-text" match="@*">
+		<xsl:param name="dataset" select="node-expected"/>
+		<xsl:value-of select="$dataset[../@id=current() or ../@key=current()]"/>
+	</xsl:template>
+
+	<xsl:template mode="combobox:option-selected" match="*[@id or @key]/@*">
 		<xsl:param name="selected-value" select="node-expected|current()"/>
-		<xsl:if test="../@id = $selected-value">
+		<xsl:if test="../@id = $selected-value or ../@key = $selected-value">
 			<xsl:attribute name="selected"/>
 		</xsl:if>
 	</xsl:template>

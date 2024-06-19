@@ -135,8 +135,97 @@ exclude-result-prefixes="#default session sitemap shell"
 				tbody .header th[scope="row"] {
 					text-align: center;
 				}
+				
+				.arrow {
+					width: 0;
+					height: 0;
+					border-left: 5px solid transparent;
+					border-right: 5px solid transparent;
+					border-top: 10px solid red;
+					display: none;
+					position: absolute;
+				}
 			]]>
 		</style>
+		<script>
+			<![CDATA[
+			xover.listener.on('render', function(){
+				let draggedColIndex, targetColIndex;
+				let arrow;
+
+				function createArrow() {
+					arrow = document.createElement('div');
+					arrow.classList.add('arrow');
+					document.body.appendChild(arrow);
+				}
+
+				function moveArrow(target, x) {
+					const bounding = target.getBoundingClientRect();
+					arrow.style.top = `${bounding.bottom + window.scrollY}px`;
+					arrow.style.left = `${x}px`;
+					arrow.style.display = 'block';
+				}
+
+				function removeArrow() {
+					if (arrow) {
+						arrow.style.display = 'none';
+					}
+				}
+
+				document.querySelectorAll('th').forEach((th, index) => {
+					th.dragstart_handler = th.dragstart_handler || function (e) {
+						draggedColIndex = this.cellIndex;
+						createArrow();
+					}
+					th.removeEventListener('dragstart', th.dragstart_handler);
+					th.addEventListener('dragstart', th.dragstart_handler);
+
+					th.dragover_handler = th.dragover_handler || function (e) {
+						e.preventDefault();
+						targetColIndex = this.cellIndex;
+						const bounding = th.getBoundingClientRect();
+						const offset = bounding.x + bounding.width / 2;
+						if (e.clientX > offset) {
+							targetColIndex += 1;
+							moveArrow(th, bounding.right);
+						} else {
+							moveArrow(th, bounding.left);
+						}
+					}
+					th.removeEventListener('dragover', th.dragover_handler);
+					th.addEventListener('dragover', th.dragover_handler);
+
+					th.drop_handler = th.drop_handler || function (e) {
+						e.preventDefault();
+						removeArrow();
+						if (draggedColIndex !== targetColIndex) {
+							moveColumn(draggedColIndex, targetColIndex);
+						}
+					}
+					th.removeEventListener('drop', th.drop_handler);
+					th.addEventListener('drop', th.drop_handler);
+
+					th.dragleave_handler = th.dragleave_handler || function (e) {
+						removeArrow();
+					}
+					th.removeEventListener('dragleave', th.dragleave_handler);
+					th.addEventListener('dragleave', th.dragleave_handler);
+				});
+
+				function moveColumn(fromIndex, toIndex) {
+					const table = document.querySelector('table');
+					const rows = table.rows;
+					for (let row of rows) {
+						const cells = row.cells;
+						const fromCell = cells[fromIndex];
+						const toCell = cells[toIndex];
+
+						fromCell.parentNode.insertBefore(fromCell, toCell)
+					}
+				}
+			})
+			]]>
+		</script>
 		<table class="table table-striped selection-enabled datagrid">
 			<xsl:apply-templates mode="datagrid:colgroup" select=".">
 				<xsl:with-param name="x-dimension" select="$x-dimensions"/>
@@ -274,7 +363,7 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:variable name="classes">
 			<xsl:apply-templates mode="datagrid:header-cell-classes" select="."/>
 		</xsl:variable>
-		<th scope="col">
+		<th scope="col" draggable="true">
 			<div class="d-flex flex-nowrap">
 				<xsl:apply-templates mode="datagrid:header-cell-options" select="."/>
 				<label class="{$classes}">

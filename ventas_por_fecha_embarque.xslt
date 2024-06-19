@@ -27,6 +27,9 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="datatype" match="ventas/row/@lot_rd" use="'date'"/>
 	<xsl:key name="datatype" match="ventas/row/@clm_dt" use="'date'"/>
 
+	<xsl:key name="datatype" match="ventas/row/@sls" use="'money'"/>
+	<xsl:key name="datatype" match="ventas/row/@cos" use="'money'"/>
+	<xsl:key name="datatype" match="ventas/row/@abs_exp" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@upce" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@ucos" use="'money'"/>
 	<xsl:key name="datatype" match="ventas/row/@tcos" use="'money'"/>
