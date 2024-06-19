@@ -2,9 +2,7 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
 xmlns:session="http://panax.io/session"
-xmlns:sitemap="http://panax.io/sitemap"
 xmlns:data="http://panax.io/data"
-xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
@@ -12,7 +10,6 @@ xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:datagrid="http://panaxbi.com/widget/datagrid"
 xmlns:xo="http://panax.io/xover"
-exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="../functions.xslt"/>
 	<xsl:key name="state:hidden" match="@*[namespace-uri()!='']" use="name()"/>
@@ -219,8 +216,9 @@ exclude-result-prefixes="#default session sitemap shell"
 						const cells = row.cells;
 						const fromCell = cells[fromIndex];
 						const toCell = cells[toIndex];
-
-						fromCell.parentNode.insertBefore(fromCell, toCell)
+						try {
+							fromCell.parentNode.insertBefore(fromCell, toCell)
+						} catch(e) {}
 					}
 				}
 			})
@@ -474,14 +472,6 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:value-of select="sum(key('facts',name()))"/>
 	</xsl:template>
 
-	<xsl:template mode="datagrid:aggregate" match="@upce" priority="1">
-		<xsl:value-of select="ancestor::movimientos[1]/@state:avg_upce"/>
-	</xsl:template>
-
-	<xsl:template mode="datagrid:footer-cell" match="@ucos" priority="1">
-		<td></td>
-	</xsl:template>
-
 	<xsl:template mode="datagrid:footer-cell" match="key('data_type', 'avg')">
 		<td>
 			<xsl:call-template name="format">
@@ -512,6 +502,9 @@ exclude-result-prefixes="#default session sitemap shell"
 	</xsl:template>
 
 	<xsl:template mode="datagrid:tbody-header" match="@*">
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header" match="@*">
 		<xsl:param name="dimensions" select="."/>
 		<xsl:param name="x-dimension" select="node-expected"/>
 		<xsl:param name="y-dimension" select="node-expected"/>
@@ -527,8 +520,9 @@ exclude-result-prefixes="#default session sitemap shell"
 			</th>
 			<th class="money">
 				<strong>
+					<xsl:variable name="last_field" select="name($x-dimension[last()])"/>
 					<xsl:call-template name="format">
-						<xsl:with-param name="value" select="sum($rows/@Amount[.!=''])"/>
+						<xsl:with-param name="value" select="sum($rows/@*[name()=$last_field][.!=''])"/>
 					</xsl:call-template>
 				</strong>
 			</th>
