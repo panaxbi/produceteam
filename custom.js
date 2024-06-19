@@ -14,7 +14,9 @@ function onGoogleLogin(response) {
 }
 
 xover.listener.on('beforeRender::#login', function () {
-    [...document.querySelectorAll(`script[src*="accounts.google.com"]`)].remove()
+    if (xo.session.status != 'authorizing') {
+        [...document.querySelectorAll(`script[src*="accounts.google.com"]`)].remove()
+    }
 })
 
 async function progressiveRequest(params) {
@@ -753,7 +755,7 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
     let tcos = this.select(`//ventas/row/@tcos`).reduce(Sum);
     let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum);
-    this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt - tcos - amt_ad ) / qtym);
+    this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt - tcos - amt_ad) / qtym);
 
 })
 

@@ -177,6 +177,9 @@
   <data name="@pov" xml:space="preserve">
     <value>Vendor</value>
   </data>
+  <data name="@po_cte" xml:space="preserve">
+    <value>PO Customer</value>
+  </data>
   <data name="@qtym" xml:space="preserve">
     <value>Qty (UOM)</value>
   </data>

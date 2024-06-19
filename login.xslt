@@ -123,7 +123,7 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 								<xsl:otherwise>Ingresar</xsl:otherwise>
 							</xsl:choose>
 						</button>
-						<xsl:if test="$js:secure='true'">
+						<xsl:if test="$js:secure='true' and $session:status!='authorizing'">
 							<div class="container" xo-static="self::*">
 								<!--<div class="g-signin2" data-onsuccess="onGoogleLogin" ></div>-->
 								<div id="g_id_onload"
