@@ -212,7 +212,7 @@ xo.components.combobox.change = function () {
     let srcElement = event.srcElement;
     let dropdown = srcElement.closest('.dropdown');
 	let selected_option = this.options[this.selectedIndex];
-	let value = (selected_option  || documente.createElement('p')).getAttributeNode("value");
+	let value = (selected_option  || document.createElement('p')).getAttributeNode("value");
 	this.scope.set(value instanceof Attr ? value.value : selected_option.scope || select_option.value);
     let toggler = dropdown.querySelector("[data-bs-toggle]");
     try {
@@ -273,7 +273,7 @@ xo.components.combobox.keydown = function (event) {
     toggler && new bootstrap.Dropdown(toggler).hide();
     let input = dropdown.querySelector('input');
     let active_item = optionsList.querySelectorAll("li, option").toArray().filter(option => !(option.disabled || option.classList.contains("disabled")) && (option.selected || option.classList.contains("active"))).pop();
-	value = (active_item  || documente.createElement('p')).getAttributeNode("value");
+	value = (active_item  || document.createElement('p')).getAttributeNode("value");
     if (value) scope.set(value);
     if (input === input.ownerDocument.activeElement) input.blur();
 }
