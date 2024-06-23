@@ -124,6 +124,7 @@ Object.defineProperty(xo.session, 'login', {
             xover.stores.active.render();
         } catch (e) {
             xover.session.status = 'unauthorized';
+            [...document.querySelectorAll(`script[src*="accounts.google.com"]`)].remove()
             Promise.reject(e);
         }
     }, writable: true, configurable: true

@@ -83,7 +83,7 @@
 							</xsl:apply-templates>
 						</xsl:attribute>
 						<xsl:attribute name="onfocus">
-							<xsl:text/>this.value = scope.value || `<xsl:value-of select="current()"/>` || this.value;<xsl:text/>
+							<xsl:text/>this.value = scope.value || `<xsl:value-of select="current()"/>` || this.value; event.preventDefault()<xsl:text/>
 						</xsl:attribute>
 					</input>
 				</div>
@@ -168,7 +168,11 @@ xo.components.combobox.filter = function (event) {
 			focus_attr && focus_attr.remove()
 			toggler = (bootstrap.Dropdown.getOrCreateInstance(toggler))
 			xo.listener.turnOff()
+			xover.disablePolyfill["toString"] = true;
 			toggler.show();
+			xo.delay(100).then(()=>{
+				delete xover.disablePolyfill["toString"];
+			});
 			xo.listener.on()
 			focus_attr && self.setAttributeNode(focus_attr)
 		}
@@ -181,7 +185,7 @@ xo.components.combobox.filter = function (event) {
 		showDropdown()
 	}
     let optionsList = self.ownerDocument.contains(self.optionsList) && self.optionsList || dropdown.querySelector('.dropdown-menu');
-	optionsList.ownerDocument.disconnect()
+	//optionsList.ownerDocument.disconnect()
     self.optionsList = optionsList;
 
     let options = optionsList.querySelectorAll(".filterable li,.filterable option");

@@ -18,6 +18,7 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 	<xsl:param name="session:connection_id"/>
 	<xsl:param name="year">new Date().getFullYear()</xsl:param>
 	<xsl:param name="js:secure"><![CDATA[location.protocol.indexOf('https')!=-1 || location.hostname=='localhost']]></xsl:param>
+	<xsl:param name="site:seed"/>
 	<xsl:param name="site:location-host"/>
 	<xsl:param name="site:location-pathname"/>
 
@@ -114,7 +115,13 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 						<button class="btn btn-lg btn-primary btn-block color-orange" type="submit">
 							<xsl:choose>
 								<xsl:when test="$session:status='authorized'">
-									<xsl:attribute name="onclick">xo.site.hash='#'</xsl:attribute>
+									<xsl:attribute name="type">button</xsl:attribute>
+									<xsl:attribute name="onclick">
+										<xsl:choose>
+											<xsl:when test="$site:seed = '#login'">xo.site.hash='#'</xsl:when>
+											<xsl:otherwise>xo.stores.seed.render()</xsl:otherwise>
+										</xsl:choose>
+									</xsl:attribute>
 									Continuar
 								</xsl:when>
 								<xsl:when test="$session:status='authorizing'">
