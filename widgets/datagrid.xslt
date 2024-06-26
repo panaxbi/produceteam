@@ -338,6 +338,10 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:text/> money number<xsl:text/>
 	</xsl:template>
 
+	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'percent')">
+		<xsl:text/> percent number<xsl:text/>
+	</xsl:template>
+
 	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'integer')">
 		<xsl:text/> integer number<xsl:text/>
 	</xsl:template>
