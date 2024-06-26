@@ -198,6 +198,7 @@ xmlns:xo="http://panax.io/xover"
 						if (draggedColIndex !== targetColIndex) {
 							moveColumn(draggedColIndex, targetColIndex);
 						}
+						this.dispatch('columnRearranged');
 					}
 					th.removeEventListener('drop', th.drop_handler);
 					th.addEventListener('drop', th.drop_handler);
@@ -334,7 +335,11 @@ xmlns:xo="http://panax.io/xover"
 	</xsl:template>
 
 	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'money')">
-		<xsl:text/> money<xsl:text/>
+		<xsl:text/> money number<xsl:text/>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'integer')">
+		<xsl:text/> integer number<xsl:text/>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:cell" match="@*">

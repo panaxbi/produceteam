@@ -751,11 +751,11 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
         this.select(`//ventas/row[${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
     }
 
-    let amt = this.select(`//ventas/row/@amt`).reduce(Sum);
-    let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum);
+    let amt = this.select(`//ventas/row/@amt`).reduce(Sum, 0);
+    let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum, 0);
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
-    let tcos = this.select(`//ventas/row/@tcos`).reduce(Sum);
-    let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum);
+    let tcos = this.select(`//ventas/row/@tcos`).reduce(Sum, 0);
+    let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum,0);
     this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt - tcos - amt_ad) / qtym);
 
 })
@@ -995,4 +995,13 @@ xo.listener.on('xover-initialized', function ({ progress_renders }) {
 
 xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
     return { "message": "" };
+})
+
+xover.listener.on(`columnRearranged`, function () {
+    let tr = this.closest('tr');
+    let node = tr.scope;
+    node.ownerDocument.disconnect();
+    let attributes = tr.querySelectorAll(':scope > th').toArray().map(th => th.getAttributeNode("xo-slot")).filter(slot => slot).map(slot => slot.scope.cloneNode());
+    [...node.attributes].filter(attr => !attr.namespaceURI).remove();
+    attributes.forEach(attr => node.setAttributeNode(attr));
 })
