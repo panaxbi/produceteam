@@ -93,7 +93,7 @@ async function progressiveRequest(params) {
     return response;
 }
 
-xo.listener.on('beforeFetch::#ventas_por_fecha_embarque', async function ({ settings = {} }) {
+xo.listener.on(['beforeFetch::#ventas_por_fecha_embarque', 'beforeFetch::#KPI_ventas'], async function ({ settings = {} }) {
     return;
     settings.progress = await xo.sources["loading.xslt"].render()
     for (let render of settings.progress) {
@@ -842,7 +842,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on(`beforeFetch::#ventas_por_fecha_embarque`, function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`,`beforeFetch::#KPI_ventas`], function ({ source, document, parameters }) {
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
     delete parameters[`@grower_lot`]
@@ -935,7 +935,7 @@ xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#
     }
 })
 
-xo.listener.on("fetch::#ventas_por_fecha_embarque", function ({ document }) {
+xo.listener.on(["fetch::#ventas_por_fecha_embarque", "fetch::#KPI_ventas"], function ({ document }) {
     if (document instanceof Comment && document.data == 'ack:empty') {
         throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     }

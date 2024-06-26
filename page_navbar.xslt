@@ -67,7 +67,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 	<xsl:key name="year" match="fechas/fecha/@mes" use="substring(.,1,4)"/>
 	<xsl:template mode="buttons" match="*"/>
 
-	<xsl:template mode="widget" match="model[@env:store='#ventas_por_fecha_embarque']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#ventas_por_fecha_embarque' or @env:store='#KPI_ventas']/@*">
 		<style>
 			:root { --sections-filter-height: 86px; }
 			filter_by option {
@@ -153,7 +153,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 		</fieldset>
 	</xsl:template>
 
-	<xsl:template mode="headerText" match="model[@env:store='#ventas_por_fecha_embarque']/fechas">
+	<xsl:template mode="headerText" match="model[@env:store='#ventas_por_fecha_embarque' or @env:store='#KPI_ventas']/fechas">
 		<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="ship_date">
 				<xsl:if test="$state:filterBy='' or $state:filterBy='ship_date'">
