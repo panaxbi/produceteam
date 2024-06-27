@@ -98,21 +98,21 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 				<xsl:choose>
 					<xsl:when test="$js:secure='true'">
 						<label for="username" class="sr-only">Username</label>
-						<input type="text" id="username" class="form-control" placeholder="Username" autocomplete="username" required="" autofocus="" oninvalid="this.setCustomValidity('Escriba su usuario')" oninput="this.setCustomValidity('')" value="{$session:user_login}" xo-slot="username">
+						<input type="text" id="username" class="form-control" placeholder="Username" autocomplete="username" required="" autofocus="" oninvalid="this.setCustomValidity('Escriba su usuario')" oninput="this.setCustomValidity('')" value="{$session:user_login}" xo-slot="username" disabled="">
 							<xsl:if test="@username">
 								<xsl:attribute name="value">
 									<xsl:value-of select="@username"/>
 								</xsl:attribute>
 							</xsl:if>
 						</input>
-						<label for="password" class="sr-only">Password</label>
+						<!--<label for="password" class="sr-only">Password</label>
 						<input type="password" id="password" class="form-control" placeholder="Password" autocomplete="current-password" required="" oninvalid="this.setCustomValidity('Escriba su contraseña')" oninput="this.setCustomValidity('')">
 							<xsl:if test="$session:status='authorizing' or $session:status='authorized'">
 								<xsl:attribute name="style">visibility:hidden;</xsl:attribute>
 								<xsl:attribute name="readonly"></xsl:attribute>
 							</xsl:if>
-						</input>
-						<button class="btn btn-lg btn-primary btn-block color-orange" type="submit">
+						</input>-->
+						<!--<button class="btn btn-lg btn-primary btn-block color-orange" type="submit">
 							<xsl:choose>
 								<xsl:when test="$session:status='authorized'">
 									<xsl:attribute name="type">button</xsl:attribute>
@@ -129,7 +129,7 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 								</xsl:when>
 								<xsl:otherwise>Ingresar</xsl:otherwise>
 							</xsl:choose>
-						</button>
+						</button>-->
 						<xsl:if test="$js:secure='true' and $session:status!='authorizing'">
 							<div class="container" xo-static="self::*">
 								<!--<div class="g-signin2" data-onsuccess="onGoogleLogin" ></div>-->

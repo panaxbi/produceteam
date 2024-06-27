@@ -40,6 +40,19 @@ table thead.freeze td.freeze img, table thead.freeze th.freeze img {
     z-index: 912;
 }
 
+table thead th:nth-child(even) {
+    background-color: lightgrey;
+}
+
+table thead th label {
+    width: 100%;
+    text-align: center;
+}
+
+table tbody td {
+    text-align: center;
+}
+
 th.rotate, td.rotate {
     /* Something you can count on */
     height: 140px;

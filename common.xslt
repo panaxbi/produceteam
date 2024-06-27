@@ -98,7 +98,7 @@ xmlns="http://www.w3.org/1999/xhtml"
 
 	<xsl:template match="key('data_type', 'percent')">
 		<xsl:call-template name="format-percent">
-			<xsl:with-param name="value" select=". div 100"></xsl:with-param>
+			<xsl:with-param name="value" select="."></xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
