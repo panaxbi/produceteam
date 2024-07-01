@@ -178,7 +178,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 		</select>
 	</xsl:template>
 
-	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos' or @env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#detalle_problemas']/*[self::semanas|self::fechas]">
+	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos' or @env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#detalle_problemas' or @env:store='#auxiliar_cuentas']/*[self::semanas|self::fechas]">
 		<select class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="weeks">
 				<xsl:if test="$state:filterBy='weeks'">
@@ -407,14 +407,17 @@ xmlns:combobox="http://panax.io/widget/combobox"
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos']/@*">
+		<xsl:comment>debug:info</xsl:comment>
 		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas']/@*">
+		<xsl:comment>debug:info</xsl:comment>
 		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model[@env:store='#detalle_problemas']/@*">
+		<xsl:comment>debug:info</xsl:comment>
 		<xsl:apply-templates mode="widget" select="../semanas[$state:filterBy='weeks' or string($state:filterBy)='']|../fechas[$state:filterBy='dates']|../@state:trouble[$state:filterBy='trouble']|../@state:purchase_order[$state:filterBy='purchase_order']|../@state:order[$state:filterBy='order']|../commodity|../cliente"/>
 	</xsl:template>
 
