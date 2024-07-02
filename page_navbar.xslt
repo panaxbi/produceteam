@@ -111,12 +111,13 @@ xmlns:combobox="http://panax.io/widget/combobox"
 				</xsl:otherwise>
 			</xsl:choose>
 		</fieldset>
-		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../cliente"/>
+		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente"/>
 	</xsl:template>
 
 	<xsl:key name="state:selected" match="model/*/row[@id=../@state:selected]/@desc" use="generate-id()"/>
 	<xsl:key name="state:selected" match="model/*/row[@key=../@state:selected]/@desc" use="generate-id()"/>
 	<xsl:key name="state:selected" match="model/commodity/row[@id=../../@state:commodity]/@desc" use="generate-id()"/>
+	<xsl:key name="state:selected" match="model/variedad/row[@id=../../@state:variedad]/@desc" use="generate-id()"/>
 	<xsl:key name="state:selected" match="model/cliente/row[@id=../../@state:cliente]/@desc|model/agricultor/row[@id=../../@state:agricultor]/@desc" use="generate-id()"/>
 
 	<xsl:template mode="widget" match="model/*">
@@ -418,7 +419,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 
 	<xsl:template mode="widget" match="model[@env:store='#detalle_problemas']/@*">
 		<xsl:comment>debug:info</xsl:comment>
-		<xsl:apply-templates mode="widget" select="../semanas[$state:filterBy='weeks' or string($state:filterBy)='']|../fechas[$state:filterBy='dates']|../@state:trouble[$state:filterBy='trouble']|../@state:purchase_order[$state:filterBy='purchase_order']|../@state:order[$state:filterBy='order']|../commodity|../cliente"/>
+		<xsl:apply-templates mode="widget" select="../semanas[$state:filterBy='weeks' or string($state:filterBy)='']|../fechas[$state:filterBy='dates']|../@state:trouble[$state:filterBy='trouble']|../@state:purchase_order[$state:filterBy='purchase_order']|../@state:order[$state:filterBy='order']|../commodity|../variedad|../cliente"/>
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model/@state:*">

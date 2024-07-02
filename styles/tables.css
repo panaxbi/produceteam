@@ -41,7 +41,7 @@ table thead.freeze td.freeze img, table thead.freeze th.freeze img {
 }
 
 table thead th:nth-child(even) {
-    background-color: lightgrey;
+    background-color: #f2f2f2;
 }
 
 table thead th label {

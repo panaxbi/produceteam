@@ -19,6 +19,9 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:value-of select="../@week"/>
 	</xsl:template>
 
+	<xsl:key name="comision-qty" match="commissions/row/@qty" use="concat(../@wk,'::',../@gr)"/>
+	<xsl:key name="comision-amt" match="commissions/row/@amt" use="concat(../@wk,'::',../@gr)"/>
+	<xsl:key name="comision-pfit" match="commissions/row/@pfit" use="concat(../@wk,'::',../@gr)"/>
 	<xsl:template match="/">
 		<main xmlns="http://www.w3.org/1999/xhtml">
 			<style>
@@ -1505,7 +1508,13 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">COMISIÓN LOTES EXTERNOS</td>
 							<xsl:for-each select="$dates">
-								<td class="xl81722">$4,036.68</td>
+								<td class="xl81722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value">
+											<xsl:value-of select="key('comision-amt', concat(.,'::','other'))"/>
+										</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl82722">$30,764.26</td>
 						</tr>
@@ -1513,7 +1522,12 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">CAJAS LOTE EXTERNOS</td>
 							<xsl:for-each select="$dates">
-								<td class="xl77722">2,499</td>
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="key('comision-qty', concat(.,'::','other'))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl77722">20,971</td>
 						</tr>
@@ -1521,7 +1535,11 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">UTILIDAD /PÉRDIDA POR CAJA EXTERNOS</td>
 							<xsl:for-each select="$dates">
-								<td class="xl85722">$1.62</td>
+								<td class="xl85722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="key('comision-pfit', concat(.,'::','other')) div key('comision-qty', concat(.,'::','other'))"></xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl85722">$1.47</td>
 						</tr>
@@ -1545,7 +1563,13 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">COMISIÓN LOTES INTEBAJ</td>
 							<xsl:for-each select="$dates">
-								<td class="xl81722">$16,649.64</td>
+								<td class="xl81722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value">
+											<xsl:value-of select="key('comision-amt', concat(.,'::','intebaj'))"/>
+										</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl82722">$199,703.80</td>
 						</tr>
@@ -1553,7 +1577,12 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">CAJAS LOTE INTEBAJ</td>
 							<xsl:for-each select="$dates">
-								<td class="xl77722">11,392</td>
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="key('comision-qty', concat(.,'::','intebaj'))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl77722">147,868</td>
 						</tr>
@@ -1561,7 +1590,11 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">UTILIDAD /PÉRDIDA POR CAJA INTEBAJ</td>
 							<xsl:for-each select="$dates">
-								<td class="xl85722">$1.46</td>
+								<td class="xl85722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="key('comision-pfit', concat(.,'::','intebaj')) div key('comision-qty', concat(.,'::','intebaj'))"></xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl85722">$1.35</td>
 						</tr>

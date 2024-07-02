@@ -755,7 +755,7 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
     let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum, 0);
     this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
     let tcos = this.select(`//ventas/row/@tcos`).reduce(Sum, 0);
-    let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum,0);
+    let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum, 0);
     this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt - tcos - amt_ad) / qtym);
 
 })
@@ -842,7 +842,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`,`beforeFetch::#KPI_ventas`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`], function ({ source, document, parameters }) {
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
     delete parameters[`@grower_lot`]
@@ -939,8 +939,17 @@ xo.listener.on(["fetch::#ventas_por_fecha_embarque", "fetch::#KPI_ventas"], func
     if (document instanceof Comment && document.data == 'ack:empty') {
         throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     }
-    let ventas = document.selectFirst('//ventas');
-    ventas && ventas.select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
+
+    let tr = this.document.selectFirst('//ventas');
+    if (tr) {
+        let node = document.selectFirst('//ventas');
+        node.ownerDocument.disconnect();
+        let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI).map(slot => slot.cloneNode());
+        [...node.attributes].filter(attr => !attr.namespaceURI).remove();
+        attributes.forEach(attr => node.setAttributeNode(attr));
+    }
+
+    //ventas && ventas.select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
 })
 
 function sortRows(header) {
@@ -1004,4 +1013,5 @@ xover.listener.on(`columnRearranged`, function () {
     let attributes = tr.querySelectorAll(':scope > th').toArray().map(th => th.getAttributeNode("xo-slot")).filter(slot => slot).map(slot => slot.scope.cloneNode());
     [...node.attributes].filter(attr => !attr.namespaceURI).remove();
     attributes.forEach(attr => node.setAttributeNode(attr));
+    tr.store.save();
 })
