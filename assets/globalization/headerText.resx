@@ -234,4 +234,7 @@
   <data name="cliente" xml:space="preserve">
     <value>Customer</value>
   </data>
+  <data name="variedad" xml:space="preserve">
+    <value>Variety</value>
+  </data>
 </root>

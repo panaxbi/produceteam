@@ -277,6 +277,7 @@ header h1 {
 .wrapper > nav.navbar {
     top: 0;
     z-index: 1002;
+    width: 100vw;
     /*background-color: white;*/
 }
 
@@ -299,6 +300,8 @@ footer {
 .wrapper {
     min-height: 100vh !important;
     height: auto !important;
+    min-width: 100vw;
+    width: fit-content;
 }
 
 .wrapper {

@@ -38,6 +38,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data_type" match="ventas//@ucos" use="'money'"/>
 	<xsl:key name="data_type" match="ventas//@tcos" use="'money'"/>
 	<xsl:key name="data_type" match="ventas//@pfit" use="'money'"/>
+	<xsl:key name="data_type" match="ventas//@pfit_c" use="'money'"/>
 	<xsl:key name="data_type" match="ventas//@pce" use="'money'"/>
 	<xsl:key name="data_type" match="ventas//@pce_ad" use="'money'"/>
 	<xsl:key name="data_type" match="ventas//@comm" use="'money'"/>

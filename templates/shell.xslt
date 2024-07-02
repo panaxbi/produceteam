@@ -46,6 +46,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 					padding-bottom: var(--padding-bottom, var(--footer-height));
 					overflow-y: scroll;
 					height: calc(100vh - var(--nav-height,0px) - var(--sections-filter-height,0px) - var(--footer-height, var(--margin-bottom, 20px)));
+					width: 100vw;
 				}
 				
 				header h1 {
