@@ -944,7 +944,7 @@ xo.listener.on(["fetch::#ventas_por_fecha_embarque", "fetch::#KPI_ventas"], func
     if (tr) {
         let node = document.selectFirst('//ventas');
         node.ownerDocument.disconnect();
-        let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI).map(slot => slot.cloneNode());
+        let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || attr.namespaceURI == "http://panax.io/state/filter").map(slot => slot.cloneNode());
         [...node.attributes].filter(attr => !attr.namespaceURI).remove();
         attributes.forEach(attr => node.setAttributeNode(attr));
     }
