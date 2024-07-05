@@ -55,7 +55,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 			<nav class="navbar navbar-expand-md">
 				<form action="javascript:void(0);" onsubmit="section.source.fetch()">
 					<xsl:apply-templates mode="widget" select="model/@xo:id"/>
-					<xsl:apply-templates mode="button" select="key('data','*')[not(*)]/@state:record_count[.&gt;0]"/>
+					<!--<xsl:apply-templates mode="button" select="key('data','*')[not(*)]/@state:record_count[.&gt;0]"/>-->
 				</form>
 				<ul id="shell_buttons" class="nav col-md justify-content-end list-unstyled d-flex">
 					<xsl:apply-templates mode="buttons"/>

@@ -1,9 +1,7 @@
 ﻿<xsl:stylesheet version="1.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
-xmlns:js="http://panax.io/xover/javascript"
 xmlns:session="http://panax.io/session"
-xmlns:sitemap="http://panax.io/sitemap"
 xmlns:data="http://panax.io/data"
 xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
@@ -12,10 +10,7 @@ xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:datagrid="http://panaxbi.com/widget/datagrid"
-xmlns:x="urn:schemas-microsoft-com:office:excel"
-xmlns:v="urn:schemas-microsoft-com:office:excel"
 xmlns:xo="http://panax.io/xover"
-exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>

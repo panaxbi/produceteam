@@ -4,8 +4,10 @@ xmlns="http://www.w3.org/1999/xhtml"
 xmlns:session="http://panax.io/session"
 xmlns:data="http://panax.io/data"
 xmlns:state="http://panax.io/state"
+xmlns:group="http://panax.io/state/group"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
+xmlns:dummy="http://panax.io/dummy"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:datagrid="http://panaxbi.com/widget/datagrid"
@@ -20,18 +22,24 @@ xmlns:xo="http://panax.io/xover"
 
 	<xsl:key name="facts" match="node-expected" use="name()"/>
 	<xsl:key name="data" match="node-expected" use="concat(generate-id(),'::',name())"/>
+	<xsl:key name="data" match="/model/*[not(row)]/@state:record_count" use="'*'"/>
 
 	<xsl:key name="data:group" match="node-expected/@key" use="name(../..)"/>
 	<xsl:key name="data:group" match="node-expected" use="'*'"/>
 
+	<xsl:key name="data:group" match="@group:*" use="'*'"/>
+	<xsl:key name="data:group" match="group:*/row/@desc" use="name(../..)"/>
+
 	<xsl:key name="x-dimension" match="node-expected/@*[namespace-uri()='']" use="name(..)"/>
 	<xsl:key name="y-dimension" match="node-expected/*" use="name(..)"/>
+
 
 	<xsl:param name="state:groupBy">*</xsl:param>
 
 	<xsl:template mode="datagrid:widget" match="*|@*">
 		<xsl:param name="x-dimensions" select="key('x-dimension', name(ancestor-or-self::*[1]))"/>
 		<xsl:param name="y-dimensions" select="key('y-dimension', name(ancestor-or-self::*[1]))"/>
+		<xsl:param name="groups" select="key('data:group',$state:groupBy)"/>
 		<xsl:variable name="data" select="key('data',node)"/>
 		<style>
 			<![CDATA[
@@ -79,6 +87,22 @@ xmlns:xo="http://panax.io/xover"
 			position: sticky;
 			top: var(--sticky-top, 45px);
 			background-color: var(--sticky-bg-color, white);
+		}
+		
+		.sticky.header-level-2 {
+			top: calc(var(--sticky-top, 45px)* 2);
+		}
+		
+		.sticky.header-level-3 {
+			top: calc(var(--sticky-top, 45px)* 3);
+		}
+		
+		.sticky.header-level-4 {
+			top: calc(var(--sticky-top, 45px)* 4);
+		}
+		
+		.sticky.header-level-5 {
+			top: calc(var(--sticky-top, 45px)* 5);
 		}
 		
 		div:has(>table) {
@@ -130,7 +154,7 @@ xmlns:xo="http://panax.io/xover"
 				}
 				
 				tbody .header th[scope="row"] {
-					text-align: center;
+					text-align: right;
 				}
 				
 				.arrow {
@@ -147,7 +171,8 @@ xmlns:xo="http://panax.io/xover"
 		<script>
 			<![CDATA[
 			xover.listener.on('render', function(){
-				let draggedColIndex, targetColIndex;
+			
+				let draggedColIndex, targetColIndex, dragged_el;
 				let arrow;
 
 				function createArrow() {
@@ -157,6 +182,7 @@ xmlns:xo="http://panax.io/xover"
 				}
 
 				function moveArrow(target, x) {
+					if (!arrow) return;
 					const bounding = target.getBoundingClientRect();
 					arrow.style.top = `${bounding.bottom + window.scrollY}px`;
 					arrow.style.left = `${x}px`;
@@ -164,13 +190,41 @@ xmlns:xo="http://panax.io/xover"
 				}
 
 				function removeArrow() {
-					if (arrow) {
-						arrow.style.display = 'none';
+					if (!arrow) return;
+					arrow.style.display = 'none';
+				}
+				
+				for (let tbody of [...document.querySelectorAll('table tbody')]) {
+					tbody.dragover_handler = tbody.dragover_handler || function (e) {
+						dragged_el
+						//debugger;
+						e.preventDefault();
+						/*
+						targetColIndex = this.cellIndex;
+						const bounding = tbody.getBoundingClientRect();
+						const offset = bounding.x + bounding.width / 2;
+						if (e.clientX > offset) {
+							targetColIndex += 1;
+							moveArrow(tbody, bounding.right);
+						} else {
+							moveArrow(tbody, bounding.left);
+						}*/
 					}
+					tbody.removeEventListener('dragover', tbody.dragover_handler);
+					tbody.addEventListener('dragover', tbody.dragover_handler);
+
+					tbody.drop_handler = tbody.drop_handler || function (e) {
+						e.preventDefault();
+						removeArrow();
+						this.dispatch('dropped', {target: this, srcElement: dragged_el});
+					}
+					tbody.removeEventListener('drop', tbody.drop_handler);
+					tbody.addEventListener('drop', tbody.drop_handler);
 				}
 
 				document.querySelectorAll('th').forEach((th, index) => {
 					th.dragstart_handler = th.dragstart_handler || function (e) {
+						dragged_el = this;
 						draggedColIndex = this.cellIndex;
 						createArrow();
 					}
@@ -214,6 +268,7 @@ xmlns:xo="http://panax.io/xover"
 					const table = document.querySelector('table');
 					const rows = table.rows;
 					for (let row of rows) {
+						if (row.classList.contains("header")) continue;
 						const cells = row.cells;
 						const fromCell = cells[fromIndex];
 						const toCell = cells[toIndex];
@@ -222,6 +277,23 @@ xmlns:xo="http://panax.io/xover"
 						} catch(e) {}
 					}
 				}
+			})
+			
+			xover.listener.on('ungroup', function () {
+				let scope = this.scope;
+				let group = scope.selectFirst("ancestor::group:*[1]");
+				let store = scope.ownerDocument.store;
+				store.select(`//@${group.nodeName}`).remove()
+			})
+			
+			xover.listener.on('dropped::tbody', function ({ srcElement }) {
+				let scope = srcElement.scope;
+				let target = scope.selectSingleNode(`ancestor::*[parent::model]`);
+				if (target.hasAttributeNS('http://panax.io/state/group', `${scope.localName}`)) {
+					target.removeAttributeNS('http://panax.io/state/group', `${scope.localName}`)
+				}
+				let key = scope.localName;
+				target.setAttributeNS('http://panax.io/state/group', `group:${key}`, 1)
 			})
 			]]>
 		</script>
@@ -232,15 +304,17 @@ xmlns:xo="http://panax.io/xover"
 			<thead class="freeze">
 				<xsl:apply-templates mode="datagrid:header-row" select=".">
 					<xsl:with-param name="x-dimension" select="$x-dimensions"/>
+					<xsl:with-param name="groups" select="$groups"/>
 				</xsl:apply-templates>
 			</thead>
-			<xsl:apply-templates mode="datagrid:tbody" select="key('data:group',$state:groupBy)">
+			<xsl:apply-templates mode="datagrid:tbody" select="$groups[1]">
 				<xsl:with-param name="x-dimension" select="$x-dimensions"/>
 				<xsl:with-param name="y-dimension" select="$y-dimensions"/>
 			</xsl:apply-templates>
 			<tfoot>
 				<xsl:apply-templates mode="datagrid:footer-row" select=".">
 					<xsl:with-param name="x-dimension" select="$x-dimensions"/>
+					<xsl:with-param name="groups" select="$groups"/>
 				</xsl:apply-templates>
 			</tfoot>
 		</table>
@@ -250,6 +324,8 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:param name="dimensions" select="."/>
 		<xsl:param name="x-dimension" select="node-expected"/>
 		<xsl:param name="y-dimension" select="node-expected"/>
+		<xsl:param name="groups" select="ancestor-or-self::*[1]/@group:*"/>
+		<xsl:param name="parent-groups" select="dummy:node-expected"/>
 
 		<xsl:variable name="key">
 			<xsl:choose>
@@ -259,20 +335,60 @@ xmlns:xo="http://panax.io/xover"
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:variable name="rows" select="key('data',$key)"/>
-		<tbody class="table-group-divider">
-			<xsl:apply-templates mode="datagrid:tbody-header" select=".">
-				<xsl:with-param name="x-dimension" select="$x-dimension"/>
-				<xsl:with-param name="rows" select="$rows"/>
-			</xsl:apply-templates>
-			<xsl:apply-templates mode="datagrid:row" select="$rows">
-				<xsl:with-param name="x-dimension" select="$x-dimension"/>
-			</xsl:apply-templates>
-			<xsl:apply-templates mode="datagrid:tbody-footer" select=".">
-				<xsl:with-param name="x-dimension" select="$x-dimension"/>
-				<xsl:with-param name="rows" select="$rows"/>
-			</xsl:apply-templates>
-		</tbody>
+		<xsl:variable name="current" select="current()"/>
+		<xsl:variable name="rows" select="$y-dimension[self::*]|self::*[not(*)]/@state:record_count|$y-dimension[not(self::*)][.=$current]/.."/>
+		<xsl:if test="self::* or not(self::*) and $rows">
+			<tbody class="table-group-divider">
+				<xsl:apply-templates mode="datagrid:tbody-header" select=".">
+					<xsl:with-param name="x-dimension" select="$x-dimension"/>
+					<xsl:with-param name="rows" select="$rows"/>
+					<xsl:with-param name="groups" select="$groups"/>
+					<xsl:with-param name="parent-groups" select="$parent-groups"/>
+				</xsl:apply-templates>
+				<xsl:choose>
+					<xsl:when test="$groups">
+						<xsl:apply-templates mode="datagrid:tbody" select="$groups[1]">
+							<xsl:with-param name="x-dimension" select="$x-dimension"/>
+							<xsl:with-param name="y-dimension" select="$rows"/>
+							<xsl:with-param name="groups" select="$groups"/>
+							<xsl:with-param name="parent-groups" select="$parent-groups|."/>
+						</xsl:apply-templates>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:apply-templates mode="datagrid:row" select="$rows">
+							<xsl:with-param name="x-dimension" select="$x-dimension"/>
+							<xsl:with-param name="parent-groups" select="$parent-groups|."/>
+						</xsl:apply-templates>
+					</xsl:otherwise>
+				</xsl:choose>
+				<xsl:apply-templates mode="datagrid:tbody-footer" select=".">
+					<xsl:with-param name="x-dimension" select="$x-dimension"/>
+					<xsl:with-param name="rows" select="$rows"/>
+					<xsl:with-param name="groups" select="$groups"/>
+					<xsl:with-param name="parent-groups" select="$parent-groups"/>
+				</xsl:apply-templates>
+			</tbody>
+		</xsl:if>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody" match="@group:*">
+		<xsl:param name="dimensions" select="."/>
+		<xsl:param name="x-dimension" select="node-expected"/>
+		<xsl:param name="y-dimension" select="node-expected"/>
+		<xsl:param name="groups" select="ancestor-or-self::*[1]/@group:*"/>
+		<xsl:param name="parent-groups" select="dummy:node-expected"/>
+
+		<xsl:comment>debug:info</xsl:comment>
+		<xsl:variable name="group" select="key('data:group',name())"/>
+		<xsl:variable name="rows" select="$y-dimension/@*[name()=local-name(current())]"/>
+		<!--$y-dimension/@*[name()=local-name(current())]-->
+		<xsl:apply-templates mode="datagrid:tbody" select="$group[$rows]">
+			<xsl:sort select="." data-type="text"/>
+			<xsl:with-param name="x-dimension" select="$x-dimension"/>
+			<xsl:with-param name="y-dimension" select="$rows"/>
+			<xsl:with-param name="groups" select="$groups[not(position()=1)]"/>
+			<xsl:with-param name="parent-groups" select="$parent-groups"/>
+		</xsl:apply-templates>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:tbody-header" match="*|@*"/>
@@ -302,6 +418,7 @@ xmlns:xo="http://panax.io/xover"
 
 	<xsl:template mode="datagrid:row" match="*">
 		<xsl:param name="x-dimension" select="@*[not(key('state:hidden',name()))]"/>
+		<xsl:param name="parent-groups" select="node-expected"/>
 		<tr>
 			<th scope="row">
 				<xsl:value-of select="position()"/>
@@ -312,12 +429,36 @@ xmlns:xo="http://panax.io/xover"
 		</tr>
 	</xsl:template>
 
+	<xsl:template mode="datagrid:row" match="@*">
+		<xsl:param name="x-dimension" select="node-expected"/>
+		<xsl:param name="y-dimension" select="node-expected"/>
+		<xsl:param name="parent-groups" select="node-expected"/>
+		<xsl:comment>debug:info</xsl:comment>
+		<xsl:apply-templates mode="datagrid:row" select="parent::*">
+			<xsl:with-param name="x-dimension" select="$x-dimension"/>
+			<xsl:with-param name="y-dimension" select="$y-dimension"/>
+			<xsl:with-param name="parent-groups" select="$parent-groups"/>
+		</xsl:apply-templates>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:row" match="@state:record_count">
+		<tr>
+			<td colspan="100" style="text-align: left; padding-inline: 5rem;">
+				<button class="btn btn-success text-nowrap" onclick="mostrarRegistros.call(this)" style="max-height: 38px; align-self: end;">
+					Mostrar los <xsl:value-of select="."/> resultados
+				</button>
+			</td>
+		</tr>
+	</xsl:template>
+
 	<xsl:template mode="datagrid:row" match="row[key('state:collapsed', @Account)]"/>
 
 	<xsl:template mode="datagrid:header-row" match="*">
 		<xsl:param name="x-dimension" select="node-expected"/>
 		<tr>
-			<th scope="col">#</th>
+			<th scope="col">
+				#
+			</th>
 			<xsl:apply-templates mode="datagrid:header-cell" select="$x-dimension"/>
 		</tr>
 	</xsl:template>
@@ -370,7 +511,7 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:variable name="classes">
 			<xsl:apply-templates mode="datagrid:header-cell-classes" select="."/>
 		</xsl:variable>
-		<th scope="col" draggable="true">
+		<th scope="col" draggable="true" class="drag-group-headers drag-group-dim">
 			<div class="d-flex flex-nowrap">
 				<xsl:apply-templates mode="datagrid:header-cell-options" select="."/>
 				<label class="{$classes}">
@@ -493,7 +634,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:template match="@*[starts-with(.,'*')]">
 		<xsl:value-of select="substring-after(.,'*')"/>
 	</xsl:template>
-	
+
 	<xsl:key name="datagrid:group" use="'collapsed'" match="row[@state:collapsed='true']/@*" />
 
 	<xsl:template mode="datagrid:group-buttons" match="@*">
@@ -517,24 +658,53 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:param name="dimensions" select="."/>
 		<xsl:param name="x-dimension" select="node-expected"/>
 		<xsl:param name="y-dimension" select="node-expected"/>
+		<xsl:param name="groups" select="node-expected"/>
+		<xsl:param name="parent-groups" select="node-expected"/>
 		<xsl:param name="rows" select="key('data',.)"/>
-		<tr class="header sticky">
-			<th scope="row">
+		<tr class="header sticky header-level-{count($parent-groups) + 1}">
+			<th scope="row" colspan="{count($parent-groups) + 1}">
 				<xsl:apply-templates mode="datagrid:group-buttons" select="."/>
 			</th>
-			<th colspan="{count($x-dimension)-1}">
+			<th style="white-space: nowrap;" colspan="{count($groups) + 1}">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stack ms-2 button" viewBox="0 0 16 16" onclick="dispatch('ungroup')">
+					<path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.6.6 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.6.6 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.6.6 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535z"/>
+					<path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.6.6 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0z"/>
+				</svg>
 				<strong>
 					<xsl:value-of select="../@desc"/>
 				</strong>
 			</th>
-			<th class="money">
+			<!--<xsl:apply-templates mode="datagrid:header-cell" select="$x-dimension[not(key('data:group',concat('group:',name())))]">
+				
+			
+			</xsl:apply-templates>-->
+			<xsl:apply-templates mode="datagrid:tbody-header-cell" select="$x-dimension[not(key('data:group',concat('group:',name())))]">
+				<xsl:with-param name="rows" select="$rows"/>
+			</xsl:apply-templates>
+			<!--<th colspan="{count($x-dimension)-2}">
+			</th>-->
+			<!--<th class="money">
 				<strong>
 					<xsl:variable name="last_field" select="name($x-dimension[last()])"/>
 					<xsl:call-template name="format">
 						<xsl:with-param name="value" select="sum($rows/@*[name()=$last_field][.!=''])"/>
 					</xsl:call-template>
 				</strong>
-			</th>
+			</th>-->
 		</tr>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="@*">
+		<th></th>	
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'money')">
+		<xsl:param name="rows" select="node-expected"/>
+		<xsl:variable name="field" select="current()"/>
+		<th class="money">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value" select="sum($rows/@*[name()=name($field)])"/>
+			</xsl:call-template>
+		</th>
 	</xsl:template>
 </xsl:stylesheet>

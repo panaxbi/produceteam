@@ -44,6 +44,8 @@ svg[disabled] {
     color: silver
 }
 
+
+
 .editable input {
     width: 100%;
     text-align: right;
@@ -178,6 +180,10 @@ dialog {
 
 .dialog #details-left {
     display: none;
+}
+
+svg.button {
+    margin-right: 5px;
 }
 
 button.close {
