@@ -5,6 +5,7 @@ xmlns="http://www.w3.org/1999/xhtml"
 xmlns:session="http://panax.io/session"
 xmlns:data="http://panax.io/data"
 xmlns:state="http://panax.io/state"
+xmlns:group="http://panax.io/state/group"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
@@ -39,8 +40,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data" match="//movimientos[not(row/@xsi:type)]/row" use="@Account"/>
 	<xsl:key name="data" match="/model/movimientos[not(row/@xsi:type)]/row" use="'*'"/>
 
-	<xsl:key name="data:group" match="model/account/row/@key" use="name(../..)"/>
-	<xsl:key name="data:group" match="model/movimientos[not(row/@xsi:type)]" use="'*'"/>
+	<xsl:key name="data:group" match="model/movimientos[not(@group:*)][not(row/@xsi:type)]" use="'*'"/>
 
 	<xsl:key name="x-dimension" match="//movimientos[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
 	<xsl:key name="y-dimension" match="//movimientos[not(row/@xsi:type)]/*" use="name(..)"/>

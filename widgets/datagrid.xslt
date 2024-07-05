@@ -27,12 +27,13 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data:group" match="node-expected/@key" use="name(../..)"/>
 	<xsl:key name="data:group" match="node-expected" use="'*'"/>
 
-	<xsl:key name="data:group" match="@group:*" use="'*'"/>
+	<xsl:key name="data:group" match="*[row]/@group:*" use="'*'"/>
 	<xsl:key name="data:group" match="group:*/row/@desc" use="name(../..)"/>
+
+	<xsl:key name="data:group" match="/model/*[not(row)]/@state:record_count" use="'*'"/>
 
 	<xsl:key name="x-dimension" match="node-expected/@*[namespace-uri()='']" use="name(..)"/>
 	<xsl:key name="y-dimension" match="node-expected/*" use="name(..)"/>
-
 
 	<xsl:param name="state:groupBy">*</xsl:param>
 
@@ -82,6 +83,11 @@ xmlns:xo="http://panax.io/xover"
         table thead.freeze tr {
           background-color: white;
         }
+		
+		.datagrid tr.header th {
+			background-color: var(--datagrid-tr-header-bg, silver);
+			color:  var(--datagrid-tr-header-color, white);
+		}
 		
 		.sticky {
 			position: sticky;
@@ -382,6 +388,7 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:variable name="group" select="key('data:group',name())"/>
 		<xsl:variable name="rows" select="$y-dimension/@*[name()=local-name(current())]"/>
 		<!--$y-dimension/@*[name()=local-name(current())]-->
+
 		<xsl:apply-templates mode="datagrid:tbody" select="$group[$rows]">
 			<xsl:sort select="." data-type="text"/>
 			<xsl:with-param name="x-dimension" select="$x-dimension"/>
@@ -389,6 +396,16 @@ xmlns:xo="http://panax.io/xover"
 			<xsl:with-param name="groups" select="$groups[not(position()=1)]"/>
 			<xsl:with-param name="parent-groups" select="$parent-groups"/>
 		</xsl:apply-templates>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody" match="@state:record_count">
+		<tr>
+			<td colspan="100" style="text-align: left; padding-inline: 5rem;">
+				<button class="btn btn-success text-nowrap" onclick="mostrarRegistros.call(this)" style="max-height: 38px; align-self: end;">
+					Mostrar los <xsl:value-of select="."/> resultados
+				</button>
+			</td>
+		</tr>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:tbody-header" match="*|@*"/>
@@ -439,16 +456,6 @@ xmlns:xo="http://panax.io/xover"
 			<xsl:with-param name="y-dimension" select="$y-dimension"/>
 			<xsl:with-param name="parent-groups" select="$parent-groups"/>
 		</xsl:apply-templates>
-	</xsl:template>
-
-	<xsl:template mode="datagrid:row" match="@state:record_count">
-		<tr>
-			<td colspan="100" style="text-align: left; padding-inline: 5rem;">
-				<button class="btn btn-success text-nowrap" onclick="mostrarRegistros.call(this)" style="max-height: 38px; align-self: end;">
-					Mostrar los <xsl:value-of select="."/> resultados
-				</button>
-			</td>
-		</tr>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:row" match="row[key('state:collapsed', @Account)]"/>
@@ -638,10 +645,10 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="datagrid:group" use="'collapsed'" match="row[@state:collapsed='true']/@*" />
 
 	<xsl:template mode="datagrid:group-buttons" match="@*">
-		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-square" viewBox="0 0 16 16" style="cursor:pointer;" xo-slot="state:collapsed" onclick="scope.toggle('true')">
+		<!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-square" viewBox="0 0 16 16" style="cursor:pointer;" xo-slot="state:collapsed" onclick="scope.toggle('true')">
 			<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"></path>
 			<path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"></path>
-		</svg>
+		</svg>-->
 	</xsl:template>
 
 	<xsl:template mode="datagrid:group-buttons" match="row[@state:collapsed='true']/@*" priority="1">
@@ -695,7 +702,7 @@ xmlns:xo="http://panax.io/xover"
 	</xsl:template>
 
 	<xsl:template mode="datagrid:tbody-header-cell" match="@*">
-		<th></th>	
+		<th></th>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'money')">
@@ -707,4 +714,87 @@ xmlns:xo="http://panax.io/xover"
 			</xsl:call-template>
 		</th>
 	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'number')">
+		<xsl:param name="rows" select="node-expected"/>
+		<xsl:variable name="field" select="current()"/>
+		<th class="money">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value" select="sum($rows/@*[name()=name($field)])"/>
+				<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'integer')">
+		<xsl:param name="rows" select="node-expected"/>
+		<xsl:variable name="field" select="current()"/>
+		<th class="money">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value" select="sum($rows/@*[name()=name($field)])"/>
+				<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<!--<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'money')">
+		<xsl:param name="rows" select="node-expected"/>
+		<xsl:variable name="field" select="current()"/>
+		<th class="money">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value" select="sum($rows/@*[name()=name($field)])"/>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="@*" priority="-1">
+		<th>
+			<xsl:comment>
+				<xsl:value-of select="name()"/>
+			</xsl:comment>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'number')">
+		<th class="number">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:apply-templates mode="datagrid:aggregate" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="mask">###,##0.00;-###,##0.00</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'integer')">
+		<th>
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:apply-templates mode="datagrid:aggregate" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'money')">
+		<th class="money">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:apply-templates mode="datagrid:aggregate" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+			</xsl:call-template>
+		</th>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="key('data_type', 'number')">
+		<xsl:param name="rows" select="node-expected"/>
+		<xsl:variable name="field" select="current()"/>
+		<th class="money">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value" select="sum($rows/@*[name()=name($field)])"/>
+			</xsl:call-template>
+		</th>
+	</xsl:template>-->
 </xsl:stylesheet>

@@ -42,11 +42,18 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 					overflow-y: hidden;
 				}
 				
+				#shell {
+				    display: flex;
+                    flex-direction: column;
+                    height: 100vh !important;
+	            }
+				
 				main { 
 					padding-bottom: var(--padding-bottom, var(--footer-height));
 					overflow-y: scroll;
-					height: calc(100vh - var(--nav-height,0px) - var(--sections-filter-height,0px) - var(--footer-height, var(--margin-bottom, 20px)));
 					width: 100vw;
+					flex: 1;
+					
 				}
 				
 				header h1 {
@@ -59,7 +66,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 				
 				footer {
 					border-top: 2px solid silver !important;
-					position: fixed;
+					/*position: fixed;*/
 					bottom: 0;
 					height: var(--footer-height);
 					background-color: var(--bg-white) !important;

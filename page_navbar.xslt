@@ -36,8 +36,28 @@ xmlns:combobox="http://panax.io/widget/combobox"
 
 .page-menu {
     transition: 0.5s;
-    height: var(--sections-filter-height, 0px;)
+    height: var(--sections-filter-height, 0px);
+	width: 100vw;
+    /*display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;*/
 }
+
+/* Works on Chrome, Edge, and Safari */
+/*
+.page-menu::-webkit-scrollbar {
+  width: 12px;
+}
+
+.page-menu::-webkit-scrollbar-track {
+  background: rgba(50, 62, 72, 0.9);
+}
+
+.page-menu::-webkit-scrollbar-thumb {
+  background-color: orange;
+  border-radius: 20px;
+  border: 3px solid rgba(50, 62, 72, 0.9);
+}*/
 			
 .navbar form {
     display: flex;

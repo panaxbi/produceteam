@@ -59,7 +59,6 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data" match="//ventas[not(row/@xsi:type)]/row" use="@Account"/>
 	<xsl:key name="data" match="/model/ventas[not(row/@xsi:type)]/row" use="'*'"/>
 
-	<xsl:key name="data:group" match="model/account/row/@key" use="name(../..)"/>
 	<xsl:key name="data:group" match="model/ventas[not(@group:*)][not(row/@xsi:type)]" use="'*'"/>
 
 	<xsl:key name="x-dimension" match="//ventas[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>

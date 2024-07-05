@@ -274,6 +274,7 @@ h3, h4 {
     --menu-toggler: white;
     --nav-height: 65px;
     --scrollbar-width: 15px;
+    --datagrid-tr-header-bg: #f4af68;
 }
 
 header h1 {
@@ -301,13 +302,6 @@ nav.navbar img {
 
 footer {
     z-index: 1001;
-}
-
-.wrapper {
-    min-height: 100vh !important;
-    height: auto !important;
-    min-width: 100vw;
-    width: fit-content;
 }
 
 .wrapper {

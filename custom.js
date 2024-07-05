@@ -934,10 +934,10 @@ xover.listener.on('click::table .sortable', function () {
     sortRows.call(this, this.closest('td,th'))
 })
 
-xover.listener.on('click::table .groupable', function () {
-    let groupBy = this.scope.nodeName.toLowerCase()
-    xo.state.groupBy = xo.state.groupBy == groupBy ? null : groupBy;
-})
+//xover.listener.on('click::table .groupable', function () {
+//    let groupBy = this.scope.nodeName.toLowerCase()
+//    xo.state.groupBy = xo.state.groupBy == groupBy ? null : groupBy;
+//})
 
 xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#detalle_ingresos|#detalle_egresos", function ({ source }) {
     delete source.definition["server:request"]["@max_records"]
@@ -947,21 +947,19 @@ xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#
     }
 })
 
-xo.listener.on(["fetch::#ventas_por_fecha_embarque", "fetch::#KPI_ventas"], function ({ document }) {
-    if (document instanceof Comment && document.data == 'ack:empty') {
-        throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
-    }
+xo.listener.on(["fetch"], function ({ document }) {
+    //if (document instanceof Comment && document.data == 'ack:empty') {
+    //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
+    //}
 
-    let tr = this.document.selectFirst('//ventas');
+    let tr = this.document.selectFirst('//ventas|//movimientos');
     if (tr) {
-        let node = document.selectFirst('//ventas');
+        let node = document.selectFirst('//ventas|//movimientos');
         node.ownerDocument.disconnect();
         let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || ["http://panax.io/state/filter", "http://panax.io/state/group"].includes(attr.namespaceURI)).map(slot => slot.cloneNode());
         [...node.attributes].filter(attr => !attr.namespaceURI).remove();
         attributes.forEach(attr => node.setAttributeNode(attr));
     }
-
-    //ventas && ventas.select(`row/@id|row/@pd|row/@uos|row/@sty|row/@gde`).remove()
 })
 
 function sortRows(header) {
