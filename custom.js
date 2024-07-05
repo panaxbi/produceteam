@@ -288,8 +288,10 @@ xo.listener.on(['replaceWith::[xo-stylesheet="page_controls.mantenibles.xslt"]']
 })
 
 xo.listener.on(['transform'], ({ result }) => {
-    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove()
+    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
+    xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
 })
+
 async function submit(node) {
     let progress = await xo.sources["loading.xslt"].render();
     if (node.filter('//security').pop()) {

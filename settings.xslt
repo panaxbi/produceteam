@@ -14,7 +14,7 @@ xmlns:state="http://panax.io/state"
 	<xsl:template match="text()"/>
 	<xsl:param name="session:debug">false</xsl:param>
 	<xsl:param name="js:cache_name">xover.session.cache_name.split('_').pop()</xsl:param>
-	<xsl:param name="state:show_empty">false</xsl:param>
+	<xsl:param name="state:hide_empty">false</xsl:param>
 	<xsl:param name="js:showChart">!!document.getElementById('myChart')</xsl:param>
 	<xsl:key name="expanded" match="*[@state:expanded='true']" use="true()"/>
 
@@ -265,11 +265,11 @@ xmlns:state="http://panax.io/state"
 												<xsl:if test="js:showChart='true'">
 													<button type="button" class="list-group-item list-group-item-action" onclick="mostrarGrafica()">Mostrar gráfica</button>
 												</xsl:if>
-												<xsl:if test="$state:show_empty!=''">
-													<button type="button" class="list-group-item list-group-item-action" onclick="xo.state.show_empty = !xo.state.show_empty">
+												<xsl:if test="$state:hide_empty!=''">
+													<button type="button" class="list-group-item list-group-item-action" onclick="xo.state.hide_empty = !xo.state.hide_empty">
 														<xsl:choose>
-															<xsl:when test="$state:show_empty='true'">Ocultar cuentas sin movimientos</xsl:when>
-															<xsl:otherwise>Mostrar cuentas sin movimientos</xsl:otherwise>
+															<xsl:when test="$state:hide_empty='true'">Mostrar registros en ceros</xsl:when>
+															<xsl:otherwise>Ocultar registros en ceros</xsl:otherwise>
 														</xsl:choose>
 													</button>
 												</xsl:if>

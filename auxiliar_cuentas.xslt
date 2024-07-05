@@ -16,6 +16,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>
 	<xsl:import href="widgets/datagrid.xslt"/>
+	<xsl:param name="state:hide_empty">false</xsl:param>
 
 	<xsl:key name="state:hidden" match="@*[namespace-uri()!='']" use="name()"/>
 
@@ -54,5 +55,9 @@ xmlns:xo="http://panax.io/xover"
 		<a class="link" href="?value={.}#detalle_movimientos?@fecha_inicio={//fechas/@state:fecha_inicio}&amp;@fecha_fin={//fechas/@state:fecha_fin}&amp;@account={../@Code}">
 			<xsl:apply-templates select="."/>
 		</a>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:cell-class" match="@Amount">
+		<xsl:text> remove-row-if-empty</xsl:text>
 	</xsl:template>
 </xsl:stylesheet>

@@ -478,19 +478,19 @@ xmlns:xo="http://panax.io/xover"
 		</tr>
 	</xsl:template>
 
-	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'number')">
+	<xsl:template mode="datagrid:cell-class-by-type" match="key('data_type', 'number')">
 		<xsl:text/> number<xsl:text/>
 	</xsl:template>
 
-	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'money')">
+	<xsl:template mode="datagrid:cell-class-by-type" match="key('data_type', 'money')">
 		<xsl:text/> money number<xsl:text/>
 	</xsl:template>
 
-	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'percent')">
+	<xsl:template mode="datagrid:cell-class-by-type" match="key('data_type', 'percent')">
 		<xsl:text/> percent number<xsl:text/>
 	</xsl:template>
 
-	<xsl:template mode="datagrid:cell-class" match="key('data_type', 'integer')">
+	<xsl:template mode="datagrid:cell-class-by-type" match="key('data_type', 'integer')">
 		<xsl:text/> integer number<xsl:text/>
 	</xsl:template>
 
@@ -502,6 +502,7 @@ xmlns:xo="http://panax.io/xover"
 		</xsl:variable>
 		<xsl:variable name="classes">
 			<xsl:apply-templates mode="datagrid:cell-class" select="."/>
+			<xsl:apply-templates mode="datagrid:cell-class-by-type" select="."/>
 		</xsl:variable>
 		<td xo-scope="inherit" xo-slot="{name()}" class="text-nowrap {$text-filter} {$classes} cell domain-{name()}">
 			<xsl:apply-templates mode="datagrid:cell-content" select="$cell"/>
@@ -562,10 +563,6 @@ xmlns:xo="http://panax.io/xover"
 
 	<xsl:template mode="datagrid:header-cell-classes" match="@*">
 		<xsl:text/>sortable<xsl:text/>
-	</xsl:template>
-
-	<xsl:template mode="datagrid:header-cell-classes" match="@Account|@acc|@Type">
-		<xsl:text/>groupable<xsl:text/>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:header-cell-icons" match="@*">
