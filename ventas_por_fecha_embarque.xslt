@@ -9,8 +9,6 @@ xmlns:state="http://panax.io/state"
 xmlns:group="http://panax.io/state/group"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
-xmlns:x="urn:schemas-microsoft-com:office:excel"
-xmlns:v="urn:schemas-microsoft-com:office:excel"
 xmlns:datagrid="http://panaxbi.com/widget/datagrid"
 xmlns:xo="http://panax.io/xover"
 >
@@ -56,10 +54,9 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="rows" match="//ventas/row[not(@xsi:type)]" use="name(..)"/>
 	<xsl:key name="facts" match="//ventas/row/@*[.!='' and namespace-uri()='']" use="name()"/>
 
-	<xsl:key name="data" match="//ventas[not(row/@xsi:type)]/row" use="@Account"/>
 	<xsl:key name="data" match="/model/ventas[not(row/@xsi:type)]/row" use="'*'"/>
 
-	<xsl:key name="data:group" match="model/ventas[not(@group:*)][not(row/@xsi:type)]" use="'*'"/>
+	<xsl:key name="data:group" match="model/ventas[not(@group:*)][row]" use="'*'"/>
 
 	<xsl:key name="x-dimension" match="//ventas[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
 	<xsl:key name="y-dimension" match="//ventas[not(row/@xsi:type)]/*" use="name(..)"/>

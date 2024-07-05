@@ -952,9 +952,9 @@ xo.listener.on(["fetch"], function ({ document }) {
     //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     //}
 
-    let tr = this.document.selectFirst('//ventas|//movimientos');
+    let tr = this.document.selectFirst('//ventas|//movimientos|//trouble');
     if (tr) {
-        let node = document.selectFirst('//ventas|//movimientos');
+        let node = document.selectFirst('//ventas|//movimientos|//trouble');
         node.ownerDocument.disconnect();
         let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || ["http://panax.io/state/filter", "http://panax.io/state/group"].includes(attr.namespaceURI)).map(slot => slot.cloneNode());
         [...node.attributes].filter(attr => !attr.namespaceURI).remove();

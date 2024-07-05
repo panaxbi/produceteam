@@ -40,7 +40,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data" match="//movimientos[not(row/@xsi:type)]/row" use="@Account"/>
 	<xsl:key name="data" match="/model/movimientos[not(row/@xsi:type)]/row" use="'*'"/>
 
-	<xsl:key name="data:group" match="model/movimientos[not(@group:*)][not(row/@xsi:type)]" use="'*'"/>
+	<xsl:key name="data:group" match="model/movimientos[not(@group:*)][row]" use="'*'"/>
 
 	<xsl:key name="x-dimension" match="//movimientos[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
 	<xsl:key name="y-dimension" match="//movimientos[not(row/@xsi:type)]/*" use="name(..)"/>
