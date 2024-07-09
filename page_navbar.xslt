@@ -199,7 +199,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 		</select>
 	</xsl:template>
 
-	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos' or @env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#detalle_problemas' or @env:store='#auxiliar_cuentas']/*[self::semanas|self::fechas]">
+	<xsl:template mode="headerText" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos' or @env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#detalle_problemas' or @env:store='#auxiliar_cuentas' or @env:store='#detalle_movimientos']/*[self::semanas|self::fechas]">
 		<select class="form-select" onchange="xo.state.filterBy=this.value">
 			<option value="weeks">
 				<xsl:if test="$state:filterBy='weeks'">
@@ -432,9 +432,9 @@ xmlns:combobox="http://panax.io/widget/combobox"
 		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
-	<xsl:template mode="widget" match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas' or @env:store='#detalle_movimientos']/@*">
 		<xsl:comment>debug:info</xsl:comment>
-		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
+		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']|../account"/>
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model[@env:store='#detalle_problemas']/@*">

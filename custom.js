@@ -826,7 +826,7 @@ xover.listener.on(`beforeFetch?request`, function ({ request }) {
     session_id && request.headers.set("x-session-id", session_id)
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`], function ({ source, document, parameters }) {
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
     delete parameters["@start_week"];
