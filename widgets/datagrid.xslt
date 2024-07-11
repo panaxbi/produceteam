@@ -28,6 +28,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data:group" match="node-expected" use="'*'"/>
 
 	<xsl:key name="data:group" match="*[row]/@group:*" use="'*'"/>
+	<xsl:key name="data:group" match="*[row]/@group:*" use="name()"/>
 	<xsl:key name="data:group" match="group:*/row/@desc" use="name(../..)"/>
 
 	<xsl:key name="data:group" match="/model/*[not(row)]/@state:record_count" use="'*'"/>
@@ -38,7 +39,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:param name="state:groupBy">*</xsl:param>
 
 	<xsl:template mode="datagrid:widget" match="*|@*">
-		<xsl:param name="x-dimensions" select="key('x-dimension', name(ancestor-or-self::*[1]))"/>
+		<xsl:param name="x-dimensions" select="(@*[namespace-uri()='']|@*[namespace-uri()='http://panax.io/state/group'])[not(key('data:group', concat('group:',name())))]"/>
 		<xsl:param name="y-dimensions" select="key('y-dimension', name(ancestor-or-self::*[1]))"/>
 		<xsl:param name="groups" select="key('data:group',$state:groupBy)"/>
 		<xsl:variable name="data" select="key('data',node)"/>
@@ -111,6 +112,22 @@ xmlns:xo="http://panax.io/xover"
 			top: calc(var(--sticky-top, 45px)* 5);
 		}
 		
+		.header-level-2 th {
+			background-color: var(--datagrid-tr-header-bg-level-2, silver) !important;
+		}
+		
+		.header-level-3 th {
+			background-color: var(--datagrid-tr-header-bg-level-3, silver) !important;
+		}
+		
+		.header-level-4 th {
+			background-color: var(--datagrid-tr-header-bg-level-4, silver) !important;
+		}
+		
+		.header-level-5 th {
+			background-color: var(--datagrid-tr-header-bg-level-5, silver) !important;
+		}
+		
 		div:has(>table) {
 			width: fit-content;
 		}
@@ -174,135 +191,7 @@ xmlns:xo="http://panax.io/xover"
 				}
 			]]>
 		</style>
-		<script>
-			<![CDATA[
-			xover.listener.on('render', function(){
-			
-				let draggedColIndex, targetColIndex, dragged_el;
-				let arrow;
-
-				function createArrow() {
-					arrow = document.createElement('div');
-					arrow.classList.add('arrow');
-					document.body.appendChild(arrow);
-				}
-
-				function moveArrow(target, x) {
-					if (!arrow) return;
-					const bounding = target.getBoundingClientRect();
-					arrow.style.top = `${bounding.bottom + window.scrollY}px`;
-					arrow.style.left = `${x}px`;
-					arrow.style.display = 'block';
-				}
-
-				function removeArrow() {
-					if (!arrow) return;
-					arrow.style.display = 'none';
-				}
-				
-				for (let tbody of [...document.querySelectorAll('table tbody')]) {
-					tbody.dragover_handler = tbody.dragover_handler || function (e) {
-						dragged_el
-						//debugger;
-						e.preventDefault();
-						/*
-						targetColIndex = this.cellIndex;
-						const bounding = tbody.getBoundingClientRect();
-						const offset = bounding.x + bounding.width / 2;
-						if (e.clientX > offset) {
-							targetColIndex += 1;
-							moveArrow(tbody, bounding.right);
-						} else {
-							moveArrow(tbody, bounding.left);
-						}*/
-					}
-					tbody.removeEventListener('dragover', tbody.dragover_handler);
-					tbody.addEventListener('dragover', tbody.dragover_handler);
-
-					tbody.drop_handler = tbody.drop_handler || function (e) {
-						e.preventDefault();
-						removeArrow();
-						this.dispatch('dropped', {target: this, srcElement: dragged_el});
-					}
-					tbody.removeEventListener('drop', tbody.drop_handler);
-					tbody.addEventListener('drop', tbody.drop_handler);
-				}
-
-				document.querySelectorAll('th').forEach((th, index) => {
-					th.dragstart_handler = th.dragstart_handler || function (e) {
-						dragged_el = this;
-						draggedColIndex = this.cellIndex;
-						createArrow();
-					}
-					th.removeEventListener('dragstart', th.dragstart_handler);
-					th.addEventListener('dragstart', th.dragstart_handler);
-
-					th.dragover_handler = th.dragover_handler || function (e) {
-						e.preventDefault();
-						targetColIndex = this.cellIndex;
-						const bounding = th.getBoundingClientRect();
-						const offset = bounding.x + bounding.width / 2;
-						if (e.clientX > offset) {
-							targetColIndex += 1;
-							moveArrow(th, bounding.right);
-						} else {
-							moveArrow(th, bounding.left);
-						}
-					}
-					th.removeEventListener('dragover', th.dragover_handler);
-					th.addEventListener('dragover', th.dragover_handler);
-
-					th.drop_handler = th.drop_handler || function (e) {
-						e.preventDefault();
-						removeArrow();
-						if (draggedColIndex !== targetColIndex) {
-							moveColumn(draggedColIndex, targetColIndex);
-						}
-						this.dispatch('columnRearranged');
-					}
-					th.removeEventListener('drop', th.drop_handler);
-					th.addEventListener('drop', th.drop_handler);
-
-					th.dragleave_handler = th.dragleave_handler || function (e) {
-						removeArrow();
-					}
-					th.removeEventListener('dragleave', th.dragleave_handler);
-					th.addEventListener('dragleave', th.dragleave_handler);
-				});
-
-				function moveColumn(fromIndex, toIndex) {
-					const table = document.querySelector('table');
-					const rows = table.rows;
-					for (let row of rows) {
-						if (row.classList.contains("header")) continue;
-						const cells = row.cells;
-						const fromCell = cells[fromIndex];
-						const toCell = cells[toIndex];
-						try {
-							fromCell.parentNode.insertBefore(fromCell, toCell)
-						} catch(e) {}
-					}
-				}
-			})
-			
-			xover.listener.on('ungroup', function () {
-				let scope = this.scope;
-				let group = scope.selectFirst("ancestor::group:*[1]");
-				let store = scope.ownerDocument.store;
-				store.select(`//@${group.nodeName}`).remove()
-			})
-			
-			xover.listener.on('dropped::tbody', function ({ srcElement }) {
-				let scope = srcElement.scope;
-				let target = scope.selectSingleNode(`ancestor::*[parent::model]`);
-				if (target.hasAttributeNS('http://panax.io/state/group', `${scope.localName}`)) {
-					target.removeAttributeNS('http://panax.io/state/group', `${scope.localName}`)
-				}
-				let key = scope.localName;
-				target.setAttributeNS('http://panax.io/state/group', `group:${key}`, 1)
-			})
-			]]>
-		</script>
+		<script src="datagrid.js"/>
 		<table class="table table-striped selection-enabled datagrid">
 			<xsl:apply-templates mode="datagrid:colgroup" select=".">
 				<xsl:with-param name="x-dimension" select="$x-dimensions"/>
@@ -388,7 +277,6 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:variable name="group" select="key('data:group',name())"/>
 		<xsl:variable name="rows" select="$y-dimension/@*[name()=local-name(current())]"/>
 		<!--$y-dimension/@*[name()=local-name(current())]-->
-
 		<xsl:apply-templates mode="datagrid:tbody" select="$group[$rows]">
 			<xsl:sort select="." data-type="text"/>
 			<xsl:with-param name="x-dimension" select="$x-dimension"/>
@@ -441,6 +329,7 @@ xmlns:xo="http://panax.io/xover"
 				<xsl:value-of select="position()"/>
 			</th>
 			<xsl:apply-templates mode="datagrid:cell" select="$x-dimension">
+				<xsl:sort select="namespace-uri()" order="descending"/>
 				<xsl:with-param name="row" select="."/>
 			</xsl:apply-templates>
 		</tr>
@@ -466,7 +355,9 @@ xmlns:xo="http://panax.io/xover"
 			<th scope="col">
 				#
 			</th>
-			<xsl:apply-templates mode="datagrid:header-cell" select="$x-dimension"/>
+			<xsl:apply-templates mode="datagrid:header-cell" select="$x-dimension">
+				<xsl:sort select="namespace-uri()" order="descending"/>
+			</xsl:apply-templates>
 		</tr>
 	</xsl:template>
 
@@ -496,15 +387,15 @@ xmlns:xo="http://panax.io/xover"
 
 	<xsl:template mode="datagrid:cell" match="@*">
 		<xsl:param name="row" select="ancestor-or-self::*[1]"/>
-		<xsl:variable name="cell" select="$row/@*[name()=name(current())]"/>
+		<xsl:variable name="cell" select="$row/@*[name()=local-name(current())]"/>
 		<xsl:variable name="text-filter">
-			<xsl:if test="key('data:filter',name())">bg-info</xsl:if>
+			<xsl:if test="key('data:filter',local-name())">bg-info</xsl:if>
 		</xsl:variable>
 		<xsl:variable name="classes">
 			<xsl:apply-templates mode="datagrid:cell-class" select="."/>
 			<xsl:apply-templates mode="datagrid:cell-class-by-type" select="."/>
 		</xsl:variable>
-		<td xo-scope="inherit" xo-slot="{name()}" class="text-nowrap {$text-filter} {$classes} cell domain-{name()}">
+		<td xo-scope="inherit" xo-slot="{local-name()}" class="text-nowrap {$text-filter} {$classes} cell domain-{local-name()}">
 			<xsl:apply-templates mode="datagrid:cell-content" select="$cell"/>
 		</td>
 	</xsl:template>
@@ -551,7 +442,11 @@ xmlns:xo="http://panax.io/xover"
 	</xsl:template>
 
 	<xsl:template mode="datagrid:headerText" match="@*">
-		<xsl:apply-templates mode="headerText"/>
+		<xsl:apply-templates mode="headerText" select="."/>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:headerText" match="@group:*">
+		<xsl:apply-templates mode="headerText" select="../@*[name()=local-name(current())]"/>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:header-cell-options" match="@*">
@@ -568,13 +463,11 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:template mode="datagrid:header-cell-icons" match="@*">
 	</xsl:template>
 
-	<xsl:template mode="datagrid:header-cell-icons" match="@Account">
-		<xsl:if test="$state:groupBy='account'">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stack ms-2" viewBox="0 0 16 16">
-				<path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.6.6 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.6.6 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.6.6 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535z"/>
-				<path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.6.6 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0z"/>
-			</svg>
-		</xsl:if>
+	<xsl:template mode="datagrid:header-cell-icons" match="@group:*">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stack ms-2 button" viewBox="0 0 16 16" onclick="dispatch('ungroup')">
+			<path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.6.6 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.6.6 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.6.6 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535z"></path>
+			<path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.6.6 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0z"></path>
+		</svg>
 	</xsl:template>
 
 	<xsl:template mode="datagrid:footer-cell" match="@*" priority="-1">
@@ -682,7 +575,7 @@ xmlns:xo="http://panax.io/xover"
 				
 			
 			</xsl:apply-templates>-->
-			<xsl:apply-templates mode="datagrid:tbody-header-cell" select="$x-dimension[not(key('data:group',concat('group:',name())))]">
+			<xsl:apply-templates mode="datagrid:tbody-header-cell" select="$x-dimension[namespace-uri()='']">
 				<xsl:with-param name="rows" select="$rows"/>
 			</xsl:apply-templates>
 			<!--<th colspan="{count($x-dimension)-2}">

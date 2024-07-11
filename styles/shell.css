@@ -275,6 +275,10 @@ h3, h4 {
     --nav-height: 65px;
     --scrollbar-width: 15px;
     --datagrid-tr-header-bg: #f4af68;
+    --datagrid-tr-header-bg-level-2: #f4af68e1;
+    --datagrid-tr-header-bg-level-3: #f4af68c1;
+    --datagrid-tr-header-bg-level-4: #f4af68a1;
+    --datagrid-tr-header-bg-level-5: #f4af6881;
 }
 
 header h1 {

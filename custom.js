@@ -768,18 +768,6 @@ xo.listener.on(`beforeTransform::model[*/@filter:*]`, function ({ document }) {
     }
 })
 
-xo.listener.on(`beforeTransform::model[*/@group:*]`, function ({ document }) {
-    for (let attr of this.select(`//@group:*`)) {
-        let group_node = xover.xml.createElement(attr.name);
-        for (let value of attr.parentNode.select(`row/@${attr.localName}`).distinct()) {
-            let row = xover.xml.createElement("row");
-            row.setAttribute("desc", value);
-            group_node.append(row);
-        }
-        document.documentElement.prepend(group_node);
-    }
-})
-
 xo.listener.on([`beforeTransform::model[*/@filter:*]`, `beforeTransform?stylesheet.href=auxiliar_cuentas.xslt`], function () {
     for (let attr of this.select(`//@filter:*`)) {
         this.select(`//movimientos/row[not(@xsi:type="mock")][${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
@@ -954,10 +942,10 @@ xo.listener.on(["fetch"], function ({ document }) {
     //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     //}
 
-    let tr = this.document.selectFirst('//ventas|//movimientos|//trouble');
+    let tr = this.selectFirst('//ventas|//movimientos|//trouble');
     if (tr) {
         let node = document.selectFirst('//ventas|//movimientos|//trouble');
-        node.ownerDocument.disconnect();
+        //node.ownerDocument.disconnect();
         let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || ["http://panax.io/state/filter", "http://panax.io/state/group"].includes(attr.namespaceURI)).map(slot => slot.cloneNode());
         [...node.attributes].filter(attr => !attr.namespaceURI).remove();
         attributes.forEach(attr => node.setAttributeNode(attr));
@@ -1018,12 +1006,14 @@ xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
     return { "message": "" };
 })
 
-xover.listener.on(`columnRearranged`, function () {
-    let tr = this.closest('tr');
-    let node = tr.scope;
-    node.ownerDocument.disconnect();
-    let attributes = tr.querySelectorAll(':scope > th').toArray().map(th => th.getAttributeNode("xo-slot")).filter(slot => slot).map(slot => slot.scope.cloneNode());
-    [...node.attributes].filter(attr => !attr.namespaceURI).remove();
-    attributes.forEach(attr => node.setAttributeNode(attr));
-    tr.store.save();
-})
+// TODO: Colapsar todo
+function collapseAll() {
+}
+
+// TODO: Colapsar grupo
+function collapse() {
+}
+
+// TODO: Quitar columna
+
+// TODO: Ordenar columnas de agrupamiento al principio
