@@ -19,6 +19,16 @@ exclude-result-prefixes="#default session sitemap shell"
 		<xsl:value-of select="../@week"/>
 	</xsl:template>
 
+	<xsl:key name="accounts" match="account/row/@key" use="substring(.,1,1)"/>
+	<xsl:key name="expenses" match="movimientos/row/@amt" use="concat(../@wk,'::',../@acc)"/>
+
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat(../@wk,'::',../@type)"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat(../@wk,'::',../@type)"/>
+	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat(../@wk,'::',../@type)"/>
+
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="../@wk"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="../@wk"/>
+
 	<xsl:key name="comision-qty" match="commissions/row/@qty" use="concat(../@wk,'::',../@gr)"/>
 	<xsl:key name="comision-amt" match="commissions/row/@amt" use="concat(../@wk,'::',../@gr)"/>
 	<xsl:key name="comision-pfit" match="commissions/row/@pfit" use="concat(../@wk,'::',../@gr)"/>
@@ -1057,26 +1067,27 @@ exclude-result-prefixes="#default session sitemap shell"
 				background:#FFE699;
 				mso-pattern:black none;
 				white-space:nowrap;}
-				.xl114722
-				{padding:0px;
-				mso-ignore:padding;
-				color:white;
-				font-size:11.0pt;
-				font-weight:700;
-				font-style:normal;
-				text-decoration:none;
-				font-family:Calibri, sans-serif;
-				mso-font-charset:0;
-				mso-number-format:General;
-				text-align:center;
-				vertical-align:middle;
-				border-top:1.0pt solid black;
-				border-right:1.0pt solid black;
-				border-bottom:none;
-				border-left:1.0pt solid black;
-				background:#FF9900;
-				mso-pattern:black none;
-				white-space:nowrap;}
+				.xl114722 {
+				padding: 0px;
+				mso-ignore: padding;
+				color: white;
+				font-size: 11.0pt;
+				font-weight: 700;
+				font-style: normal;
+				text-decoration: none;
+				font-family: Calibri, sans-serif;
+				mso-font-charset: 0;
+				mso-number-format: General;
+				text-align: center;
+				vertical-align: middle;
+				border-top: 1.0pt solid black;
+				border-right: 1.0pt solid black;
+				border-bottom: none;
+				/* border-left: 1.0pt solid black; */
+				/* background: #FF9900; */
+				mso-pattern: black none;
+				white-space: nowrap;
+				}
 				.xl115722
 				{padding:0px;
 				mso-ignore:padding;
@@ -1218,17 +1229,27 @@ tags will be replaced.-->
 							<td class="xl68722"> </td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
-							<td rowspan="3" height="63" class="xl114722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none">CONTRACTS</td>
+							<td rowspan="3" height="63" class="xl114722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none"></td>
 							<td class="xl75722">UTILIDAD EN POs</td>
 							<xsl:for-each select="$dates">
-								<td class="xl81722">$35,721.47</td>
+								<td class="xl81722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat(.,'::','P')))"></xsl:with-param>
+										<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl82722">$520,136.78</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO CON UTILIDAD</td>
 							<xsl:for-each select="$dates">
-								<td class="xl77722">11,919</td>
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat(.,'::','P')))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl84722">156,689</td>
 						</tr>
@@ -1240,7 +1261,7 @@ tags will be replaced.-->
 							<xsl:for-each select="$dates">
 								<td class="xl85722">$3.00</td>
 							</xsl:for-each>
-							<td class="xl85722">$3.32</td>
+							<td class="xl85722">--</td>
 						</tr>
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl79722" style="height:15.0pt"> </td>
@@ -1259,11 +1280,16 @@ tags will be replaced.-->
 							<td class="xl68722"> </td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
-							<td rowspan="3" height="63" class="xl114722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none">CONTRACTS</td>
+							<td rowspan="3" height="63" class="xl114722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none"></td>
 							<td class="xl75722">PÉRDIDA EN POs</td>
 							<xsl:for-each select="$dates">
 								<td class="xl81722">
-									<font color="#FF0000" style="mso-ignore:color">-$2,292.88</font>
+									<font color="#FF0000" style="mso-ignore:color">
+										<xsl:call-template name="format">
+											<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat(.,'::','L')))"></xsl:with-param>
+											<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+										</xsl:call-template>
+									</font>
 								</td>
 							</xsl:for-each>
 							<td class="xl82722">
@@ -1273,7 +1299,12 @@ tags will be replaced.-->
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO</td>
 							<xsl:for-each select="$dates">
-								<td class="xl77722">1,088</td>
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat(.,'::','L')))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl77722">16,680</td>
 						</tr>
@@ -1307,17 +1338,27 @@ tags will be replaced.-->
 							<td class="xl68722"> </td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
-							<td rowspan="3" height="63" class="xl114722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none">CONTRACTS</td>
+							<td rowspan="3" height="63" class="xl114722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none"></td>
 							<td class="xl75722">PÉRDIDA EN POs</td>
 							<xsl:for-each select="$dates">
-								<td class="xl81722">$33,428.59</td>
+								<td class="xl81722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', .))"></xsl:with-param>
+										<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl81722">$476,932.05</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO</td>
 							<xsl:for-each select="$dates">
-								<td class="xl77722">13,007</td>
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', .))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
 							<td class="xl77722">162,236</td>
 						</tr>
@@ -1347,139 +1388,7 @@ tags will be replaced.-->
 							</xsl:for-each>
 							<td class="xl66722"></td>
 						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl80722" style="height:15.75pt">SOLO POSITIVOS</td>
-							<td class="xl68722"> </td>
-							<xsl:for-each select="$dates">
-								<td class="xl68722"> </td>
-							</xsl:for-each>
-							<td class="xl68722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td rowspan="3" height="63" class="xl111722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none">MERCADO/OTROS</td>
-							<td class="xl75722">UTILIDAD / PÉRDIDA SEMANAL POs</td>
-							<xsl:for-each select="$dates">
-								<td class="xl81722">$11,066.07</td>
-							</xsl:for-each>
-							<td class="xl82722">$315,139.53</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO</td>
-							<xsl:for-each select="$dates">
-								<td class="xl77722">5,000</td>
-							</xsl:for-each>
-							<td class="xl84722">71,173</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl75722" style="height:15.75pt">
-								UTILIDAD /PÉRDIDA POR CAJA
-								POs
-							</td>
-							<xsl:for-each select="$dates">
-								<td class="xl85722">$2.21</td>
-							</xsl:for-each>
-							<td class="xl85722">$4.43</td>
-						</tr>
-						<tr height="20" style="height:15.0pt">
-							<td height="20" class="xl66722" style="height:15.0pt"></td>
-							<td class="xl66722"></td>
-							<xsl:for-each select="$dates">
-								<td class="xl66722"></td>
-							</xsl:for-each>
-							<td class="xl66722"></td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl86722" style="height:15.75pt">SOLO NEGATIVOS</td>
-							<td class="xl68722"> </td>
-							<xsl:for-each select="$dates">
-								<td class="xl68722"> </td>
-							</xsl:for-each>
-							<td class="xl68722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td rowspan="3" height="63" class="xl111722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none">MERCADO/OTROS</td>
-							<td class="xl75722">UTILIDAD / PÉRDIDA SEMANAL POs</td>
-							<xsl:for-each select="$dates">
-								<td class="xl81722">
-									<font color="#FF0000" style="mso-ignore:color">-$1,038.43</font>
-								</td>
-							</xsl:for-each>
-							<td class="xl82722">
-								<font color="#FF0000" style="mso-ignore:color">-$84,716.30</font>
-							</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO</td>
-							<xsl:for-each select="$dates">
-								<td class="xl87722">232</td>
-							</xsl:for-each>
-							<!--<td class="xl87722">758</td>
-							<td class="xl77722">1,983</td>-->
-							<td class="xl84722">15,225</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl75722" style="height:15.75pt">
-								UTILIDAD /PÉRDIDA POR CAJA
-								POs
-							</td>
-							<xsl:for-each select="$dates">
-								<td class="xl88722">
-									<font color="#FF0000" style="mso-ignore:color">-$4.48</font>
-								</td>
-							</xsl:for-each>
-							<td class="xl88722">
-								<font color="#FF0000" style="mso-ignore:color">-$5.56</font>
-							</td>
-						</tr>
-						<tr height="20" style="height:15.0pt">
-							<td height="20" class="xl66722" style="height:15.0pt"></td>
-							<td class="xl66722"></td>
-							<xsl:for-each select="$dates">
-								<td class="xl66722"></td>
-							</xsl:for-each>
-							<td class="xl66722"></td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl89722" style="height:15.75pt">NETOS</td>
-							<td class="xl68722"> </td>
-							<xsl:for-each select="$dates">
-								<td class="xl68722"> </td>
-							</xsl:for-each>
-							<td class="xl68722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td rowspan="3" height="63" class="xl111722" style="border-bottom:1.0pt solid black;&#10;  height:47.25pt;border-top:none">MERCADO/OTROS</td>
-							<td class="xl75722">UTILIDAD / PÉRDIDA SEMANAL POs</td>
-							<xsl:for-each select="$dates">
-								<td class="xl81722">$10,027.64</td>
-							</xsl:for-each>
-							<td class="xl81722">$230,423.23</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO</td>
-							<xsl:for-each select="$dates">
-								<td class="xl77722">5,232</td>
-							</xsl:for-each>
-							<td class="xl77722">86,398</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl75722" style="height:15.75pt">
-								UTILIDAD /PÉRDIDA POR CAJA
-								POs
-							</td>
-							<xsl:for-each select="$dates">
-								<td class="xl85722">$1.92</td>
-							</xsl:for-each>
-							<td class="xl85722">$2.67</td>
-						</tr>
-						<tr height="20" style="height:15.0pt">
-							<td height="20" class="xl66722" style="height:15.0pt"></td>
-							<td class="xl66722"></td>
-							<xsl:for-each select="$dates">
-								<td class="xl66722"></td>
-							</xsl:for-each>
-							<td class="xl66722"></td>
-						</tr>
+
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl66722" style="height:15.0pt"></td>
 							<td class="xl66722"></td>
@@ -1736,15 +1645,27 @@ tags will be replaced.-->
 							</xsl:for-each>
 							<td class="xl68722"> </td>
 						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl106722" style="height:15.75pt">550-010</td>
-							<td class="xl99722">Other Expenses // Freight Expense</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722">$0.00</td>
-							</xsl:for-each>
-							<td class="xl107722">$3,644.85</td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
+						<xsl:for-each select="key('accounts','5')">
+							<xsl:variable name="acc" select="."/>
+							<tr height="21" style="height:15.75pt">
+								<td height="21" class="xl106722" style="height:15.75pt">
+									<xsl:apply-templates select="."/>
+								</td>
+								<td class="xl99722">
+									<xsl:apply-templates select="../@desc"/>
+								</td>
+								<xsl:for-each select="$dates">
+									<td class="xl107722">
+										<xsl:call-template name="format">
+											<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::',$acc)))"></xsl:with-param>
+											<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+										</xsl:call-template>
+									</td>
+								</xsl:for-each>
+								<td class="xl107722">$3,644.85</td>
+							</tr>
+						</xsl:for-each>
+						<!--<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl66722" style="height:15.75pt"></td>
 							<td class="xl68722"> </td>
 							<xsl:for-each select="$dates">
@@ -1758,9 +1679,6 @@ tags will be replaced.-->
 							<xsl:for-each select="$dates">
 								<td class="xl107722">$0.00</td>
 							</xsl:for-each>
-							<!--<td class="xl107722">
-								<font color="#FF0000" style="mso-ignore:color">-$470.80</font>
-							</td>-->
 							<td class="xl107722">$5,695.57</td>
 						</tr>
 						<tr height="20" style="height:15.0pt">
@@ -1834,7 +1752,7 @@ tags will be replaced.-->
 								<td class="xl107722"> </td>
 							</xsl:for-each>
 							<td class="xl107722"> </td>
-						</tr>
+						</tr>-->
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl66722" style="height:15.0pt"></td>
 							<xsl:for-each select="$dates">
@@ -1868,7 +1786,28 @@ tags will be replaced.-->
 							</xsl:for-each>
 							<td class="xl68722"> </td>
 						</tr>
-						<tr height="21" style="height:15.75pt">
+
+						<xsl:for-each select="key('accounts','4')">
+							<xsl:variable name="acc" select="."/>
+							<tr height="21" style="height:15.75pt">
+								<td height="21" class="xl106722" style="height:15.75pt">
+									<xsl:apply-templates select="."/>
+								</td>
+								<td class="xl99722">
+									<xsl:apply-templates select="../@desc"/>
+								</td>
+								<xsl:for-each select="$dates">
+									<td class="xl82722">
+										<xsl:call-template name="format">
+											<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::',$acc)))"></xsl:with-param>
+											<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+										</xsl:call-template>
+									</td>
+								</xsl:for-each>
+								<td class="xl82722">$118,631.58</td>
+							</tr>
+						</xsl:for-each>
+						<!--<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl106722" style="height:15.75pt">450-106</td>
 							<td class="xl99722">Other Income / Fixed Freight NTP</td>
 							<xsl:for-each select="$dates">
@@ -1883,7 +1822,7 @@ tags will be replaced.-->
 								<td class="xl82722">$6,781.79</td>
 							</xsl:for-each>
 							<td class="xl82722">$54,549.55</td>
-						</tr>
+						</tr>-->
 						<!--[if supportMisalignedColumns]-->
 						<tr height="0" style="display:none">
 							<td width="130" style="width:98pt"></td>

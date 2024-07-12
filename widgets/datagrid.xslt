@@ -296,6 +296,16 @@ xmlns:xo="http://panax.io/xover"
 		</tr>
 	</xsl:template>
 
+	<xsl:template mode="datagrid:tbody" match="@state:record_count[.=0]">
+		<tr>
+			<td colspan="100" style="text-align: left; padding-inline: 5rem;">
+				<h5 class="text-danger">
+					No se encontraron resultados para su consulta
+				</h5>
+			</td>
+		</tr>
+	</xsl:template>
+
 	<xsl:template mode="datagrid:tbody-header" match="*|@*"/>
 	<xsl:template mode="datagrid:tbody-footer" match="*|@*"/>
 
