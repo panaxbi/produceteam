@@ -1004,7 +1004,7 @@ function sortRows(header) {
     }
 }
 
-xo.listener.on('xover-initialized', function ({ progress_renders }) {
+xo.listener.on('xover-initializing', function ({ progress_renders }) {
     if ('#loading' in xover.manifest.sources) {
         progress_renders.concat(xover.sources['#loading'].render());
     }
