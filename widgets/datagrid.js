@@ -1,4 +1,4 @@
-xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack:imported-from')][contains(.,'datagrid.xslt')]")`, function(){
+xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack:imported-from')][contains(.,'datagrid.xslt')]")`, function () {
 	let self = this;
 	self.dragged_el = self.dragged_el || undefined;
 	let draggedColIndex, targetColIndex, target;
@@ -22,7 +22,7 @@ xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack
 		if (!arrow) return;
 		arrow.style.display = 'none';
 	}
-				
+
 	for (let tbody of [...document.querySelectorAll('table tbody')]) {
 		tbody.dragover_handler = tbody.dragover_handler || function (e) {
 			e.preventDefault();
@@ -43,7 +43,7 @@ xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack
 		tbody.drop_handler = tbody.drop_handler || function (e) {
 			e.preventDefault();
 			removeArrow();
-			this.dispatch('dropped', {target: this, srcElement: self.dragged_el});
+			this.dispatch('dropped', { target: this, srcElement: self.dragged_el });
 		}
 		tbody.removeEventListener('drop', tbody.drop_handler);
 		tbody.addEventListener('drop', tbody.drop_handler);
@@ -58,7 +58,7 @@ xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack
 		}
 		th.removeEventListener('dragstart', th.dragstart_handler);
 		th.addEventListener('dragstart', th.dragstart_handler);
-					
+
 		th.dragover_handler = th.dragover_handler || function (e) {
 			e.dataTransfer.dropEffect = 'move';
 			e.preventDefault();
@@ -91,7 +91,7 @@ xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack
 		}
 		th.removeEventListener('dragleave', th.dragleave_handler);
 		th.addEventListener('dragleave', th.dragleave_handler);
-				
+
 		for (let el of [...document.querySelectorAll('.trash-zone')]) {
 			el.dragtrash_dragover_handler = el.dragtrash_dragover_handler || function (e) {
 				el = this;
@@ -99,7 +99,7 @@ xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack
 			}
 			el.removeEventListener('dragover', el.dragtrash_dragover_handler);
 			el.addEventListener('dragover', el.dragtrash_dragover_handler);
-					
+
 			el.dragtrash_drop_handler = el.dragtrash_drop_handler || function (e) {
 				//debugger
 				if (!self.dragged_el) return;
@@ -124,18 +124,18 @@ xover.listener.on(`render?stylesheet.selectFirst("//comment()[starts-with(.,'ack
 			const toCell = cells[toIndex];
 			try {
 				fromCell.parentNode.insertBefore(fromCell, toCell)
-			} catch(e) {}
+			} catch (e) { }
 		}
 	}
 })
-			
+
 xover.listener.on('ungroup', function () {
 	let scope = this.scope;
 	let group = scope.selectFirst('(.)[not(self::*)][namespace-uri()="http://panax.io/state/group"]|ancestor-or-self::*[namespace-uri()="http://panax.io/state/group"]');
 	let store = scope.ownerDocument.store;
 	store.select(`//@group:${group.localName}`).remove()
 })
-			
+
 xover.listener.on('dropped::tbody', function ({ srcElement }) {
 	let scope = srcElement.scope;
 	let target = scope.selectSingleNode(`ancestor::*[parent::model]`);
@@ -146,25 +146,25 @@ xover.listener.on('dropped::tbody', function ({ srcElement }) {
 	target.setAttributeNS('http://panax.io/state/group', `group:${key}`, 1)
 })
 
-xo.listener.on(`beforeTransform::model[*/@group:*]`, function ({ document }) {
-    for (let attr of this.select(`//@group:*`)) {
-        let group_node = xover.xml.createElement(attr.name);
-        for (let value of attr.parentNode.select(`row/@${attr.localName}`).distinct()) {
-            let row = xover.xml.createElement("row");
-            row.setAttribute("desc", value);
-            group_node.append(row);
-        }
-        document.documentElement.prepend(group_node);
-    }
+xo.listener.on(`beforeTransform?stylesheet.selectFirst("//comment()[starts-with(.,'ack:imported-from')][contains(.,'datagrid.xslt')]")::model[*/@group:*]`, function ({ document }) {
+	for (let attr of this.select(`//@group:*`)) {
+		let group_node = xover.xml.createElement(attr.name);
+		for (let value of attr.parentNode.select(`row/@${attr.localName}`).distinct()) {
+			let row = xover.xml.createElement("row");
+			row.setAttribute("desc", value);
+			group_node.append(row);
+		}
+		document.documentElement.prepend(group_node);
+	}
 })
 
 xover.listener.on(`columnRearranged`, function () {
-    let tr = this.closest('tr');
-    let node = tr.scope;
+	let tr = this.closest('tr');
+	let node = tr.scope;
 	if (!(this.namespaceURI)) {
 		node.ownerDocument.disconnect();
 	}
-    let attributes = [];
+	let attributes = [];
 	for (let slot of tr.querySelectorAll(':scope > th').toArray().map(th => th.getAttributeNode("xo-slot")).filter(slot => slot)) {
 		let scope = slot.scope;
 		attributes.push(scope.cloneNode());
@@ -175,7 +175,7 @@ xover.listener.on(`columnRearranged`, function () {
 			}
 		}
 	}
-    [...node.attributes].filter(attr => !attr.namespaceURI || ["http://panax.io/state/group"].includes(attr.namespaceURI)).remove();
-    attributes.forEach(attr => node.setAttributeNode(attr));
-    tr.store.save();
+	[...node.attributes].filter(attr => !attr.namespaceURI || ["http://panax.io/state/group"].includes(attr.namespaceURI)).remove();
+	attributes.forEach(attr => node.setAttributeNode(attr));
+	tr.store.save();
 })

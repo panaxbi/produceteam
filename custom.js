@@ -5,13 +5,21 @@ xo.spaces["hidden"] = "http://panax.io/state/hidden";
 function onGoogleLogin(response) {
     const responsePayload = xover.cryptography.decodeJwt(response.credential);
     if ((xover.session.status || "unauthorized") == "unauthorized" && xover.session.id_token != response.credential) {
-        xover.session.user_login = responsePayload.email;
+        let username = document.querySelector('.form-signin #username');
+        username = (xover.session.debug && !username.disabled && username.value || responsePayload.email);
+        xover.session.user_login = username;
         xover.session.id_token = response.credential;
         xover.session.login(xover.session.user_login, response.credential).catch(() => {
             xover.session.id_token = undefined;
         })
     }
 }
+
+xover.listener.on('xover-initialized', function () {
+    window.setInterval(function () {
+        xover.session.checkStatus();
+    }, 900000);
+})
 
 xover.listener.on('beforeRender::#login', function () {
     if (xo.session.status != 'authorizing') {
@@ -1013,7 +1021,3 @@ function collapseAll() {
 // TODO: Colapsar grupo
 function collapse() {
 }
-
-// TODO: Quitar columna
-
-// TODO: Ordenar columnas de agrupamiento al principio

@@ -3,13 +3,7 @@
     "request": "https://server.panax.io/request.asp",
     "login": "POST https://server.panax.io/login.asp",
     "logout": "https://server.panax.io/logout.asp",
-    "uploadValidation": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarValidaciones",
-    "uploadOVconfirmadas": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarOVconfirmadas",
-    "uploadStandardTimes": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarTiempoEstandar",
-    "uploadBlacklist": "POST https://server.panax.io/request.asp?FROM=%23panax.actualizarPolizasIgnoradas",
-    "applyPermissions": "POST https://server.panax.io/request.asp?FROM=%23panax.applyPermissions",
-    "pokemon": "https://pokeapi.co/api/v2/pokemon/"
-  },
+},
   "sources": {
     "^#([^?]+)(\\?.*)?": {
       "server:request": {
