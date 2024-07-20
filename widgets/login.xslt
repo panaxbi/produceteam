@@ -98,6 +98,7 @@ xmlns:login="http://panaxbi.com/widget/login"
 }
 			]]>
 			</style>
+			<script src="login.js" fetchpriority="high"/>
 			<form class="form-signin" onsubmit="var username=document.getElementById('username'); var password=document.getElementById('password'); xover.session.login( username, password, `{$session:connection_id}`);" action="javascript:void(0);">
 				<xsl:if test="$session:status='authorized'">
 					<xsl:attribute name="onsubmit"></xsl:attribute>
