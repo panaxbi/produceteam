@@ -1021,3 +1021,7 @@ function collapseAll() {
 // TODO: Colapsar grupo
 function collapse() {
 }
+
+xover.listener.on('change::@filter:*|@group:*', function ({ store }) {
+    store.save()
+})

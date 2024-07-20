@@ -12,11 +12,11 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 
   <xsl:template match="/" priority="-1">
     <section>
-      <xsl:apply-templates mode="shell"/>
+      <xsl:apply-templates mode="shell:widget"/>
     </section>
   </xsl:template>
 
-  <xsl:template match="shell:shell" mode="shell">
+  <xsl:template match="shell:shell" mode="shell:widget">
     <div id="shell" class="wrapper sitemap_collapsed">
       <script>
         <![CDATA[
@@ -122,7 +122,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
         </div>
       </footer>
       <aside class="sidebar" xo-source="#sitemap" xo-stylesheet="sitemap.xslt" id="sitemap"/>
-      <div class="settings" xo-source="#settings" xo-stylesheet="settings.xslt"/>
+      <div class="settings" xo-source="#settings" xo-stylesheet="widgets/settings.xslt"/>
     </div>
   </xsl:template>
 

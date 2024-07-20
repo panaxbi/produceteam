@@ -1,5 +1,5 @@
 ﻿<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml"
-xmlns:x="http://panax.io/xover"
+xmlns:xo="http://panax.io/xover"
 xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
 xmlns:shell="http://panax.io/shell"
@@ -9,7 +9,7 @@ xmlns:meta="http://panax.io/site/meta"
 				
 xmlns:source="http://panax.io/xover/binding/source"
 xmlns:js="http://panax.io/languages/javascript"
-exclude-result-prefixes="#default x session sitemap shell state source js"
+xmlns:login="http://panaxbi.com/widget/login"
 >
 	<xsl:output method="xml"
 	   omit-xml-declaration="yes"
@@ -125,24 +125,7 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 								<xsl:attribute name="readonly"></xsl:attribute>
 							</xsl:if>
 						</input>-->
-						<!--<button class="btn btn-lg btn-primary btn-block color-orange" type="submit">
-							<xsl:choose>
-								<xsl:when test="$session:status='authorized'">
-									<xsl:attribute name="type">button</xsl:attribute>
-									<xsl:attribute name="onclick">
-										<xsl:choose>
-											<xsl:when test="$site:seed = '#login'">xo.site.hash='#'</xsl:when>
-											<xsl:otherwise>xo.stores.seed.render()</xsl:otherwise>
-										</xsl:choose>
-									</xsl:attribute>
-									Continuar
-								</xsl:when>
-								<xsl:when test="$session:status='authorizing'">
-									Autorizando... <i class="fas fa-spinner fa-spin"></i>
-								</xsl:when>
-								<xsl:otherwise>Ingresar</xsl:otherwise>
-							</xsl:choose>
-						</button>-->
+						<xsl:apply-templates mode="login:button" select="."/>
 						<div class="container" style="height: 60px;">
 							<xsl:if test="$meta:google-signin-client_id!='' and $js:secure='true' and $session:status!='authorizing'">
 								<div class="container" xo-static="self::*" style="height: 60px;">
@@ -194,4 +177,27 @@ exclude-result-prefixes="#default x session sitemap shell state source js"
 		</div>
 	</xsl:template>
 
+	<xsl:template mode="login:button" match="*|@*">
+		<button class="btn btn-lg btn-primary btn-block color-orange" type="submit">
+			<xsl:choose>
+				<xsl:when test="$session:status='authorized'">
+					<xsl:attribute name="type">button</xsl:attribute>
+					<xsl:attribute name="onclick">
+						<xsl:choose>
+							<xsl:when test="$site:seed = '#login'">window.location='#'</xsl:when>
+							<xsl:otherwise>xo.stores.seed.render()</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute>
+					Continuar
+				</xsl:when>
+				<xsl:when test="$meta:google-signin-client_id!=''">
+					<xsl:attribute name="style">visibility:hidden !important;</xsl:attribute>
+				</xsl:when>
+				<xsl:when test="$session:status='authorizing'">
+					Autorizando... <i class="fas fa-spinner fa-spin"></i>
+				</xsl:when>
+				<xsl:otherwise>Ingresar</xsl:otherwise>
+			</xsl:choose>
+		</button>
+	</xsl:template>
 </xsl:stylesheet>

@@ -265,6 +265,7 @@ xmlns:state="http://panax.io/state"
 												<xsl:if test="js:showChart='true'">
 													<button type="button" class="list-group-item list-group-item-action" onclick="mostrarGrafica()">Mostrar gráfica</button>
 												</xsl:if>
+												<button type="button" class="list-group-item list-group-item-action" onclick="xo.stores.active.select(`//@group:*|//@filter:*`).remove()">Borrar filtros y agrupaciones</button>
 												<xsl:if test="$state:hide_empty!=''">
 													<button type="button" class="list-group-item list-group-item-action" onclick="xo.state.hide_empty = !xo.state.hide_empty">
 														<xsl:choose>
@@ -272,6 +273,8 @@ xmlns:state="http://panax.io/state"
 															<xsl:otherwise>Ocultar registros en ceros</xsl:otherwise>
 														</xsl:choose>
 													</button>
+												</xsl:if>
+												<xsl:if test="$state:hide_empty!=''">
 												</xsl:if>
 											</div>
 										</div>

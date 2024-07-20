@@ -1,2 +1,2 @@
-﻿<?xml-stylesheet type="text/xsl" href="settings.xslt" target="@#shell @#settings"?>
+﻿<?xml-stylesheet type="text/xsl" href="widgets/settings.xslt" target="@#shell @#settings"?>
 <settings/>

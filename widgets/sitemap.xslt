@@ -6,13 +6,9 @@ xmlns:sitemap="http://panax.io/sitemap"
 xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:xo="http://panax.io/xover"
-exclude-result-prefixes="#default session sitemap shell state"
 >
-	<xsl:output method="xml"
-	   omit-xml-declaration="yes"
-	   indent="yes"/>
-	<xsl:key name="item" match="dummy" use="'#any'"/>
-	<xsl:key name="menu-item" match="dummy" use="'#any'"/>
+	<xsl:key name="sitemap-item" match="dummy" use="'#any'"/>
+	<xsl:key name="sitemap-menu-item" match="dummy" use="'#any'"/>
 
 	<xsl:template match="text()"/>
 
@@ -185,15 +181,15 @@ li.sidebar-item.menu > a {
 			</style>
 			<div style="height:100%; overflow-y:scroll; margin-bottom: var(--margin-bottom)">
 				<ul class="sidebar-nav">
-					<xsl:apply-templates/>
+					<xsl:apply-templates mode="sitemap:widget"/>
 				</ul>
 			</div>
 		</aside>
 	</xsl:template>
 
-	<xsl:template match="key('item','#any')">
+	<xsl:template match="key('sitemap-item','#any')" mode="sitemap:widget">
 		<xsl:variable name="type">
-			<xsl:if test="key('menu-item',@xo:id)">menu</xsl:if>
+			<xsl:if test="key('sitemap-menu-item',@xo:id)">menu</xsl:if>
 		</xsl:variable>
 		<xsl:variable name="collapsed_status">
 			<xsl:if test="item">collapsed</xsl:if>
@@ -204,7 +200,7 @@ li.sidebar-item.menu > a {
 					<xsl:when test="$type='menu'">
 						<xsl:attribute name="data-toggle">collapse</xsl:attribute>
 						<!--<xsl:attribute name="onclick">
-					<xsl:apply-templates mode="sitemap.script" select="."/><![CDATA[;/*toggle_sidebar();*/]]>
+					<xsl:apply-templates mode="sitemap:script" select="."/><![CDATA[;/*toggle_sidebar();*/]]>
 				</xsl:attribute>-->
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout align-middle">
 							<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -213,7 +209,7 @@ li.sidebar-item.menu > a {
 						</svg>
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:apply-templates mode="sitemap.target.href" select="."/>
+						<xsl:apply-templates mode="sitemap:target-href" select="."/>
 					</xsl:otherwise>
 				</xsl:choose>
 				<xsl:value-of select="@title"/>
@@ -227,7 +223,7 @@ li.sidebar-item.menu > a {
 		</li>
 	</xsl:template>
 
-	<xsl:template mode="sitemap.target.href" match="*">
+	<xsl:template mode="sitemap:target-href" match="*">
 		<xsl:attribute name="href">
 			<xsl:value-of select="@target"/>
 		</xsl:attribute>
