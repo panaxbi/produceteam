@@ -218,7 +218,7 @@ li.sidebar-item.menu > a {
 				<xsl:if test="$collapsed_status!='collapsed'">show</xsl:if>
 			</xsl:variable>
 			<ul id="{generate-id()}" class="sidebar-dropdown list-unstyled collapse {$show_status}">
-				<xsl:apply-templates/>
+				<xsl:apply-templates mode="sitemap:widget"/>
 			</ul>
 		</li>
 	</xsl:template>
