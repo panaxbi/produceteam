@@ -9,12 +9,12 @@ xmlns:group="http://panax.io/state/group"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
-xmlns:datagrid="http://panaxbi.com/widget/datagrid"
+xmlns:datagrid="http://widgets.panaxbi.com/datagrid"
 xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>
-	<xsl:import href="widgets/datagrid.xslt"/>
+	<xsl:import href="widgets/datagrid/datagrid.xslt"/>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 	<xsl:key name="filter" match="@filter:*" use="local-name()"/>

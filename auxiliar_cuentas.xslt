@@ -10,12 +10,12 @@ xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns:datagrid="http://panaxbi.com/widget/datagrid"
+xmlns:datagrid="http://widgets.panaxbi.com/datagrid"
 xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>
-	<xsl:import href="widgets/datagrid.xslt"/>
+	<xsl:import href="widgets/datagrid/datagrid.xslt"/>
 	<xsl:param name="state:hide_empty">false</xsl:param>
 
 	<xsl:key name="state:hidden" match="@*[namespace-uri()!='']" use="name()"/>
