@@ -14,13 +14,18 @@ exclude-result-prefixes="#default session sitemap shell"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
+	<xsl:key name="dates" match="weeks/row/@key" use="'active'"/>
 
 	<xsl:template mode="week" match="fechas/row/@*">
 		<xsl:value-of select="../@week"/>
 	</xsl:template>
 
-	<xsl:key name="accounts" match="account/row/@key" use="substring(.,1,1)"/>
-	<xsl:key name="expenses" match="movimientos/row/@amt" use="concat(../@wk,'::',../@acc)"/>
+	<xsl:key name="accounts" match="account/@key" use="substring(.,1,1)"/>
+
+	<xsl:key name="accounts" match="account/@key" use="concat(../../@key,'::',substring(.,1,1))"/>
+
+	<xsl:key name="expenses" match="policies/row/@amt" use="concat(../@wk,'::',../@acc)"/>
+	<xsl:key name="expenses" match="policies/row/@amt" use="concat(../@wk,'::c:',../@cl,'::',substring(../@acc,1,1))"/>
 
 	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat(../@wk,'::',../@type)"/>
 	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat(../@wk,'::',../@type)"/>
@@ -1645,114 +1650,46 @@ tags will be replaced.-->
 							</xsl:for-each>
 							<td class="xl68722"> </td>
 						</tr>
-						<xsl:for-each select="key('accounts','5')">
-							<xsl:variable name="acc" select="."/>
+						<xsl:for-each select="key('accounts','5')/ancestor::classification/@key">
+							<xsl:variable name="cl" select="."/>
 							<tr height="21" style="height:15.75pt">
 								<td height="21" class="xl106722" style="height:15.75pt">
-									<xsl:apply-templates select="."/>
+									&#160;
 								</td>
-								<td class="xl99722">
+								<td height="21" class="xl99722" style="height:15.75pt; background-color:#FF9900; color: white;">
 									<xsl:apply-templates select="../@desc"/>
 								</td>
 								<xsl:for-each select="$dates">
-									<td class="xl107722">
+									<td class="xl107722" style="background-color:#FF9900; color: white;">
 										<xsl:call-template name="format">
-											<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::',$acc)))"></xsl:with-param>
+											<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::c:',$cl,'::','5')))"></xsl:with-param>
 											<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
 										</xsl:call-template>
 									</td>
 								</xsl:for-each>
 								<td class="xl107722">$3,644.85</td>
 							</tr>
-						</xsl:for-each>
-						<!--<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl66722" style="height:15.75pt"></td>
-							<td class="xl68722"> </td>
-							<xsl:for-each select="$dates">
-								<td class="xl68722"> </td>
+							<xsl:for-each select="key('accounts',concat(.,'::','5'))">
+								<xsl:variable name="acc" select="."/>
+								<tr height="21" style="height:15.75pt">
+									<td height="21" class="xl106722" style="height:15.75pt">
+										<xsl:apply-templates select="."/>
+									</td>
+									<td class="xl99722">
+										<xsl:apply-templates select="../@desc"/>
+									</td>
+									<xsl:for-each select="$dates">
+										<td class="xl107722">
+											<xsl:call-template name="format">
+												<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::',$acc)))"></xsl:with-param>
+												<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+											</xsl:call-template>
+										</td>
+									</xsl:for-each>
+									<td class="xl107722">$3,644.85</td>
+								</tr>
 							</xsl:for-each>
-							<td class="xl68722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl106722" style="height:15.75pt">550-013</td>
-							<td class="xl99722">Other Expenses // INTEBAJ Fixed Freight</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722">$0.00</td>
-							</xsl:for-each>
-							<td class="xl107722">$5,695.57</td>
-						</tr>
-						<tr height="20" style="height:15.0pt">
-							<td height="20" class="xl66722" style="height:15.0pt"></td>
-							<td class="xl66722"></td>
-							<xsl:for-each select="$dates">
-								<td class="xl66722"></td>
-							</xsl:for-each>
-							<td class="xl66722"></td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-020</td>
-							<td class="xl99722">Temp. Recorder Expense</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-040</td>
-							<td class="xl99722">Repacking Expenses</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-060</td>
-							<td class="xl99722">Other Expenses- Inspections</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-071</td>
-							<td class="xl99722">Other Expenses- Logistic Fees- Warehouse</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-100</td>
-							<td class="xl99722">Pallet Wraped</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-104</td>
-							<td class="xl99722">Other Expenses- Repack NTP</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">550-107</td>
-							<td class="xl99722">NTP- Fixed Freight Allowance</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>
-						<tr height="21" style="height:15.75pt">
-							<td height="21" class="xl109722" style="height:15.75pt">551-101</td>
-							<td class="xl99722">Grower Balance- INTEBAJ</td>
-							<xsl:for-each select="$dates">
-								<td class="xl107722"> </td>
-							</xsl:for-each>
-							<td class="xl107722"> </td>
-						</tr>-->
+						</xsl:for-each>						
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl66722" style="height:15.0pt"></td>
 							<xsl:for-each select="$dates">
@@ -1786,26 +1723,45 @@ tags will be replaced.-->
 							</xsl:for-each>
 							<td class="xl68722"> </td>
 						</tr>
-
-						<xsl:for-each select="key('accounts','4')">
-							<xsl:variable name="acc" select="."/>
+						<xsl:for-each select="key('accounts','4')/ancestor::classification/@key">
+							<xsl:variable name="cl" select="."/>
 							<tr height="21" style="height:15.75pt">
 								<td height="21" class="xl106722" style="height:15.75pt">
-									<xsl:apply-templates select="."/>
+									&#160;
 								</td>
-								<td class="xl99722">
+								<td height="21" class="xl99722" style="height:15.75pt; background-color:#FF9900; color: white;">
 									<xsl:apply-templates select="../@desc"/>
 								</td>
 								<xsl:for-each select="$dates">
-									<td class="xl82722">
+									<td class="xl107722" style="background-color:#FF9900; color: white;">
 										<xsl:call-template name="format">
-											<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::',$acc)))"></xsl:with-param>
+											<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::c:',$cl,'::','4')))"></xsl:with-param>
 											<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
 										</xsl:call-template>
 									</td>
 								</xsl:for-each>
-								<td class="xl82722">$118,631.58</td>
+								<td class="xl107722">$3,644.85</td>
 							</tr>
+							<xsl:for-each select="key('accounts',concat(.,'::','4'))">
+								<xsl:variable name="acc" select="."/>
+								<tr height="21" style="height:15.75pt">
+									<td height="21" class="xl106722" style="height:15.75pt">
+										<xsl:apply-templates select="."/>
+									</td>
+									<td class="xl99722">
+										<xsl:apply-templates select="../@desc"/>
+									</td>
+									<xsl:for-each select="$dates">
+										<td class="xl107722">
+											<xsl:call-template name="format">
+												<xsl:with-param name="value" select="sum(key('expenses',concat(.,'::',$acc)))"></xsl:with-param>
+												<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+											</xsl:call-template>
+										</td>
+									</xsl:for-each>
+									<td class="xl107722">$3,644.85</td>
+								</tr>
+							</xsl:for-each>
 						</xsl:for-each>
 						<!--<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl106722" style="height:15.75pt">450-106</td>

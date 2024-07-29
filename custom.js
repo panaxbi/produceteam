@@ -995,10 +995,6 @@ xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
     return { "message": "" };
 })
 
-// TODO: Colapsar todo
-function collapseAll() {
-}
-
 // TODO: Colapsar grupo
 function collapse() {
 }
