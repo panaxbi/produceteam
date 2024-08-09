@@ -16,15 +16,26 @@
     "#loading": null,
     "#settings": "settings.xml",
     "#menu": "menus.xml",
+    "#formato_liquidacion": "templates/formato_liquidacion.htm",
+    "#liquidation_report": "liquidation_report.xslt",
     "#globalization": [ "assets/globalization/headerText.${xo.session.locale.split('-').shift()}.resx", "assets/globalization/headerText.resx" ],
     "#sitemap": {
       "server:request": {
         "FROM": "#panax.getSitemap",
         "parameters": "'${xo.session.user_login}'"
       }
+    },
+    "#ws": {
+      "server:ws": [
+        "ws://localhost:8003",
+        {
+          "message": "#messages",
+          "changed": "reloadStylesheets"
+        }
+      ]
     }
   },
-  "start": [ "loading.xslt" ],
+  "start": [ "loading.xslt", "#ws" ],
   "settings": {
     "^#.*": {
       "headers": {

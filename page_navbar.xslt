@@ -102,6 +102,11 @@ xmlns:combobox="http://panax.io/widget/combobox"
 							<xsl:attribute name="selected"/>
 						</xsl:if> Fecha de embarque
 					</option>
+					<option value="fecha_recepcion">
+						<xsl:if test="$state:filterBy='' or $state:filterBy='fecha_recepcion'">
+							<xsl:attribute name="selected"/>
+						</xsl:if> Fecha de recepción
+					</option>
 					<option value="order">
 						<xsl:if test="$state:filterBy='order'">
 							<xsl:attribute name="selected"/>
@@ -124,6 +129,12 @@ xmlns:combobox="http://panax.io/widget/combobox"
 					<div class="input-group">
 						<input class="form-control" name="fecha_embarque_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_inicio" value="{../@state:fecha_embarque_inicio}"/>
 						<input class="form-control" name="fecha_embarque_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_embarque_fin" value="{../@state:fecha_embarque_fin}"/>
+					</div>
+				</xsl:when>
+				<xsl:when test="$state:filterBy='fecha_recepcion'">
+					<div class="input-group">
+						<input class="form-control" name="fecha_recepcion_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_inicio" value="{../@state:fecha_recepcion_inicio}"/>
+						<input class="form-control" name="fecha_recepcion_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_fin" value="{../@state:fecha_recepcion_fin}"/>
 					</div>
 				</xsl:when>
 				<xsl:otherwise>

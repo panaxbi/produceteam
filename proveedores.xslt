@@ -23,32 +23,23 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="state:hidden" match="@state:*" use="name()"/>
 	<xsl:key name="state:hidden" match="@xsi:*" use="name()"/>
 
-	<xsl:key name="data_type" match="activos//@Description" use="'description'"/>
-	<xsl:key name="data_type" match="activos//@AccountName" use="'description'"/>
+	<xsl:key name="rows" match="//proveedores/row[not(@xsi:type)]" use="name(..)"/>
+	<xsl:key name="facts" match="//proveedores/row/@*[.!='' and namespace-uri()='']" use="name()"/>
 
-	<xsl:key name="data_type" match="activos//@TransDate" use="'date'"/>
-	<xsl:key name="data_type" match="activos//@PostDate" use="'date'"/>
+	<xsl:key name="data" match="/model/proveedores[not(row/@xsi:type)]/row" use="'*'"/>
 
-	<xsl:key name="data_type" match="activos//@dto" use="'money'"/>
+	<xsl:key name="data:group" match="model/proveedores[not(@group:*)][row]" use="'*'"/>
 
-	<xsl:key name="rows" match="//activos/row[not(@xsi:type)]" use="name(..)"/>
-	<xsl:key name="facts" match="//activos/row/@*[.!='' and namespace-uri()='']" use="name()"/>
+	<xsl:key name="x-dimension" match="//proveedores[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
+	<xsl:key name="y-dimension" match="//proveedores[not(row/@xsi:type)]/*" use="name(..)"/>
 
-	<xsl:key name="data" match="//activos[not(row/@xsi:type)]/row" use="@Account"/>
-	<xsl:key name="data" match="/model/activos[not(row/@xsi:type)]/row" use="'*'"/>
-
-	<xsl:key name="data:group" match="model/activos[not(@group:*)][row]" use="'*'"/>
-
-	<xsl:key name="x-dimension" match="//activos[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
-	<xsl:key name="y-dimension" match="//activos[not(row/@xsi:type)]/*" use="name(..)"/>
-
-	<xsl:param name="data_node">'activos'</xsl:param>
+	<xsl:param name="data_node">'proveedores'</xsl:param>
 	<xsl:param name="state:groupBy">*</xsl:param>
 
 	<xsl:template match="/">
 		<!--<xsl:param name="data_node" select="name($data_node)"/>-->
 		<main xmlns="http://www.w3.org/1999/xhtml">
-			<xsl:apply-templates mode="datagrid:widget" select="model/activos"/>
+			<xsl:apply-templates mode="datagrid:widget" select="model/proveedores"/>
 		</main>
 	</xsl:template>
 </xsl:stylesheet>

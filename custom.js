@@ -127,7 +127,6 @@ Object.defineProperty(xo.session, 'logout', {
                 xo.stores[store].remove()
             }
             xover.session.status = 'unauthorized';
-            history.go(-xo.site.position + 1);
         } catch (e) {
             Promise.reject(e);
         }
@@ -742,12 +741,16 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
         this.select(`//ventas/row[${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
     }
 
-    let amt = this.select(`//ventas/row/@amt`).reduce(Sum, 0);
-    let qtym = this.select(`//ventas/row/@qtym`).reduce(Sum, 0);
-    this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt / qtym);
-    let tcos = this.select(`//ventas/row/@tcos`).reduce(Sum, 0);
-    let amt_ad = this.select(`//ventas/row/@amt_ad`).reduce(Sum, 0);
-    this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt - tcos - amt_ad) / qtym);
+    let amt = this.select(`//ventas/row/@amt`);
+    let qtym = this.select(`//ventas/row/@qtym`);
+    if (amt.length && qtym.length) {
+        this.selectFirst(`//ventas`).setAttribute(`state:avg_upce`, amt.reduce(Sum, 0) / qtym.reduce(Sum, 0));
+    }
+    let tcos = this.select(`//ventas/row/@tcos`);
+    let amt_ad = this.select(`//ventas/row/@amt_ad`);
+    if (amt.length && qtym.length && tcos.length && amt_ad.length) {
+        this.selectFirst(`//ventas`).setAttribute(`state:avg_pce`, (amt.reduce(Sum, 0) - tcos.reduce(Sum, 0) - amt_ad.reduce(Sum, 0)) / qtym.reduce(Sum, 0));
+    }
 
 })
 
@@ -839,6 +842,8 @@ xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI
     delete parameters[`@grower_lot`]
     delete parameters["@fecha_embarque_inicio"];
     delete parameters["@fecha_embarque_fin"];
+    delete parameters["@fecha_recepcion_inicio"];
+    delete parameters["@fecha_recepcion_fin"];
     delete parameters["@start_week"];
     delete parameters["@end_week"];
 
@@ -851,11 +856,19 @@ xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI
     } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
         parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
         parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
+    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
+        parameters["@fecha_recepcion_inicio"] = document.selectFirst("//@state:fecha_recepcion_inicio");
+        parameters["@fecha_recepcion_fin"] = document.selectFirst("//@state:fecha_recepcion_fin");
     }
 })
 
 xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
     xo.state.filterBy = 'ship_date'
+    store.fetch()
+})
+
+xover.listener.on(`change::@state:fecha_recepcion_inicio|@state:fecha_recepcion_fin`, function ({ value, store }) {
+    xo.state.filterBy = 'fecha_recepcion'
     store.fetch()
 })
 
@@ -935,6 +948,7 @@ xo.listener.on(["fetch"], function ({ document }) {
     if (tr) {
         let node = document.selectFirst('//ventas|//movimientos|//trouble');
         //node.ownerDocument.disconnect();
+        if (!node) return;
         let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || ["http://panax.io/state/filter", "http://panax.io/state/group"].includes(attr.namespaceURI)).map(slot => slot.cloneNode());
         [...node.attributes].filter(attr => !attr.namespaceURI).remove();
         attributes.forEach(attr => node.setAttributeNode(attr));
@@ -995,10 +1009,34 @@ xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
     return { "message": "" };
 })
 
-// TODO: Colapsar grupo
-function collapse() {
-}
-
 xover.listener.on('change::@filter:*|@group:*', function ({ store }) {
     store.save()
 })
+
+xover.server.ws = function (url, listeners = {}) {
+    try {
+        if (!window.io) return;
+        const socket_io = window.io(url, { transports: ['websocket'] });
+
+        for ([listener, handler] of Object.entries(listeners)) {
+            socket_io.on(listener, async function (...args) {
+                if (!handler) {
+                    return
+                } else if (existsFunction(handler)) {
+                    let fn = eval(handler);
+                    response = await fn.apply(this, args.length ? args : parameters);
+                } else if (handler[0] == '#') {
+                    let source = xo.sources[handler];
+                    await source.ready;
+                    source.documentElement.append(xo.xml.createNode(`<item/ >`).textContent = args.join())
+                }
+            })
+        }
+    } catch (e) {
+        return Promise.reject(e);
+    }
+}
+
+function reloadStylesheets() {
+    xo.site.stylesheets.reload()
+}
