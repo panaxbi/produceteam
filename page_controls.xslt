@@ -127,6 +127,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<div class="offcanvas-body small" xo-source="active" xo-stylesheet="page_controls.seleccion.xslt">
 			</div>
 		</div>
+		<!--<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">Enable body scrolling</button>
+
+		<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title" id="offcanvasScrollingLabel"></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<p>Try scrolling the rest of the page to see this option in action.</p>
+			</div>
+		</div>-->
 	</xsl:template>
 
 	<xsl:template mode="aria-label-attribute" match="*|@*">
@@ -237,70 +248,5 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				<xsl:apply-templates mode="button" select="$items"/>
 			</fieldset>
 		</div>
-	</xsl:template>
-
-	<xsl:template match="model">
-		<xsl:variable name="mantenibles" select="mantenibles[*]"/>
-		<style>
-			<xsl:if test="$mantenibles">
-				:root { --footer-height: 60px; }
-			</xsl:if>
-			<![CDATA[
-			#offcanvasSelection { height: 150px; }
-			]]>
-		</style>
-		<div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasSelection" aria-labelledby="offcanvasSelectionLabel" data-bs-scroll="true" data-bs-backdrop="false">
-			<div class="offcanvas-body small" xo-source="active" xo-stylesheet="page_controls.seleccion.xslt">
-			</div>
-		</div>
-
-		<div class="filters-toggle toggle-filters" onclick="this.classList.toggle('closed'); filtersToggle();">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
-				<path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z"/>
-			</svg>
-		</div>
-		<xsl:apply-templates mode="filters" select="key('filters','*')"/>
-		<xsl:variable name="divs" select="key('filters','div')"/>
-		<xsl:variable name="rss" select="key('filters','rs')"/>
-		<xsl:choose>
-			<xsl:when test="$divs">
-				<xsl:apply-templates mode="button-group" select="$divs/parent::*">
-					<xsl:with-param name="items" select="key('filters','rs')/../@div"/>
-				</xsl:apply-templates>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:apply-templates mode="button-group" select="$rss/parent::*"/>
-			</xsl:otherwise>
-		</xsl:choose>
-
-
-		<xsl:if test="unidades_negocio[*[2]]">
-			<xsl:comment>
-				<xsl:value-of select="floor(count(unidades_negocio/unidad_negocio) div 5)"/>
-			</xsl:comment>
-			<style>
-				:root { --footer-height: <xsl:value-of select="105 + 40 * floor((count(unidades_negocio/unidad_negocio) div 5))"/>px; }
-			</style>
-			<div class="btn-group btn-group-sm col-6" role="group" aria-label="Segmentos" style="margin-left:1rem;">
-				<fieldset>
-					<legend>Segmentos</legend>
-					<xsl:apply-templates mode="button" select="unidades_negocio/unidad_negocio"/>
-				</fieldset>
-			</div>
-		</xsl:if>
-
-		<xsl:for-each select="$mantenibles">
-			<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMantenibles" aria-controls="offcanvasBottom" style="margin-left:5rem;">Mantenibles</button>
-		</xsl:for-each>
-		<xsl:if test="//@state:dirty">
-			<style>
-				:root { --footer-height: 74px; }
-			</style>
-			<ul class="col-12 nav justify-content-end list-unstyled d-flex">
-				<li class="ms-3" xo-scope="{@xo:id}">
-					<button class="btn btn-primary" type="button" onclick="submit(scope)" xo-scope="{ancestor-or-self::*[1]/@xo:id}">Guardar</button>
-				</li>
-			</ul>
-		</xsl:if>
 	</xsl:template>
 </xsl:stylesheet>
