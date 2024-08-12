@@ -10,6 +10,7 @@ xmlns:group="http://panax.io/state/group"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
 xmlns:datagrid="http://widgets.panaxbi.com/datagrid"
+xmlns:total="http://panax.io/total"
 xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="headers.xslt"/>
@@ -69,15 +70,27 @@ xmlns:xo="http://panax.io/xover"
 	</xsl:template>
 
 
-	<xsl:template mode="datagrid:aggregate" match="@upce" priority="1">
+	<!--<xsl:template mode="datagrid:aggregate" match="@upce" priority="1">
 		<xsl:value-of select="ancestor::ventas[1]/@state:avg_upce"/>
-	</xsl:template>
+	</xsl:template>-->
 
-	<xsl:template mode="datagrid:aggregate" match="@pce" priority="1">
+	<!--<xsl:template mode="datagrid:aggregate" match="@pce" priority="1">
 		<xsl:value-of select="ancestor::ventas[1]/@state:avg_pce"/>
-	</xsl:template>
+	</xsl:template>-->
 
 	<xsl:template mode="datagrid:footer-cell" match="@ucos" priority="1">
 		<td></td>
+	</xsl:template>
+
+	<xsl:template match="@total:upce">
+		<xsl:param name="data" select="node-expected"/>
+		<xsl:variable name="rows" select="$data/ancestor-or-self::*[1][@qtym and @amt]"/>
+		<xsl:value-of select="sum($rows/@amt) div sum($rows/@qtym)"/>
+	</xsl:template>
+
+	<xsl:template match="@total:pce">
+		<xsl:param name="data" select="node-expected"/>
+		<xsl:variable name="rows" select="$data/ancestor-or-self::*[1][@amt]"/>
+		<!--<xsl:value-of select="(sum($rows/@amt) - sum($rows/@tcos) - sum($rows/@amt_ad)) div sum($rows/@qtym)"/>-->
 	</xsl:template>
 </xsl:stylesheet>

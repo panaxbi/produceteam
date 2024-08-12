@@ -1013,9 +1013,9 @@ xover.listener.on('change::@filter:*|@group:*', function ({ store }) {
     store.save()
 })
 
-xo.listener.on(`change?!!srcElement.matches('[type=date]')`, function({ old }) {
-    debugger
-})
+//xo.listener.on(`change?!!srcElement.matches('[type=date]')`, function({ old }) {
+//    debugger
+//})
 
 xover.server.ws = function (url, listeners = {}) {
     try {
