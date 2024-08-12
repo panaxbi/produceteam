@@ -286,11 +286,11 @@ xmlns:combobox="http://panax.io/widget/combobox"
 	<xsl:template mode="widget" match="model[@env:store='#estado_resultados_semanal']/@*">
 		<xsl:variable name="default_date">
 			<xsl:choose>
-				<xsl:when test="../fechas/@state:current_date_er">
-					<xsl:value-of select="../fechas/@state:current_date_er"/>
+				<xsl:when test="../weeks/@state:current_date_er">
+					<xsl:value-of select="../weeks/@state:current_date_er"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:for-each select="../fechas/@key">
+					<xsl:for-each select="../weeks/@key">
 						<xsl:sort order="descending" select="."/>
 						<xsl:if test="position()=1">
 							<xsl:value-of select="."/>
@@ -299,18 +299,18 @@ xmlns:combobox="http://panax.io/widget/combobox"
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:variable name="curr_month" select="../fechas/row[@mes=$default_date]/@mes"/>
-		<xsl:variable name="start_week" select="../fechas/@state:start_week"/>
-		<xsl:variable name="end_week" select="../fechas/@state:end_week"/>
+		<xsl:variable name="curr_month" select="../weeks/row[@mes=$default_date]/@mes"/>
+		<xsl:variable name="start_week" select="../weeks/@state:start_week"/>
+		<xsl:variable name="end_week" select="../weeks/@state:end_week"/>
 
 		<style>
 			:root { --sections-filter-height: 54px; }
 		</style>
 		<div class="input-group">
-			<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:start_week">
+			<select class="form-select" xo-scope="{../weeks/@xo:id}" xo-slot="state:start_week">
 				<option value=""></option>
-				<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:end_week]/following-sibling::*/@desc"/>
-				<xsl:for-each select="../fechas/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
+				<xsl:variable name="inactive-dates" select="../weeks/row[@desc=../@state:end_week]/following-sibling::*/@desc"/>
+				<xsl:for-each select="../weeks/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
 					<xsl:sort select="." data-type="number" order="descending"/>
 					<xsl:variable name="value" select="."/>
 					<option value="{.}">
@@ -321,10 +321,10 @@ xmlns:combobox="http://panax.io/widget/combobox"
 					</option>
 				</xsl:for-each>
 			</select>
-			<select class="form-select" xo-scope="{../fechas/@xo:id}" xo-slot="state:end_week">
+			<select class="form-select" xo-scope="{../weeks/@xo:id}" xo-slot="state:end_week">
 				<option value=""></option>
-				<xsl:variable name="inactive-dates" select="../fechas/row[@desc=../@state:start_week]/preceding-sibling::*/@desc"/>
-				<xsl:for-each select="../fechas/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
+				<xsl:variable name="inactive-dates" select="../weeks/row[@desc=../@state:start_week]/preceding-sibling::*/@desc"/>
+				<xsl:for-each select="../weeks/row/@desc[count($inactive-dates|.)!=count($inactive-dates)]">
 					<xsl:sort select="." data-type="number" order="descending"/>
 					<xsl:variable name="value" select="."/>
 					<option value="{.}">

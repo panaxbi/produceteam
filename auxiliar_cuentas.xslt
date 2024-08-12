@@ -15,7 +15,7 @@ xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="common.xslt"/>
 	<xsl:import href="headers.xslt"/>
-	<xsl:import href="widgets/datagrid/datagrid.xslt"/>
+	<xsl:import href="datagrid.xslt"/>
 	<xsl:param name="state:hide_empty">false</xsl:param>
 
 	<xsl:key name="state:hidden" match="@*[namespace-uri()!='']" use="name()"/>

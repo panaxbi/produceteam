@@ -13,7 +13,7 @@ xmlns:datagrid="http://widgets.panaxbi.com/datagrid"
 xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="headers.xslt"/>
-	<xsl:import href="widgets/datagrid/datagrid.xslt"/>
+	<xsl:import href="datagrid.xslt"/>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 	<xsl:key name="filter" match="@filter:*" use="local-name()"/>

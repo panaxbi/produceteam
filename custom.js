@@ -726,13 +726,13 @@ xo.listener.on(`change::@state:date`, function ({ value, event }) {
 })
 
 xo.listener.on(`beforeTransform?stylesheet.href=estado_resultados_semanal.xslt`, function ({ document }) {
-    let start_week = this.selectFirst(`//fechas/@state:start_week`)
+    let start_week = this.selectFirst(`//weeks/@state:start_week`)
     if (start_week) {
-        this.select(`//fechas/row[@desc="${start_week}"]`).forEach(el => el.select(`preceding-sibling::*`).remove())
+        this.select(`//weeks/row[@desc="${start_week}"]`).forEach(el => el.select(`preceding-sibling::*`).remove())
     }
-    let end_week = this.selectFirst(`//fechas/@state:end_week`)
+    let end_week = this.selectFirst(`//weeks/@state:end_week`)
     if (end_week) {
-        this.select(`//fechas/row[@desc="${end_week}"]`).forEach(el => el.select(`following-sibling::*`).remove())
+        this.select(`//weeks/row[@desc="${end_week}"]`).forEach(el => el.select(`following-sibling::*`).remove())
     }
 })
 
@@ -1011,6 +1011,10 @@ xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
 
 xover.listener.on('change::@filter:*|@group:*', function ({ store }) {
     store.save()
+})
+
+xo.listener.on(`change?!!srcElement.matches('[type=date]')`, function({ old }) {
+    debugger
 })
 
 xover.server.ws = function (url, listeners = {}) {
