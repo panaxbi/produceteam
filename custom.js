@@ -766,6 +766,13 @@ xo.listener.on([`beforeTransform::model[*/@filter:*]`, `beforeTransform?styleshe
     }
 })
 
+xo.listener.on(`beforeTransform?stylesheet.href*=liquidacion_detalle::model`, function ({ document, stylesheet }) {
+    let distinct_attrs = document.select(`//ventas/*/@*`).map(attr => attr.name).distinct();
+    for (let attr of this.select(`//ventas/@*[not(namespace-uri())]`).filter(attr => !distinct_attrs.includes(attr.name))) {
+        attr.remove()
+    }
+})
+
 xo.listener.on("fetch::xo:response", function () {
     let new_node = this.selectFirst('xo:response//model');
     new_node instanceof Element && this.documentElement.replaceWith(new_node)
@@ -836,7 +843,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`], function ({ source, document, parameters = {} }) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ source, document, parameters = {} }) {
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
     delete parameters[`@grower_lot`]
@@ -859,6 +866,9 @@ xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI
     } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
         parameters["@fecha_recepcion_inicio"] = document.selectFirst("//@state:fecha_recepcion_inicio");
         parameters["@fecha_recepcion_fin"] = document.selectFirst("//@state:fecha_recepcion_fin");
+    }
+    for (let [key, value] of xo.site.searchParams.params) {
+        parameters[key] = value
     }
 })
 

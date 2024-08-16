@@ -10,6 +10,7 @@ xmlns:search="http://panax.io/state/search"
 xmlns:env="http://panax.io/state/environment"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:widget="http://panax.io/widget"
+xmlns:navbar="http://widgets.panaxbi.com/navbar"
 xmlns:combobox="http://panax.io/widget/combobox"
 >
 	<xsl:import href="headers.xslt"/>
@@ -142,7 +143,54 @@ xmlns:combobox="http://panax.io/widget/combobox"
 				</xsl:otherwise>
 			</xsl:choose>
 		</fieldset>
-		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente"/>
+		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente|../*[not(self::fechas)]/@navbar:filter"/>
+	</xsl:template>
+
+	<xsl:template mode="widget" match="model[@env:store='#liquidacion_detalle']/@*">
+		<style>
+			:root { --sections-filter-height: 86px; }
+			filter_by option {
+			font-size: 16pt;
+			}
+		</style>
+		<fieldset class="filter_by">
+			<legend>
+				<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
+					<option value="fecha_recepcion">
+						<xsl:if test="$state:filterBy='' or $state:filterBy='fecha_recepcion'">
+							<xsl:attribute name="selected"/>
+						</xsl:if> Fecha de recepción
+					</option>
+					<option value="order">
+						<xsl:if test="$state:filterBy='order'">
+							<xsl:attribute name="selected"/>
+						</xsl:if>Sales Order
+					</option>
+					<option value="purchase_order">
+						<xsl:if test="$state:filterBy='purchase_order'">
+							<xsl:attribute name="selected"/>
+						</xsl:if>Purchase Order
+					</option>
+					<option value="grower_lot">
+						<xsl:if test="$state:filterBy='grower_lot'">
+							<xsl:attribute name="selected"/>
+						</xsl:if>Grower Lot
+					</option>
+				</select>
+			</legend>
+			<xsl:choose>
+				<xsl:when test="$state:filterBy='' or $state:filterBy='fecha_recepcion'">
+					<div class="input-group">
+						<input class="form-control" name="fecha_recepcion_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_inicio" value="{../@state:fecha_recepcion_inicio}"/>
+						<input class="form-control" name="fecha_recepcion_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_fin" value="{../@state:fecha_recepcion_fin}"/>
+					</div>
+				</xsl:when>
+				<xsl:otherwise>
+					<input type="text" name="{$state:filterBy}" class="form-control" value="{../@state:*[local-name()=$state:filterBy]}" xo-slot="state:{$state:filterBy}"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</fieldset>
+		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente|../*[not(self::fechas)]/@navbar:filter"/>
 	</xsl:template>
 
 	<xsl:key name="state:selected" match="model/*/row[@id=../@state:selected]/@desc" use="generate-id()"/>
