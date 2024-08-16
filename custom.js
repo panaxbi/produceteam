@@ -754,12 +754,6 @@ xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`,
 
 })
 
-xo.listener.on(`beforeTransform::model[*/@filter:*]`, function ({ document }) {
-    for (let attr of this.select(`//@filter:*`)) {
-        attr.parentNode.select(`row[${attr.value.split("|").map(value => `not(@${attr.localName}="${value}")`).join(" and ")}]`).forEach(el => el.remove())
-    }
-})
-
 xo.listener.on([`beforeTransform::model[*/@filter:*]`, `beforeTransform?stylesheet.href=auxiliar_cuentas.xslt`], function () {
     for (let attr of this.select(`//@filter:*`)) {
         this.select(`//movimientos/row[not(@xsi:type="mock")][${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())

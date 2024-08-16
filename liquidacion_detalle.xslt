@@ -151,7 +151,7 @@ xmlns:xo="http://panax.io/xover"
 			<th scope="col" class="charges" colspan="{count(key('section','charges'))}">
 				CHARGES
 			</th>
-			<th scope="col" class="other" colspan="{count(key('section','other'))}" style="background-color: transparent; border-bottom: solid black 1pt;"></th>
+			<th scope="col" class="other" colspan="{count(key('section','other'))}"></th>
 			<th scope="col" class="absorbed_expenses" colspan="{count(key('section','absorbed_expenses'))}">
 				ABSORBED EXPENSES
 			</th>
@@ -205,5 +205,10 @@ xmlns:xo="http://panax.io/xover"
 				</xsl:apply-templates>
 			</tr>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:widget" match="ventas[@filter:po]">
+		<div xo-stylesheet="liquidation_report.xslt" xo-source="active">
+		</div>	
 	</xsl:template>
 </xsl:stylesheet>
