@@ -97,6 +97,12 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="section" match="ventas/@un_p" use="'profit_loss'"/>
 
 	<xsl:template match="/">
+		<style>
+			.zoomable-onhover:hover {
+				transform: scale(1.5); 
+				transform-origin: top;
+			}
+		</style>
 		<body xmlns="http://www.w3.org/1999/xhtml" xo-source="">
 			<style id="PROPUESTA LIQ-1(1)_26760_Styles">
 				&amp;lt;!--table
@@ -393,7 +399,7 @@ xmlns:xo="http://panax.io/xover"
 				--&amp;gt;
 			</style>
 			<div id="PROPUESTA LIQ-1(1)_26760" align="center" x:publishsource="Excel">
-				<table border="0" cellpadding="0" cellspacing="0" width="633" class="xl6426760 bg-white" style="border-collapse:collapse;table-layout:fixed;width:475pt; transform: scale(1.5); transform-origin: top;">
+				<table border="0" cellpadding="0" cellspacing="0" width="633" class="xl6426760 bg-white zoomable-onhover" style="border-collapse:collapse;table-layout:fixed;width:475pt;">
 					<colgroup>
 						<col class="xl6426760" width="163" style="mso-width-source:userset;mso-width-alt:&#10; 5961;width:122pt" />
 						<col class="xl6426760" width="61" style="mso-width-source:userset;mso-width-alt:&#10; 2230;width:46pt" />
