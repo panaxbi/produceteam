@@ -137,7 +137,7 @@ xo.listener.on('hashchange', function () {
     typeof (toggleSidebar) === 'function' && toggleSidebar(false)
 })
 
-xo.listener.on('progress', async function ({ percent, settings }) {
+xo.listener.on('progress', async function ({ percent, settings = {} }) {
     let progress = await settings.progress || [];
     for (let target of progress) {
         if (!(target instanceof HTMLElement)) continue;
