@@ -83,15 +83,10 @@ async function progressiveRequest(params) {
 }
 
 xo.listener.on(['beforeFetch::#ventas_por_fecha_embarque', 'beforeFetch::#KPI_ventas'], async function ({ settings = {} }) {
-    return;
     settings.progress = await xo.sources["loading.xslt"].render()
-    for (let render of settings.progress) {
-        progress = render.querySelector('i progress');
-        progress.style.display = 'inline';
-    }
 })
 
-xo.listener.on(['xo.Source:fetch', 'xo.Source:failure'], async function ({ settings = {} }) {
+xo.listener.on(['fetch', 'xo.Source:failure'], async function ({ settings = {} }) {
     let progress = await settings.progress || [];
     for (let render of progress) {
         let progress = render.querySelector('i progress');
@@ -142,14 +137,14 @@ xo.listener.on('hashchange', function () {
     typeof (toggleSidebar) === 'function' && toggleSidebar(false)
 })
 
-xo.listener.on('progress', async function ({ percent }) {
-    let progress = await this.settings.progress || [];
-    if (progress.length) {
-        progress = [progress].flat(Infinity);
-        let target = progress[0].parentNode?.querySelector('progress');
-        if (target) {
-            target.style.display = 'inline'
-            target.value = percent;
+xo.listener.on('progress', async function ({ percent, settings }) {
+    let progress = await settings.progress || [];
+    for (let target of progress) {
+        if (!(target instanceof HTMLElement)) continue;
+        for (let node of target.querySelectorAll('progress')) {
+            node.style.display = 'inline';
+            node.classList.add('visible');
+            node.value = percent;
         }
     }
 })
@@ -273,6 +268,11 @@ xo.listener.on(['replaceWith::[xo-stylesheet="page_controls.mantenibles.xslt"]']
         new_node.replaceChildren(...old.childNodes)
         //new_node.querySelectorAll("[xo-stylesheet]").toArray().concat([new_node].filter(el => el.matches("[xo-stylesheet]")))
     }
+})
+
+xo.listener.on(['transform'], ({ result }) => {
+    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
+    xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
 })
 
 xo.listener.on(['transform'], ({ result }) => {
@@ -480,7 +480,7 @@ selectCells = function (selection_started, selection_end) {
     //return xover.manager.delay.get(selection_started);
 }
 
-let selection = {};
+selection = {};
 Object.defineProperty(selection, 'cells', {
     get: function () {
         let result = [...document.querySelectorAll(".selected")];
@@ -1021,30 +1021,51 @@ xover.listener.on('change::@filter:*|@group:*', function ({ store }) {
 //    debugger
 //})
 
-xover.server.ws = function (url, listeners = {}) {
-    try {
-        if (!window.io) return;
-        const socket_io = window.io(url, { transports: ['websocket'] });
-
-        for ([listener, handler] of Object.entries(listeners)) {
-            socket_io.on(listener, async function (...args) {
-                if (!handler) {
-                    return
-                } else if (existsFunction(handler)) {
-                    let fn = eval(handler);
-                    response = await fn.apply(this, args.length ? args : parameters);
-                } else if (handler[0] == '#') {
-                    let source = xo.sources[handler];
-                    await source.ready;
-                    source.documentElement.append(xo.xml.createNode(`<item/ >`).textContent = args.join())
-                }
-            })
-        }
-    } catch (e) {
-        return Promise.reject(e);
+xo.listener.on('keyup', function () {
+    if (event.key === 'Escape' && xo.site.sections["liquidation_report.xslt"].length) {
+        xover.stores.active.select(`//ventas/@filter:*`).remove()
     }
+})
+
+var datediff = function (intervalType, first_date, last_date = new Date()) {
+    // Parse the input dates
+    if (!(first_date && last_date)) return undefined;
+    const first = first_date instanceof Date ? first_date : first_date.parseDate();
+    const last = last_date instanceof Date ? last_date : last_date.parseDate();
+    intervalType = intervalType.replace(/s$/, '');
+
+    // Calculate the difference in milliseconds
+    const diffMs = last - first;
+
+    // Convert milliseconds to the specified interval type
+    let diffInterval;
+    switch (intervalType) {
+        case 'year':
+            diffInterval = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+            break;
+        case 'month':
+            diffInterval = diffMs / (1000 * 60 * 60 * 24 * 30.44);
+            break;
+        case 'day':
+            diffInterval = diffMs / (1000 * 60 * 60 * 24);
+            break;
+        case 'hour':
+            diffInterval = diffMs / (1000 * 60 * 60);
+            break;
+        case 'minute':
+            diffInterval = diffMs / (1000 * 60);
+            break;
+        case 'second':
+            diffInterval = diffMs / 1000;
+            break;
+        default:
+            throw new Error('Invalid interval type');
+    }
+
+    // Return the result rounded to 2 decimal places
+    return Math.floor(Math.round(diffInterval * 100) / 100);
 }
 
-function reloadStylesheets() {
-    xo.site.stylesheets.reload()
+formatDate = function (date) {
+    return new Date((date instanceof Date) && date || Date.parse(`${date}T00:00:00`.replace(/(\d{4})-?(\d{2})-?(\d{2})T/, '$1-$2-$3T')))
 }

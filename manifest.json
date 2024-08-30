@@ -26,11 +26,11 @@
       }
     },
     "#ws": {
-      "server:ws": [
+      "xover.socket.connect": [
         "ws://localhost:8003",
         {
           "message": "#messages",
-          "changed": "reloadStylesheets"
+          "hotreload": "event:hotreload"
         }
       ]
     }

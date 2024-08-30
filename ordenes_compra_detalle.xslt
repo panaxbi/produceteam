@@ -58,4 +58,10 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:variable name="rows" select="$data/ancestor-or-self::*[1][@rqty and @r_amt]"/>
 		<xsl:value-of select="sum($rows/@r_amt) div sum($rows/@rqty)"/>
 	</xsl:template>
+
+	<xsl:template match="@total:ucos">
+		<xsl:param name="data" select="node-expected"/>
+		<xsl:variable name="rows" select="$data/ancestor-or-self::*[1][@qtym and @amt]"/>
+		<xsl:value-of select="sum($rows/@tcos) div sum($rows/@qtym)"/>
+	</xsl:template>
 </xsl:stylesheet>
