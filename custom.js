@@ -137,18 +137,6 @@ xo.listener.on('hashchange', function () {
     typeof (toggleSidebar) === 'function' && toggleSidebar(false)
 })
 
-xo.listener.on('progress', async function ({ percent, settings = {} }) {
-    let progress = await settings.progress || [];
-    for (let target of progress) {
-        if (!(target instanceof HTMLElement)) continue;
-        for (let node of target.querySelectorAll('progress')) {
-            node.style.display = 'inline';
-            node.classList.add('visible');
-            node.value = percent;
-        }
-    }
-})
-
 xo.listener.on(['beforeRender::#shell.xslt', 'beforeAppendTo::main', 'beforeAppendTo::body'], function ({ target }) {
     if (!(event.detail.args || []).filter(el => !(el instanceof Comment || el instanceof HTMLStyleElement || el instanceof HTMLScriptElement || el.matches("dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar]"))).length) return;
     [...target.childNodes].filter(el => el.matches && !el.matches(`script,dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar]`)).removeAll()
@@ -802,9 +790,9 @@ xover.listener.on('Response:failure?status=401', function ({ url }) {
     }
 })
 
-xover.listener.on(`beforeFetch?request`, function ({ request }) {
+xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     let session_id = request.headers.get("x-session-id") || xo.session[`${request.url.host}:id`];
-    session_id && request.headers.set("x-session-id", session_id)
+    session_id && request.headers.set("x-session-id", session_id);
 })
 
 xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ source, document, parameters }) {
