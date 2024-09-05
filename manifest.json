@@ -30,7 +30,8 @@
         "ws://localhost:8003",
         {
           "message": "#messages",
-          "hotreload": "event:hotreload"
+          "hotreload": "event:hotreload",
+          "databaseChange": "event:databaseChange"
         }
       ]
     }

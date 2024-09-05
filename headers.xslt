@@ -9,7 +9,7 @@
 >
 
 	<xsl:template mode="globalization:headerText" match="@*|*" priority="-1">
-		<xsl:value-of select="name()"/>	
+		<xsl:value-of select="translate(name(),'_-','  ')"/>	
 	</xsl:template>
 	
 	<xsl:param name="globalization:headerText">#globalization</xsl:param>

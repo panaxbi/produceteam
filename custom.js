@@ -914,10 +914,6 @@ xover.listener.on('click::.filterable', function () {
     }
 })
 
-xover.listener.on('click::table .sortable', function () {
-    sortRows.call(this, this.closest('td,th'))
-})
-
 //xover.listener.on('click::table .groupable', function () {
 //    let groupBy = this.scope.nodeName.toLowerCase()
 //    xo.state.groupBy = xo.state.groupBy == groupBy ? null : groupBy;
@@ -930,12 +926,10 @@ xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#
         debugger
     }
 })
-
 xo.listener.on(["fetch"], function ({ document }) {
     //if (document instanceof Comment && document.data == 'ack:empty') {
     //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     //}
-
     let tr = this.selectFirst('//ventas|//movimientos|//trouble');
     if (tr) {
         let node = document.selectFirst('//ventas|//movimientos|//trouble');
@@ -1014,46 +1008,3 @@ xo.listener.on('keyup', function () {
         xover.stores.active.select(`//ventas/@filter:*`).remove()
     }
 })
-
-var datediff = function (intervalType, first_date, last_date = new Date()) {
-    // Parse the input dates
-    if (!(first_date && last_date)) return undefined;
-    const first = first_date instanceof Date ? first_date : first_date.parseDate();
-    const last = last_date instanceof Date ? last_date : last_date.parseDate();
-    intervalType = intervalType.replace(/s$/, '');
-
-    // Calculate the difference in milliseconds
-    const diffMs = last - first;
-
-    // Convert milliseconds to the specified interval type
-    let diffInterval;
-    switch (intervalType) {
-        case 'year':
-            diffInterval = diffMs / (1000 * 60 * 60 * 24 * 365.25);
-            break;
-        case 'month':
-            diffInterval = diffMs / (1000 * 60 * 60 * 24 * 30.44);
-            break;
-        case 'day':
-            diffInterval = diffMs / (1000 * 60 * 60 * 24);
-            break;
-        case 'hour':
-            diffInterval = diffMs / (1000 * 60 * 60);
-            break;
-        case 'minute':
-            diffInterval = diffMs / (1000 * 60);
-            break;
-        case 'second':
-            diffInterval = diffMs / 1000;
-            break;
-        default:
-            throw new Error('Invalid interval type');
-    }
-
-    // Return the result rounded to 2 decimal places
-    return Math.floor(Math.round(diffInterval * 100) / 100);
-}
-
-formatDate = function (date) {
-    return new Date((date instanceof Date) && date || Date.parse(`${date}T00:00:00`.replace(/(\d{4})-?(\d{2})-?(\d{2})T/, '$1-$2-$3T')))
-}
