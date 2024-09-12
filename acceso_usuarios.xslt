@@ -8,6 +8,7 @@ xmlns:shell="http://panax.io/shell"
 xmlns:state="http://panax.io/state"
 xmlns:xo="http://panax.io/xover"
 xmlns:initial="http://panax.io/state/initial"
+xmlns:prev="http://panax.io/state/prev"
 exclude-result-prefixes="#default session sitemap shell xo state js"
 >
 	<xsl:output method="xml"
@@ -22,6 +23,10 @@ exclude-result-prefixes="#default session sitemap shell xo state js"
 	</xsl:template>
 
 	<xsl:key name="access" match="access/@level" use="concat(../@user,'::',../@module)"/>
+
+	<xsl:key name="changes" match="access[@state:dirty='true']/@level" use="'*'"/>
+	<xsl:key name="changes" match="access[@initial:level!=@level]/@level" use="'*'"/>
+
 	<xsl:template match="model">
 		<style>
 			<![CDATA[
@@ -374,6 +379,7 @@ table
 			}
 			]]>
 		</style>
+		<script src="acceso_usuarios.js"/>
 		<xsl:variable name="users" select="users/user"/>
 		<xsl:variable name="modules" select="modules/module"/>
 		<div id="59b61e7f-95d1-44a5-8dc1-936f68a5e7bb_1101" align="left" >
@@ -451,7 +457,7 @@ table
 								<xsl:variable name="module" select="@id"/>
 								<xsl:variable name="access" select="key('access',concat($user,'::',$module))|key('access',concat($role,'::',$module))"/>
 								<xsl:variable name="changed_style">
-									<xsl:if test="$access/../@state:new or $access!=$access/../@initial:level">outline: solid 2pt yellow;</xsl:if>
+									<xsl:if test="$access/../@state:new or $access[../@user=$user] != $access/../@initial:level">outline: solid 2pt yellow;</xsl:if>
 								</xsl:variable>
 								<td class="xl743051" style="cursor:pointer; {$changed_style}">
 									<xsl:variable name="access_value">
@@ -471,6 +477,8 @@ table
 												<xsl:text>scope.set(</xsl:text>
 												<xsl:choose>
 													<xsl:when test="$access[../@user=$user]=0">''</xsl:when>
+													<xsl:when test="$access=1 and not($access[.=1]/../@user=$user)">0</xsl:when>
+													<xsl:when test="$access=1 and $access/../@initial:level=0">0</xsl:when>
 													<xsl:when test="$access=1">''</xsl:when>
 													<xsl:otherwise>1</xsl:otherwise>
 												</xsl:choose>
@@ -515,33 +523,25 @@ table
 										</xsl:otherwise>
 									</xsl:choose>
 									<!--<xsl:value-of select="concat($user,'::',$module)"/>-->
+									<!--<xsl:value-of select="$access[../@user=$user] != $access/../@initial:level"/>-->
 								</td>
 							</xsl:for-each>
 						</tr>
 					</xsl:for-each>
 				</tbody>
+				<footer>
+					<xsl:variable name="changes" select="key('changes','*')"/>
+					<xsl:if test="$changes">
+						<button class="btn btn-success" style="position:fixed; right: 2.5rem; bottom: 4rem; filter: drop-shadow(5px 5px 4px #000);" onclick="xo.server.applyPermissions(scope.ownerDocument).then(()=>xover.stores.active.fetch())">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+								<path d="M11 2H9v3h2z"/>
+								<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+							</svg>
+							Guardar cambios
+						</button>
+					</xsl:if>
+				</footer>
 			</table>
-			<script>
-				<![CDATA[
-				function newAccess(module, user, value) {
-					return xo.xml.createNode(`<access xmlns:state="http://panax.io/state" state:new="true" state:dirty="true" module="${module}" user="${user}" level="${value}" />`)
-				}
-				
-				xo.listener.on(['change::access/@level', 'append::access'], function ({ element, attribute, old, value }) {
-					attribute = attribute || element.getAttributeNodeOrMock("level");
-					let initial_value = element.getAttributeNodeNS('http://panax.io/state/initial', attribute.localName);
-					let new_line = element.getAttributeNodeNS('http://panax.io/state', "new");
-					if (new_line && attribute.value == value) {
-						element.remove()
-					} else if (value !== null && !initial_value) {
-						element.set(`initial:${attribute.localName}`, old);
-					} else if (initial_value.value == value) {
-						initial_value.remove();
-					}
-					element.set(`prev:${attribute.localName}`, old);
-				})
-			]]>
-			</script>
 		</div>
 	</xsl:template>
 
