@@ -263,11 +263,6 @@ xo.listener.on(['transform'], ({ result }) => {
     xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
 })
 
-xo.listener.on(['transform'], ({ result }) => {
-    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
-    xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
-})
-
 async function submit(node) {
     let progress = await xo.sources["loading.xslt"].render();
     if (node.filter('//security').pop()) {
@@ -795,7 +790,7 @@ xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     session_id && request.headers.set("x-session-id", session_id);
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document }, parameters) {
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
     delete parameters["@start_week"];
@@ -825,7 +820,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ source, document, parameters = {} }) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
     delete parameters[`@grower_lot`]
