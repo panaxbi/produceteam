@@ -297,7 +297,11 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:variable name="fields" select="//concepto/row[key('classification',concat($classification,':',@id))]/@id"/>
 		<xsl:for-each select="$fields">
 			<td xo-scope="inherit" xo-slot="{local-name()}" class="text-nowrap cell domain-{local-name()}">
-				<xsl:apply-templates select="$row/row[@cls=$classification and @cnp=current()]/@amt"/>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value">
+						<xsl:value-of select="sum($row/row[@cls=$classification and @cnp=current()]/@amt)"/>
+					</xsl:with-param>
+				</xsl:call-template>
 			</td>
 		</xsl:for-each>
 		<!--<xsl:if test="$fields[2]">-->
