@@ -32,7 +32,7 @@ body {
 
 table tfoot {
     position: sticky;
-    z-index: 910;
+    z-index: 909;
     bottom: calc(var(--footer-height, 15px)* -1);
 }
 
