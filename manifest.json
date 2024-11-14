@@ -48,6 +48,11 @@
         "expiry": 1
       }
     },
+    "~.asp": {
+      "headers": {
+        "authorization": "${xover.session.user_login}:${xover.session.id_token}"
+      }
+    },
     "#estado_resultados_semanal": {
       "stylesheets": [
         {
