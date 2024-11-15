@@ -848,7 +848,7 @@ xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], func
     for (let stylesheet of document.stylesheets || []) {
         let href = stylesheet.href;
         if (!href) continue;
-        stylesheet.href = href.replace(/^([^/.])/, '/$1')
+        stylesheet.href = location.origin + href.replace(/^([^/.])/, '/$1')
     }
 })
 
