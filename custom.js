@@ -82,64 +82,11 @@ async function progressiveRequest(params) {
     return response;
 }
 
-xo.listener.on(['beforeFetch::#ventas_por_fecha_embarque', 'beforeFetch::#KPI_ventas'], async function ({ settings = {} }) {
-    settings.progress = await xo.sources["loading.xslt"].render()
-})
-
-xo.listener.on(['fetch', 'xo.Source:failure'], async function ({ settings = {} }) {
-    let progress = await settings.progress || [];
-    for (let render of progress) {
-        let progress = render.querySelector('i progress');
-        progress.value = 100;
+xo.listener.on(['beforeFetch::#server:request'], async function ({ settings = {} }) {
+    for (progress of settings.progress || []) {
+        progress.remove()
     }
-    progress.remove();
-
-})
-
-Object.defineProperty(xo.session, 'login', {
-    value: async function (username, password, connection_id) {
-        try {
-            username = username instanceof HTMLElement ? username.value : username;
-            password = password instanceof HTMLElement ? xover.cryptography.encodeMD5(password.value) : password;
-            xover.session.user_login = username
-            xover.session.status = 'authorizing';
-            await xover.server.login(new URLSearchParams({ 'connection_id': connection_id }), { headers: { authorization: `Basic ${btoa(username + ':' + password)}` } }, (return_value, request) => { xo.session[`${request.url.host}:id`] = return_value.id }); //response.headers.get("x-session-id")
-            xover.session.status = 'authorized';
-            xover.stores.active.render();
-        } catch (e) {
-            xover.session.status = 'unauthorized';
-            [...document.querySelectorAll(`script[src*="accounts.google.com"]`)].remove()
-            Promise.reject(e);
-        }
-    }, writable: true, configurable: true
-})
-
-Object.defineProperty(xo.session, 'logout', {
-    value: async function () {
-        try {
-            let response = await xover.server.logout();
-            for (store in xo.stores) {
-                xo.stores[store].remove()
-            }
-            xover.session.status = 'unauthorized';
-        } catch (e) {
-            Promise.reject(e);
-        }
-    }, writable: true, configurable: true
-})
-
-xo.listener.on('beforeRender?!store.stylesheets.length::model[not(//processing-instruction())]', function ({ document, store }) {
-    let tag = store.tag;
-    store.addStylesheet({ href: tag.substring(1).split(/\?/, 1).shift() + '.xslt', target: "@#shell main" });
-})
-
-xo.listener.on('hashchange', function () {
-    typeof (toggleSidebar) === 'function' && toggleSidebar(false)
-})
-
-xo.listener.on(['beforeRender::#shell.xslt', 'beforeAppendTo::main', 'beforeAppendTo::body'], function ({ target }) {
-    if (!(event.detail.args || []).filter(el => !(el instanceof Comment || el instanceof HTMLStyleElement || el instanceof HTMLScriptElement || el.matches("dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar]"))).length) return;
-    [...target.childNodes].filter(el => el.matches && !el.matches(`script,dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar]`)).removeAll()
+    settings.progress = await xo.sources["loading.xslt"].render()
 })
 
 xo.listener.on('set::fecha/@state:checked', function ({ value, event }) {
@@ -180,92 +127,57 @@ xo.listener.on('change::divisiones/division/@state:checked', function ({ target,
     }
 })
 
-function DynamicObject(obj) {
-    if (!(this instanceof DynamicObject)) return new DynamicObject(obj);
-    let proxy_manager = function (target, name) {
-        let return_value
-        if (["getValue", "hasOwnProperty", "realValue"].includes(name) || typeof target[name] === 'function') {
-            return target[name];
-        }
-        if (name in target && target[name] !== undefined && target[name] !== null) {
-            if (typeof (target[name]) == 'string') {
-                return_value = new String(target[name]);
-            } else if (typeof (target[name]) == 'number') {
-                return_value = new Number(target[name]);
-            } else if (typeof (target[name]) == 'boolean') {
-                return_value = new Boolean(target[name]);
-            } else if (target[name].constructor === {}.constructor) {
-                return_value = new Proxy(target[name], { get: proxy_manager });
-            } else {
-                return_value = target[name];
-            }
-        } else {
-            return_value = new Proxy({}, { get: proxy_manager });
-            Object.setPrototypeOf(return_value, Array.prototype)
-            Object.defineProperty(return_value, 'realValue', {
-                value: undefined,
-                writable: true, enumerable: false, configurable: false
-            });
-        }
-        if (!(return_value.hasOwnProperty('getValue'))) {
-            Object.defineProperty(return_value, 'getValue', {
-                value: function () {
-                    if (this.hasOwnProperty('realValue')) {
-                        return this.realValue;
-                    } else {
-                        return target[name];
-                    }
-                },
-                writable: false, enumerable: false, configurable: false
-            });
-        }
-        return return_value;
-    }
-    let new_obj = new Proxy(obj, { get: proxy_manager });
-    Object.setPrototypeOf(new_obj, this);
-    return new_obj;
-}
-
-xo.listener.on('beforeTransform?stylesheet.href=^page_controls.*\\.xslt?stylesheet.href=page_navbar.xslt::model', function ({ target, store, stylesheet }) { //remueve todos los facts
-    let explicit_dims = ["fechas", "mantenibles"];
-    this.select(`/model/*[not(*[@id] or ${explicit_dims.map(dim => `self::${dim}`).join(" or ")})]|/model/*[line]`).forEach(el => Element.remove.apply(el));
-})
-
-xo.listener.on('beforeTransform::model', function ({ target, store, stylesheet }) {
-    this.select(`//razones_sociales[not(@state:checked)][not(razon_social[2])]/razon_social`).forEach(target => target.setAttribute("state:checked", "true"));
-    this.select(`//divisiones[not(@state:checked)][not(division[2])]/division`).forEach(target => target.setAttribute("state:checked", "true"));
-})
-
-xo.listener.on('beforeTransform::model', function ({ target, store, stylesheet }) {
-    this.select(`//divisiones/division[not(@id=//razones_sociales/razon_social/@div)]`).forEach(division => division.remove())
-})
-
-xo.listener.on('beforeTransform?stylesheet.href=^page_controls.*\\.xslt?stylesheet.href=page_navbar.xslt::model', function ({ target, store, stylesheet }) { //remueve todos los facts
-    let dims = ["fechas"];
-    !event.detail.keep_DIVS && this.select(`/model[razones_sociales/razon_social[@state:checked="true"]]/divisiones/division[not(@state:checked="true")]/@nom`).forEach(el => el.parentNode.replaceWith(new Comment(`${el.parentNode.nodeName}: ${el.value}`)));
-    this.select(`/model[not(razones_sociales/razon_social[@state:checked="true"])]/unidades_negocio/unidad_negocio`).forEach(el => Element.remove.apply(el));
-})
-
-xo.listener.on('beforeTransform?stylesheet.href=title.xslt?stylesheet.href=shell_buttons.xslt?stylesheet.href=page_navbar.xslt?stylesheet.href=^page_controls\\..*\\.xslt::model', function ({ stylesheet }) {
-    event.detail.keepDimensions = true;
-    event.stopImmediatePropagation()
-})
+//function DynamicObject(obj) {
+//    if (!(this instanceof DynamicObject)) return new DynamicObject(obj);
+//    let proxy_manager = function (target, name) {
+//        let return_value
+//        if (["getValue", "hasOwnProperty", "realValue"].includes(name) || typeof target[name] === 'function') {
+//            return target[name];
+//        }
+//        if (name in target && target[name] !== undefined && target[name] !== null) {
+//            if (typeof (target[name]) == 'string') {
+//                return_value = new String(target[name]);
+//            } else if (typeof (target[name]) == 'number') {
+//                return_value = new Number(target[name]);
+//            } else if (typeof (target[name]) == 'boolean') {
+//                return_value = new Boolean(target[name]);
+//            } else if (target[name].constructor === {}.constructor) {
+//                return_value = new Proxy(target[name], { get: proxy_manager });
+//            } else {
+//                return_value = target[name];
+//            }
+//        } else {
+//            return_value = new Proxy({}, { get: proxy_manager });
+//            Object.setPrototypeOf(return_value, Array.prototype)
+//            Object.defineProperty(return_value, 'realValue', {
+//                value: undefined,
+//                writable: true, enumerable: false, configurable: false
+//            });
+//        }
+//        if (!(return_value.hasOwnProperty('getValue'))) {
+//            Object.defineProperty(return_value, 'getValue', {
+//                value: function () {
+//                    if (this.hasOwnProperty('realValue')) {
+//                        return this.realValue;
+//                    } else {
+//                        return target[name];
+//                    }
+//                },
+//                writable: false, enumerable: false, configurable: false
+//            });
+//        }
+//        return return_value;
+//    }
+//    let new_obj = new Proxy(obj, { get: proxy_manager });
+//    Object.setPrototypeOf(new_obj, this);
+//    return new_obj;
+//}
 
 xo.listener.on(['replaceWith::[xo-stylesheet="page_controls.mantenibles.xslt"]'], ({ new_node, old }) => {
     if (!new_node.childNodes.length) {
         new_node.replaceChildren(...old.childNodes)
         //new_node.querySelectorAll("[xo-stylesheet]").toArray().concat([new_node].filter(el => el.matches("[xo-stylesheet]")))
     }
-})
-
-xo.listener.on(['transform'], ({ result }) => {
-    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
-    xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
-})
-
-xo.listener.on(['transform'], ({ result }) => {
-    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
-    xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
 })
 
 async function submit(node) {
@@ -363,7 +275,7 @@ xo.listener.on("mousedown", function (event) {
     this.closest(".cell") && selection.cells.length && selection.cells.showInfo();
 })
 
-xo.listener.on("mousemove", async function (event) {
+xo.listener.on("mousemove::*[ancestor-or-self::@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
     if (!(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (parent_container) {
@@ -687,41 +599,12 @@ xo.listener.on(['append::dialog[open]'], function () {
     this.showModal()
 })
 
-xo.listener.on(`input::input[type=search]`, function (event) {
-    const input = this;
-    clearTimeout(input.search_timeout);
-    this.search_timeout = setTimeout(() => {
-        //let scope = input.scope;
-        //scope.value = input.value;
-        let search_text = input.value;//this.documentElement.getAttribute("state:filter");
-        let inverted = search_text[0] == '!';
-        search_text = search_text.replace(/^\!/, '');
-        let records = this.closest('table,form').select(`.//tr/@desc_poliza|.//select/option/text()`)
-        records.forEach(record => record.parentNode.classList.remove('hidden'));
-        for (let attr of records.filter(desc => inverted !== !desc.value.match(new RegExp(search_text, "ig")))) {
-            attr.parentNode.classList.add('hidden')
-        }
-        clearTimeout(input.search_timeout);
-    }, 100);
-});
-
 xo.listener.on(`change::@state:date`, function ({ value, event }) {
     let srcElement = event.srcElement;
     let store = srcElement.store;
     if (!store) return;
     store.source.definition["server:request"]["@month"] = value;
     store.document.fetch();
-})
-
-xo.listener.on(`beforeTransform?stylesheet.href=estado_resultados_semanal.xslt`, function ({ document }) {
-    let start_week = this.selectFirst(`//weeks/@state:start_week`)
-    if (start_week) {
-        this.select(`//weeks/row[@desc="${start_week}"]`).forEach(el => el.select(`preceding-sibling::*`).remove())
-    }
-    let end_week = this.selectFirst(`//weeks/@state:end_week`)
-    if (end_week) {
-        this.select(`//weeks/row[@desc="${end_week}"]`).forEach(el => el.select(`following-sibling::*`).remove())
-    }
 })
 
 xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
@@ -795,7 +678,8 @@ xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     session_id && request.headers.set("x-session-id", session_id);
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ source, document, parameters }) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document }, parameters) {
+    if (!document) return;
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
     delete parameters["@start_week"];
@@ -825,7 +709,8 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ source, document, parameters = {} }) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
+    if (!document) return;
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
     delete parameters[`@grower_lot`]
@@ -871,7 +756,6 @@ xover.listener.on(`change::@state:order|@state:purchase_order|@state:grower_lot`
 xover.listener.on(`change::@state:start_week|@state:end_week`, function ({ element, store }) {
     xo.state.filterBy = 'weeks'
     store.fetch()
-
 })
 xover.listener.on(`change::@state:fecha_inicio|@state:fecha_fin`, function ({ element, store }) {
     xo.state.filterBy = 'dates'
@@ -884,7 +768,7 @@ xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_
 })
 
 xover.listener.on(`change::@state:selected`, function ({ value, store }) {
-    store.source.definition["server:request"][`@${this.parentNode.localName}`] = value
+    store.url.searchParams.set(`@${this.parentNode.localName}`,value)
     store.fetch()
 })
 
@@ -892,7 +776,7 @@ mostrarRegistros = function () {
     let scope = this.scope;
     if (!(scope instanceof Attr)) return;
     let store = this.store;
-    store.source.definition["server:request"]["@max_records"] = scope.value
+    store.document.url.searchParams.set("@max_records", scope.value)
     store.fetch()
 }
 
@@ -926,7 +810,16 @@ xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#
         debugger
     }
 })
-xo.listener.on(["fetch"], function ({ document }) {
+
+xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], function ({ response, document, url }) {
+    for (let stylesheet of document.stylesheets || []) {
+        let href = stylesheet.href;
+        if (!href) continue;
+        stylesheet.href = location.origin + href.replace(/^([^/.])/, '/$1')
+    }
+})
+
+xo.listener.on(["fetch::*"], function ({ document }) {
     //if (document instanceof Comment && document.data == 'ack:empty') {
     //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     //}

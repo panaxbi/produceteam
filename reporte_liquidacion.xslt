@@ -6,6 +6,7 @@ xmlns:data="http://panax.io/data"
 xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
 xmlns:state="http://panax.io/state"
+xmlns:dummy="http://panax.io/dummy"
 xmlns:group="http://panax.io/state/group"
 xmlns:filter="http://panax.io/state/filter"
 xmlns:visible="http://panax.io/state/visible"
@@ -46,8 +47,11 @@ xmlns:xo="http://panax.io/xover"
 		</main>
 	</xsl:template>
 
-	<xsl:template mode="datagrid:row" match="*">
-		<xsl:param name="x-dimension" select="@*[not(key('state:hidden',name()))]"/>
+	<xsl:key name="datagrid:record" match="ventas/row" use="row/@xo:id"/>
+
+	<!--<xsl:template mode="datagrid:row" match="*">
+		<xsl:param name="row" select="ancestor-or-self::row"/>
+		<xsl:param name="x-dimension" select="$row/@*[not(key('state:hidden',name()))]"/>
 		<xsl:param name="parent-groups" select="node-expected"/>
 		<tr>
 			<th scope="row">
@@ -55,10 +59,10 @@ xmlns:xo="http://panax.io/xover"
 			</th>
 			<xsl:apply-templates mode="datagrid:cell" select="$x-dimension">
 				<xsl:sort select="namespace-uri()" order="descending"/>
-				<xsl:with-param name="row" select="ancestor-or-self::row"/>
+				<xsl:with-param name="row" select="$row"/>
 			</xsl:apply-templates>
 		</tr>
-	</xsl:template>
+	</xsl:template>-->
 
 	<xsl:key name="commodity" match="model/commodity/row/@desc" use="../@id"/>
 	<xsl:key name="variety" match="model/variedad/row/@desc" use="../@id"/>
@@ -78,6 +82,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="section" match="ventas/@pdf" use="'po'"/>
 	<xsl:key name="section" match="ventas/@rd" use="'po'"/>
 	<xsl:key name="section" match="ventas/@po" use="'po'"/>
+	<xsl:key name="section" match="ventas/@rp" use="'po'"/>
 	<xsl:key name="section" match="ventas/@vnd" use="'po'"/>
 	<xsl:key name="section" match="ventas/@ve" use="'po'"/>
 	<xsl:key name="section" match="ventas/@vndn" use="'po'"/>
@@ -89,77 +94,6 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="section" match="ventas/@qtyr" use="'product'"/>
 	<xsl:key name="section" match="ventas/@upce" use="'product'"/>
 	<xsl:key name="section" match="ventas/@prd" use="'product'"/>
-	<xsl:key name="section" match="ventas/@dc_a" use="'product_adjustments'"/>
-	<xsl:key name="section" match="ventas/@trb_a" use="'product_adjustments'"/>
-	<xsl:key name="section" match="ventas/@adj_t" use="'product_adjustments'"/>
-	<xsl:key name="section" match="ventas/@fr_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@us_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@mx_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@insp_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@rp_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@crt_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@ioes_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@fe_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@ios_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@ms_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@com_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@ls_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@cpe_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@cgs_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@rntp_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@co_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@usf_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@sli_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@frj_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@tr_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@fr2_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@db_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@cp_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@la_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@dbntp_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@dms_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@srcc_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@io_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@rps_c" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@chr_t" use="'charges'"/>
-	<xsl:key name="section" match="ventas/@nt_p" use="'other'"/>
-	<xsl:key name="section" match="ventas/@gr_r" use="'other'"/>
-	<xsl:key name="section" match="ventas/@dc_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@trb_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@fr_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@ac_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@mc_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@insp_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@rp_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@crt_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@ioes_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@fe_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@ios_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@ms_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@com_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@ls_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@cpe_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@cgs_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@rntp_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@co_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@usf_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@sli_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@frj_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@tr_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@fr2_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@db_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@cp_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@la_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@dbntp_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@dms_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@srcc_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@io_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@rps_e" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@exp_t" use="'absorbed_expenses'"/>
-	<xsl:key name="section" match="ventas/@ns" use="'profit_loss'"/>
-	<xsl:key name="section" match="ventas/@cos_t" use="'profit_loss'"/>
-	<xsl:key name="section" match="ventas/@prf_l" use="'profit_loss'"/>
-	<xsl:key name="section" match="ventas/@un_p" use="'profit_loss'"/>
 
 	<xsl:template mode="datagrid:header-row" match="*">
 		<xsl:param name="x-dimension" select="node-expected"/>
@@ -190,7 +124,7 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:if test="$y-dimension">
 			<tr style="text-align: center;">
 				<th scope="col">
-					<div class="dropdown">
+					<div class="dropdown non-printable">
 						<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 							<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
 								<path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
@@ -264,6 +198,25 @@ xmlns:xo="http://panax.io/xover"
 		<th colspan="2" style="text-transform: uppercase;"></th>
 	</xsl:template>
 
+	<!--<xsl:template mode="datagrid:tbody" match="@group:*">
+		<xsl:param name="dimensions" select="."/>
+		<xsl:param name="x-dimension" select="node-expected"/>
+		<xsl:param name="y-dimension" select="node-expected"/>
+		<xsl:param name="groups" select="ancestor-or-self::*[1]/@group:*"/>
+		<xsl:param name="parent-groups" select="dummy:node-expected"/>
+
+		<xsl:comment>debug:info</xsl:comment>
+		<xsl:variable name="group" select="key('data:group',name())"/>
+		<xsl:variable name="rows" select="key('datagrid:record',$y-dimension/@xo:id)/@*[name()=local-name(current())]"/>
+		<xsl:apply-templates mode="datagrid:tbody" select="$group[$rows]">
+			<xsl:sort select="." data-type="text"/>
+			<xsl:with-param name="x-dimension" select="$x-dimension"/>
+			<xsl:with-param name="y-dimension" select="$rows"/>
+			<xsl:with-param name="groups" select="$groups[not(position()=1)]"/>
+			<xsl:with-param name="parent-groups" select="$parent-groups"/>
+		</xsl:apply-templates>
+	</xsl:template>-->
+
 	<xsl:template mode="datagrid:cell" match="@pdf">
 		<xsl:param name="row" select=".."/>
 		<th scope="row">
@@ -297,7 +250,11 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:variable name="fields" select="//concepto/row[key('classification',concat($classification,':',@id))]/@id"/>
 		<xsl:for-each select="$fields">
 			<td xo-scope="inherit" xo-slot="{local-name()}" class="text-nowrap cell domain-{local-name()}">
-				<xsl:apply-templates select="$row/row[@cls=$classification and @cnp=current()]/@amt"/>
+				<xsl:call-template name="format">
+					<xsl:with-param name="value">
+						<xsl:value-of select="sum($row/row[@cls=$classification and @cnp=current()]/@amt)"/>
+					</xsl:with-param>
+				</xsl:call-template>
 			</td>
 		</xsl:for-each>
 		<!--<xsl:if test="$fields[2]">-->

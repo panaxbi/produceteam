@@ -13,8 +13,11 @@
     "#": "#shell",
     "#shell": null,
     "#login": null,
+    "#fletes": "fletes.xml",
     "#loading": null,
     "#settings": "settings.xml",
+    "px-combobox": "widgets/combobox.xhtml",
+    "google-chart": "widgets/google-chart.xhtml",
     "#menu": "menus.xml",
     "#formato_liquidacion": "templates/formato_liquidacion.htm",
     "#liquidation_report": "liquidation_report.xslt",
@@ -43,6 +46,11 @@
         "Cache-Control": "max-age=0",
         "x-debugging": "true",
         "expiry": 1
+      }
+    },
+    "~.asp": {
+      "headers": {
+        "authorization": "${xover.session.user_login}:${xover.session.id_token}"
       }
     },
     "#estado_resultados_semanal": {

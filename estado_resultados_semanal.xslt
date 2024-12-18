@@ -20,16 +20,31 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="expenses" match="policies/row/@amt" use="concat(../@wk,'::',../@acc)"/>
 	<xsl:key name="expenses" match="policies/row/@amt" use="concat(../@wk,'::c:',../@cl,'::',substring(../@acc,1,1))"/>
 
-	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat(../@wk,'::',../@type)"/>
-	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat(../@wk,'::',../@type)"/>
-	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat(../@wk,'::',../@type)"/>
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat('*','::','*')"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat('*','::','*')"/>
+	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat('*','::','*')"/>
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat('*','::',../@wk)"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat('*','::',../@wk)"/>
+	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat('*','::',../@wk)"/>
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat(../@type,'::','*')"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat(../@type,'::','*')"/>
+	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat(../@type,'::','*')"/>
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat(../@type,'::',../@wk)"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat(../@type,'::',../@wk)"/>
+	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat(../@type,'::',../@wk)"/>
+	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="concat(../@type,'::',../@wk)"/>
+	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="concat(../@type,'::',../@wk)"/>
+	<xsl:key name="purchase-orders-pfit" match="purchase_orders/row/@pfit" use="concat(../@type,'::',../@wk)"/>
 
-	<xsl:key name="purchase-orders-qty" match="purchase_orders/row/@qty" use="../@wk"/>
-	<xsl:key name="purchase-orders-amt" match="purchase_orders/row/@amt" use="../@wk"/>
-
-	<xsl:key name="comision-qty" match="commissions/row/@qty" use="concat(../@wk,'::',../@gr)"/>
-	<xsl:key name="comision-amt" match="commissions/row/@amt" use="concat(../@wk,'::',../@gr)"/>
-	<xsl:key name="comision-pfit" match="commissions/row/@pfit" use="concat(../@wk,'::',../@gr)"/>
+	<xsl:key name="comision-qty" match="commissions/row/@qty" use="concat('*','::',../@wk)"/>
+	<xsl:key name="comision-qty" match="commissions/row/@qty" use="concat(../@gr,'::',../@wk)"/>
+	<xsl:key name="comision-qty" match="commissions/row/@qty" use="concat(../@gr,'::',../@wk)"/>
+	<xsl:key name="comision-amt" match="commissions/row/@qty" use="concat('*','::',../@wk)"/>
+	<xsl:key name="comision-amt" match="commissions/row/@amt" use="concat(../@gr,'::','*')"/>
+	<xsl:key name="comision-amt" match="commissions/row/@amt" use="concat(../@gr,'::',../@wk)"/>
+	<xsl:key name="comision-pfit" match="commissions/row/@pfit" use="concat('*','::',../@wk)"/>
+	<xsl:key name="comision-pfit" match="commissions/row/@pfit" use="concat(../@gr,'::','*')"/>
+	<xsl:key name="comision-pfit" match="commissions/row/@pfit" use="concat(../@gr,'::',../@wk)"/>
 	<xsl:template match="/">
 		<main xmlns="http://www.w3.org/1999/xhtml">
 			<style>
@@ -1232,24 +1247,34 @@ tags will be replaced.-->
 							<xsl:for-each select="$dates">
 								<td class="xl81722">
 									<xsl:call-template name="format">
-										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat(.,'::','P')))"></xsl:with-param>
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('P','::',.)))"></xsl:with-param>
 										<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
 									</xsl:call-template>
 								</td>
 							</xsl:for-each>
-							<td class="xl82722">$520,136.78</td>
+							<td class="xl82722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('P','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO CON UTILIDAD</td>
 							<xsl:for-each select="$dates">
 								<td class="xl77722">
 									<xsl:call-template name="format">
-										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat(.,'::','P')))"></xsl:with-param>
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('P','::',.)))"></xsl:with-param>
 										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
 									</xsl:call-template>
 								</td>
 							</xsl:for-each>
-							<td class="xl84722">156,689</td>
+							<td class="xl84722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('P','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">
@@ -1257,9 +1282,19 @@ tags will be replaced.-->
 								POs
 							</td>
 							<xsl:for-each select="$dates">
-								<td class="xl85722">$3.00</td>
+								<td class="xl85722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('P','::',.))) div sum(key('purchase-orders-qty', concat('P','::',.)))"></xsl:with-param>
+										<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
-							<td class="xl85722">--</td>
+							<td class="xl85722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('P','::','*'))) div sum(key('purchase-orders-qty', concat('P','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl79722" style="height:15.0pt"> </td>
@@ -1284,14 +1319,19 @@ tags will be replaced.-->
 								<td class="xl81722">
 									<font color="#FF0000" style="mso-ignore:color">
 										<xsl:call-template name="format">
-											<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat(.,'::','L')))"></xsl:with-param>
+											<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('L','::',.)))"></xsl:with-param>
 											<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
 										</xsl:call-template>
 									</font>
 								</td>
 							</xsl:for-each>
 							<td class="xl82722">
-								<font color="#FF0000" style="mso-ignore:color">-$43,204.73</font>
+								<font color="#FF0000" style="mso-ignore:color">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('L','::','*')))"></xsl:with-param>
+										<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+									</xsl:call-template>
+								</font>
 							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
@@ -1299,12 +1339,17 @@ tags will be replaced.-->
 							<xsl:for-each select="$dates">
 								<td class="xl77722">
 									<xsl:call-template name="format">
-										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat(.,'::','L')))"></xsl:with-param>
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('L','::',.)))"></xsl:with-param>
 										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
 									</xsl:call-template>
 								</td>
 							</xsl:for-each>
-							<td class="xl77722">16,680</td>
+							<td class="xl77722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('L','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">
@@ -1313,11 +1358,21 @@ tags will be replaced.-->
 							</td>
 							<xsl:for-each select="$dates">
 								<td class="xl88722">
-									<font color="#FF0000" style="mso-ignore:color">-$2.11</font>
+									<font color="#FF0000" style="mso-ignore:color">
+										<xsl:call-template name="format">
+											<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('L','::',.))) div sum(key('purchase-orders-qty', concat('L','::',.)))"></xsl:with-param>
+											<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+										</xsl:call-template>
+									</font>
 								</td>
 							</xsl:for-each>
 							<td class="xl88722">
-								<font color="#FF0000" style="mso-ignore:color">-$2.59</font>
+								<font color="#FF0000" style="mso-ignore:color">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('L','::','*'))) div sum(key('purchase-orders-qty', concat('L','::','*')))"></xsl:with-param>
+										<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+									</xsl:call-template>
+								</font>
 							</td>
 						</tr>
 						<tr height="20" style="height:15.0pt">
@@ -1341,34 +1396,53 @@ tags will be replaced.-->
 							<xsl:for-each select="$dates">
 								<td class="xl81722">
 									<xsl:call-template name="format">
-										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', .))"></xsl:with-param>
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::',.)))"></xsl:with-param>
 										<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
 									</xsl:call-template>
 								</td>
 							</xsl:for-each>
-							<td class="xl81722">$476,932.05</td>
+							<td class="xl81722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">$###,##0;-$###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">CAJAS PO</td>
 							<xsl:for-each select="$dates">
 								<td class="xl77722">
 									<xsl:call-template name="format">
-										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', .))"></xsl:with-param>
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('*','::',.)))"></xsl:with-param>
 										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
 									</xsl:call-template>
 								</td>
 							</xsl:for-each>
-							<td class="xl77722">162,236</td>
+							<td class="xl77722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('*','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl75722" style="height:15.75pt">
-								UTILIDAD /PÉRDIDA POR CAJA
-								POs
+								UTILIDAD /PÉRDIDA POR CAJA POs
 							</td>
 							<xsl:for-each select="$dates">
-								<td class="xl85722">$2.57</td>
+								<td class="xl85722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::',.))) div sum(key('purchase-orders-qty', concat('*','::',.)))"></xsl:with-param>
+										<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
-							<td class="xl85722">$2.94</td>
+							<td class="xl85722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::','*'))) div sum(key('purchase-orders-qty', concat('*','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">$###,##0.00;-$###,##0.00</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl66722" style="height:15.0pt"></td>
@@ -1412,6 +1486,76 @@ tags will be replaced.-->
 							<td class="xl68722"> </td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
+							<td height="21" class="xl70722" style="height:15.75pt"> </td>
+							<td class="xl75722">COMISIÓN LOTES</td>
+							<xsl:for-each select="$dates">
+								<td class="xl81722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value">
+											<xsl:value-of select="key('comision-amt', concat('*','::',.))"/>
+										</xsl:with-param>
+									</xsl:call-template>
+								</td>
+							</xsl:for-each>
+							<td class="xl82722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value">
+										<xsl:value-of select="key('comision-amt', concat('*','::','*'))"/>
+									</xsl:with-param>
+								</xsl:call-template>
+							</td>
+						</tr>
+						<tr height="21" style="height:15.75pt">
+							<td height="21" class="xl70722" style="height:15.75pt"> </td>
+							<td class="xl75722">CAJAS LOTE</td>
+							<xsl:for-each select="$dates">
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('comision-qty', concat('*','::',.)))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
+							</xsl:for-each>
+							<td class="xl77722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('comision-qty', concat('*','::','*')))"></xsl:with-param>
+									<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
+						</tr>
+						<tr height="21" style="height:15.75pt">
+							<td height="21" class="xl70722" style="height:15.75pt"> </td>
+							<td class="xl75722">UTILIDAD /PÉRDIDA POR CAJA</td>
+							<xsl:for-each select="$dates">
+								<td class="xl85722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('comision-pfit', concat('*','::',.))) div sum(key('comision-qty', concat('*','::',.)))"></xsl:with-param>
+									</xsl:call-template>
+								</td>
+							</xsl:for-each>
+							<td class="xl85722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('comision-pfit', concat('*','::',.))) div sum(key('comision-qty', concat('*','::','*')))"></xsl:with-param>
+								</xsl:call-template>
+							</td>
+						</tr>
+						<!--
+						<tr height="20" style="height:15.0pt">
+							<td height="20" class="xl66722" style="height:15.0pt"></td>
+							<td class="xl92722"></td>
+							<xsl:for-each select="$dates">
+								<td class="xl93722"></td>
+							</xsl:for-each>
+							<td class="xl66722"></td>
+						</tr>
+						<tr height="21" style="height:15.75pt">
+							<td height="21" class="xl66722" style="height:15.75pt"></td>
+							<td class="xl68722"> </td>
+							<xsl:for-each select="$dates">
+								<td class="xl94722"> </td>
+							</xsl:for-each>
+							<td class="xl68722"> </td>
+						</tr><tr height="21" style="height:15.75pt">
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl75722">COMISIÓN LOTES EXTERNOS</td>
 							<xsl:for-each select="$dates">
@@ -1512,7 +1656,7 @@ tags will be replaced.-->
 								<td class="xl93722"></td>
 							</xsl:for-each>
 							<td class="xl66722"></td>
-						</tr>
+						</tr>-->
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl66722" style="height:15.0pt"></td>
 							<td class="xl66722"></td>
@@ -1541,25 +1685,51 @@ tags will be replaced.-->
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl97722">TOTAL INGRESOS SEMANALES</td>
 							<xsl:for-each select="$dates">
-								<td class="xl98722">$64,142.55</td>
+								<td class="xl98722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::',.))|key('comision-amt', concat('*','::',.)))"></xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
-							<td class="xl98722">$937,823.34</td>
+							<td class="xl98722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::',.))|key('comision-amt', concat('*','::',.)))"></xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl99722">TOTAL CAJAS DE LA SEMANA</td>
 							<xsl:for-each select="$dates">
-								<td class="xl77722">32,130</td>
+								<td class="xl77722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('*','::',.))|key('comision-qty', concat('*','::',.)))"></xsl:with-param>
+										<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
-							<td class="xl77722">417,473</td>
+							<td class="xl77722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('*','::',.))|key('comision-qty', concat('*','::',.)))"></xsl:with-param>
+									<xsl:with-param name="mask">###,##0;-###,##0</xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl70722" style="height:15.75pt"> </td>
 							<td class="xl99722">MARGEN PROMEDIO POR CAJA</td>
 							<xsl:for-each select="$dates">
-								<td class="xl82722">$2.00</td>
+								<td class="xl82722">
+									<xsl:call-template name="format">
+										<xsl:with-param name="value" select="sum(key('purchase-orders-qty', concat('*','::',.))|key('comision-qty', concat('*','::',.))) div sum(key('comision-qty', concat('*','::',.))|key('comision-qty', concat('*','::',.)))"></xsl:with-param>
+									</xsl:call-template>
+								</td>
 							</xsl:for-each>
-							<td class="xl82722">$2.25</td>
+							<td class="xl82722">
+								<xsl:call-template name="format">
+									<xsl:with-param name="value" select="sum(key('purchase-orders-amt', concat('*','::',.))|key('comision-amt', concat('*','::',.))) div sum(key('purchase-orders-qty', concat('*','::','*'))|key('comision-qty', concat('*','::','*')))"></xsl:with-param>
+								</xsl:call-template>
+							</td>
 						</tr>
 						<tr height="21" style="height:15.75pt">
 							<td height="21" class="xl66722" style="height:15.75pt"></td>
@@ -1682,7 +1852,7 @@ tags will be replaced.-->
 									<td class="xl107722">$3,644.85</td>
 								</tr>
 							</xsl:for-each>
-						</xsl:for-each>						
+						</xsl:for-each>
 						<tr height="20" style="height:15.0pt">
 							<td height="20" class="xl66722" style="height:15.0pt"></td>
 							<xsl:for-each select="$dates">
