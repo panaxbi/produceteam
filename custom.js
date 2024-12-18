@@ -82,7 +82,10 @@ async function progressiveRequest(params) {
     return response;
 }
 
-xo.listener.on(['beforeFetch::#ventas_por_fecha_embarque', 'beforeFetch::#KPI_ventas'], async function ({ settings = {} }) {
+xo.listener.on(['beforeFetch::#server:request'], async function ({ settings = {} }) {
+    for (progress of settings.progress || []) {
+        progress.remove()
+    }
     settings.progress = await xo.sources["loading.xslt"].render()
 })
 
@@ -169,31 +172,6 @@ xo.listener.on('change::divisiones/division/@state:checked', function ({ target,
 //    Object.setPrototypeOf(new_obj, this);
 //    return new_obj;
 //}
-
-xo.listener.on('beforeTransform?stylesheet.href=^page_controls.*\\.xslt?stylesheet.href=page_navbar.xslt::model', function ({ target, store, stylesheet }) { //remueve todos los facts
-    let explicit_dims = ["fechas", "mantenibles"];
-    this.select(`/model/*[not(*[@id] or ${explicit_dims.map(dim => `self::${dim}`).join(" or ")})]|/model/*[line]`).forEach(el => Element.remove.apply(el));
-})
-
-xo.listener.on('beforeTransform::model', function ({ target, store, stylesheet }) {
-    this.select(`//razones_sociales[not(@state:checked)][not(razon_social[2])]/razon_social`).forEach(target => target.setAttribute("state:checked", "true"));
-    this.select(`//divisiones[not(@state:checked)][not(division[2])]/division`).forEach(target => target.setAttribute("state:checked", "true"));
-})
-
-xo.listener.on('beforeTransform::model', function ({ target, store, stylesheet }) {
-    this.select(`//divisiones/division[not(@id=//razones_sociales/razon_social/@div)]`).forEach(division => division.remove())
-})
-
-xo.listener.on('beforeTransform?stylesheet.href=^page_controls.*\\.xslt?stylesheet.href=page_navbar.xslt::model', function ({ target, store, stylesheet }) { //remueve todos los facts
-    let dims = ["fechas"];
-    !event.detail.keep_DIVS && this.select(`/model[razones_sociales/razon_social[@state:checked="true"]]/divisiones/division[not(@state:checked="true")]/@nom`).forEach(el => el.parentNode.replaceWith(new Comment(`${el.parentNode.nodeName}: ${el.value}`)));
-    this.select(`/model[not(razones_sociales/razon_social[@state:checked="true"])]/unidades_negocio/unidad_negocio`).forEach(el => Element.remove.apply(el));
-})
-
-xo.listener.on('beforeTransform?stylesheet.href=title.xslt?stylesheet.href=shell_buttons.xslt?stylesheet.href=page_navbar.xslt?stylesheet.href=^page_controls\\..*\\.xslt::model', function ({ stylesheet }) {
-    event.detail.keepDimensions = true;
-    event.stopImmediatePropagation()
-})
 
 xo.listener.on(['replaceWith::[xo-stylesheet="page_controls.mantenibles.xslt"]'], ({ new_node, old }) => {
     if (!new_node.childNodes.length) {
@@ -297,7 +275,7 @@ xo.listener.on("mousedown", function (event) {
     this.closest(".cell") && selection.cells.length && selection.cells.showInfo();
 })
 
-xo.listener.on("mousemove", async function (event) {
+xo.listener.on("mousemove::*[ancestor-or-self::@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
     if (!(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (parent_container) {
@@ -629,17 +607,6 @@ xo.listener.on(`change::@state:date`, function ({ value, event }) {
     store.document.fetch();
 })
 
-xo.listener.on(`beforeTransform?stylesheet.href=estado_resultados_semanal.xslt`, function ({ document }) {
-    let start_week = this.selectFirst(`//weeks/@state:start_week`)
-    if (start_week) {
-        this.select(`//weeks/row[@desc="${start_week}"]`).forEach(el => el.select(`preceding-sibling::*`).remove())
-    }
-    let end_week = this.selectFirst(`//weeks/@state:end_week`)
-    if (end_week) {
-        this.select(`//weeks/row[@desc="${end_week}"]`).forEach(el => el.select(`following-sibling::*`).remove())
-    }
-})
-
 xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
     for (let attr of [...this.documentElement.attributes].filter(attr => attr.namespaceURI == 'http://panax.io/state/filter')) {
         this.select(`//ventas/row[${attr.value.split("|").map(value => `@${attr.localName}!="${value}"`).join(" and ")}]`).forEach(el => el.remove())
@@ -801,7 +768,7 @@ xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_
 })
 
 xover.listener.on(`change::@state:selected`, function ({ value, store }) {
-    store.source.url.searchParams.set(`@${this.parentNode.localName}`,value)
+    store.url.searchParams.set(`@${this.parentNode.localName}`,value)
     store.fetch()
 })
 

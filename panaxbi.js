@@ -96,3 +96,13 @@ xo.listener.on(['transform'], ({ result }) => {
     result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
     xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
 })
+
+xo.listener.on('progress', function({ percent }) {
+    if (percent >= 100) {
+        this.remove()
+    } else {
+        for (let progress_bar of this.querySelectorAll(`progress,[role=progress][value]`)) {
+            progress_bar.style.display = 'inline'
+        }
+    }
+})

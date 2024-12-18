@@ -1,0 +1,42 @@
+{
+  "short_name": "Produce Team BI",
+  "name": "Produce Team: Sistema de Inteligencia de Negocios",
+  "description": "Sistema de Inteligencia de Negocios",
+  "scope": "./",
+  "start_url": "./?source=pwa",
+  "theme_color": "#f4af68",
+  "background_color": "#f4af68",
+  "display": "minimal-ui",
+  "lang": "es-MX",
+  "shortcuts": [
+    {
+      "name": "Reporte de Ventas",
+      "short_name": "ventas_por_fecha_embarque",
+      "description": "Ventas por fecha embarque",
+      "url": ".?#ventas_por_fecha_embarque",
+      "icons": [
+        {
+          "src": "./assets/logo.jpg",
+          "sizes": "1280x933"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "src": "./assets/favicon.png",
+      "sizes": "40x40",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "./assets/icon.png",
+      "sizes": "145x145",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/splash.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

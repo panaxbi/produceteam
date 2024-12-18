@@ -82,6 +82,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="section" match="ventas/@pdf" use="'po'"/>
 	<xsl:key name="section" match="ventas/@rd" use="'po'"/>
 	<xsl:key name="section" match="ventas/@po" use="'po'"/>
+	<xsl:key name="section" match="ventas/@rp" use="'po'"/>
 	<xsl:key name="section" match="ventas/@vnd" use="'po'"/>
 	<xsl:key name="section" match="ventas/@ve" use="'po'"/>
 	<xsl:key name="section" match="ventas/@vndn" use="'po'"/>
