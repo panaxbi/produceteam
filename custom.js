@@ -731,20 +731,52 @@ xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI
         parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
         parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
     } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
-        parameters["@fecha_recepcion_inicio"] = document.selectFirst("//@state:fecha_recepcion_inicio");
-        parameters["@fecha_recepcion_fin"] = document.selectFirst("//@state:fecha_recepcion_fin");
+        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
+        parameters["@fecha_recepcion_inicio"] = fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio");
+        parameters["@fecha_recepcion_fin"] = fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin");
     }
     for (let [key, value] of xo.site.searchParams.params) {
         parameters[key] = value
     }
 })
 
-xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
+//xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
+//    if (!document) return;
+//    parameters.delete(`@order`)
+//    parameters.delete(`@purchase_order`)
+//    parameters.delete(`@grower_lot`)
+//    parameters.delete("@fecha_embarque_inicio");
+//    parameters.delete("@fecha_embarque_fin");
+//    parameters.delete("@fecha_recepcion_inicio");
+//    parameters.delete("@fecha_recepcion_fin");
+//    parameters.delete("@start_week");
+//    parameters.delete("@end_week");
+
+//    if (xo.state.filterBy == 'order') {
+//        parameters.set(`@order`, document.selectFirst("//@state:order"));
+//    } else if (xo.state.filterBy == 'purchase_order') {
+//        parameters.set(`@purchase_order`, document.selectFirst("//@state:purchase_order"));
+//    } else if (xo.state.filterBy == 'grower_lot') {
+//        parameters.set(`@grower_lot`, document.selectFirst("//@state:grower_lot"));
+//    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
+//        parameters.set("@fecha_embarque_inicio", document.selectFirst("//@state:fecha_embarque_inicio"));
+//        parameters.set("@fecha_embarque_fin", document.selectFirst("//@state:fecha_embarque_fin"));
+//    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
+//        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
+//        parameters.set("@fecha_recepcion_inicio", fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio"));
+//        parameters.set("@fecha_recepcion_fin", fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin"));
+//    }
+//    for (let [key, value] of xo.site.searchParams.params) {
+//        parameters.set(key, value)
+//    }
+//})
+
+xover.listener.on(`change::@state:fecha_embarque|@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
     xo.state.filterBy = 'ship_date'
     store.fetch()
 })
 
-xover.listener.on(`change::@state:fecha_recepcion_inicio|@state:fecha_recepcion_fin`, function ({ value, store }) {
+xover.listener.on(`change::@state:fecha_recepcion|@state:fecha_recepcion_inicio|@state:fecha_recepcion_fin`, function ({ value, store }) {
     xo.state.filterBy = 'fecha_recepcion'
     store.fetch()
 })
