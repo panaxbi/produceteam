@@ -133,10 +133,19 @@ xmlns:combobox="http://panax.io/widget/combobox"
 					</div>
 				</xsl:when>
 				<xsl:when test="$state:filterBy='fecha_recepcion'">
-					<div class="input-group">
-						<input class="form-control" name="fecha_recepcion_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_inicio" value="{../@state:fecha_recepcion_inicio}"/>
-						<input class="form-control" name="fecha_recepcion_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_fin" value="{../@state:fecha_recepcion_fin}"/>
-					</div>
+					<xsl:variable name="fecha_recepcion">
+						<xsl:choose>
+							<xsl:when test="ancestor-or-self::*[1]/@state:fecha_recepcion">
+								<xsl:apply-templates select="ancestor-or-self::*[1]/@state:fecha_recepcion"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:apply-templates select="ancestor-or-self::*[1]/@state:fecha_recepcion_inicio"/>-<xsl:apply-templates select="ancestor-or-self::*[1]/@state:fecha_recepcion_fin"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
+					<px-daterange class="input-group" value="{$fecha_recepcion}" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion">
+						<xsl:attribute name="max">{{new Date().toISOString().slice(0,10)}}</xsl:attribute>
+					</px-daterange>
 				</xsl:when>
 				<xsl:otherwise>
 					<input type="text" name="{$state:filterBy}" class="form-control" value="{../@state:*[local-name()=$state:filterBy]}" xo-slot="state:{$state:filterBy}"/>
@@ -180,10 +189,19 @@ xmlns:combobox="http://panax.io/widget/combobox"
 			</legend>
 			<xsl:choose>
 				<xsl:when test="$state:filterBy='' or $state:filterBy='fecha_recepcion'">
-					<div class="input-group">
-						<input class="form-control" name="fecha_recepcion_inicio" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_inicio" value="{../@state:fecha_recepcion_inicio}"/>
-						<input class="form-control" name="fecha_recepcion_fin" type="date" pattern="yyyy-mm-dd" xo-slot="state:fecha_recepcion_fin" value="{../@state:fecha_recepcion_fin}"/>
-					</div>
+					<xsl:variable name="fecha_recepcion">
+						<xsl:choose>
+							<xsl:when test="ancestor-or-self::*[1]/@state:fecha_recepcion">
+								<xsl:apply-templates select="ancestor-or-self::*[1]/@state:fecha_recepcion"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:apply-templates select="ancestor-or-self::*[1]/@state:fecha_recepcion_inicio"/>-<xsl:apply-templates select="ancestor-or-self::*[1]/@state:fecha_recepcion_fin"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
+					<px-daterange class="input-group" value="{$fecha_recepcion}" xo-slot="state:fecha_recepcion">
+						<xsl:attribute name="max">{{new Date().toISOString().slice(0,10)}}</xsl:attribute>
+					</px-daterange>
 				</xsl:when>
 				<xsl:otherwise>
 					<input type="text" name="{$state:filterBy}" class="form-control" value="{../@state:*[local-name()=$state:filterBy]}" xo-slot="state:{$state:filterBy}"/>

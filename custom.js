@@ -82,13 +82,6 @@ async function progressiveRequest(params) {
     return response;
 }
 
-xo.listener.on(['beforeFetch::#server:request'], async function ({ settings = {} }) {
-    for (progress of settings.progress || []) {
-        progress.remove()
-    }
-    settings.progress = await xo.sources["loading.xslt"].render()
-})
-
 xo.listener.on('set::fecha/@state:checked', function ({ value, event }) {
     this.parentNode.select("//model/fechas/@state:current_date_er").remove()
     //if (!(event.target instanceof SVGElement)) {
@@ -667,18 +660,12 @@ xo.listener.on('mutate::html', function ({ mutations }) {
     }
 })
 
-xover.listener.on('Response:failure?status=401', function ({ url }) {
-    if (['server.panax.io'].includes(url.host)) {
-        xo.session.status = 'unauthorized'
-    }
-})
-
 xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     let session_id = request.headers.get("x-session-id") || xo.session[`${request.url.host}:id`];
     session_id && request.headers.set("x-session-id", session_id);
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document }, parameters) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document, parameters }) {
     if (!document) return;
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
@@ -709,7 +696,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document, parameters = {} }) {
     if (!document) return;
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
@@ -731,20 +718,52 @@ xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI
         parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
         parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
     } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
-        parameters["@fecha_recepcion_inicio"] = document.selectFirst("//@state:fecha_recepcion_inicio");
-        parameters["@fecha_recepcion_fin"] = document.selectFirst("//@state:fecha_recepcion_fin");
+        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
+        parameters["@fecha_recepcion_inicio"] = fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio");
+        parameters["@fecha_recepcion_fin"] = fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin");
     }
     for (let [key, value] of xo.site.searchParams.params) {
         parameters[key] = value
     }
 })
 
-xover.listener.on(`change::@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
+//xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
+//    if (!document) return;
+//    parameters.delete(`@order`)
+//    parameters.delete(`@purchase_order`)
+//    parameters.delete(`@grower_lot`)
+//    parameters.delete("@fecha_embarque_inicio");
+//    parameters.delete("@fecha_embarque_fin");
+//    parameters.delete("@fecha_recepcion_inicio");
+//    parameters.delete("@fecha_recepcion_fin");
+//    parameters.delete("@start_week");
+//    parameters.delete("@end_week");
+
+//    if (xo.state.filterBy == 'order') {
+//        parameters.set(`@order`, document.selectFirst("//@state:order"));
+//    } else if (xo.state.filterBy == 'purchase_order') {
+//        parameters.set(`@purchase_order`, document.selectFirst("//@state:purchase_order"));
+//    } else if (xo.state.filterBy == 'grower_lot') {
+//        parameters.set(`@grower_lot`, document.selectFirst("//@state:grower_lot"));
+//    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
+//        parameters.set("@fecha_embarque_inicio", document.selectFirst("//@state:fecha_embarque_inicio"));
+//        parameters.set("@fecha_embarque_fin", document.selectFirst("//@state:fecha_embarque_fin"));
+//    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
+//        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
+//        parameters.set("@fecha_recepcion_inicio", fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio"));
+//        parameters.set("@fecha_recepcion_fin", fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin"));
+//    }
+//    for (let [key, value] of xo.site.searchParams.params) {
+//        parameters.set(key, value)
+//    }
+//})
+
+xover.listener.on(`change::@state:fecha_embarque|@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
     xo.state.filterBy = 'ship_date'
     store.fetch()
 })
 
-xover.listener.on(`change::@state:fecha_recepcion_inicio|@state:fecha_recepcion_fin`, function ({ value, store }) {
+xover.listener.on(`change::@state:fecha_recepcion|@state:fecha_recepcion_inicio|@state:fecha_recepcion_fin`, function ({ value, store }) {
     xo.state.filterBy = 'fecha_recepcion'
     store.fetch()
 })
@@ -774,10 +793,9 @@ xover.listener.on(`change::@state:selected`, function ({ value, store }) {
 
 mostrarRegistros = function () {
     let scope = this.scope;
-    if (!(scope instanceof Attr)) return;
-    let store = this.store;
-    store.document.url.searchParams.set("@max_records", scope.value)
-    store.fetch()
+    let document = scope.ownerDocument;
+    document.url.searchParams.set("@max_records", scope.value)
+    document.fetch()
 }
 
 xover.listener.on('click::.filterable', function () {
@@ -815,7 +833,7 @@ xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], func
     for (let stylesheet of document.stylesheets || []) {
         let href = stylesheet.href;
         if (!href) continue;
-        stylesheet.href = location.origin + href.replace(/^([^/.])/, '/$1')
+        stylesheet.href = href.replace(/^([^/.])/, '/$1')
     }
 })
 

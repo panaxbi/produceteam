@@ -16,6 +16,7 @@
     "#fletes": "fletes.xml",
     "#loading": null,
     "#settings": "settings.xml",
+    "px-daterange": "widgets/daterange.xhtml",
     "px-combobox": "widgets/combobox.xhtml",
     "google-chart": "widgets/google-chart.xhtml",
     "#menu": "menus.xml",
