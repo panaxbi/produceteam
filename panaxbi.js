@@ -42,7 +42,16 @@ formatDate = function (date) {
 }
 
 xo.listener.on(['append::main > :not(slot)[xo-source][xo-stylesheet], body > :not(slot)[xo-source][xo-stylesheet]'], function ({ target }) {
-    [...target.children].filter(el => el != this && el.matches && !el.matches(`slot,script,dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar],[role=complementary]`)).removeAll()
+    const self = this;
+    let mutually_inclusive_selector = `slot,script,dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar],[role=complementary]`
+    for (const node of [...target.children].filter(node => 
+        node !== this && node.nodeType === Node.ELEMENT_NODE
+        && node.matches(`[xo-source]`)
+        && !node.matches(mutually_inclusive_selector)
+        && !self.matches(mutually_inclusive_selector)
+    )) {
+        node.remove()
+    }
 })
 /*
 xo.listener.on(['append::html:*[.//@style[contains(.,"view-transition-name")]]'], function ({ target, element }) {
@@ -71,6 +80,19 @@ xo.listener.on(['fetch', 'Response:failure'], async function ({ settings = {} })
         progress.value = 100;
     }
     progress.remove();
+})
+
+xo.listener.on(['beforeFetch::?FROM=^PanaxBI.#server:request'], async function ({ settings = {} }) {
+    for (progress of settings.progress || []) {
+        progress.remove()
+    }
+    settings.progress = await xo.sources["loading.xslt"].render()
+})
+
+xover.listener.on('Response:failure?status=401', function ({ url }) {
+    if (['server.panax.io', location.host].includes(url.host)) {
+        xo.session.status = 'unauthorized'
+    }
 })
 
 Object.defineProperty(xo.session, 'logout', {

@@ -82,13 +82,6 @@ async function progressiveRequest(params) {
     return response;
 }
 
-xo.listener.on(['beforeFetch::#server:request'], async function ({ settings = {} }) {
-    for (progress of settings.progress || []) {
-        progress.remove()
-    }
-    settings.progress = await xo.sources["loading.xslt"].render()
-})
-
 xo.listener.on('set::fecha/@state:checked', function ({ value, event }) {
     this.parentNode.select("//model/fechas/@state:current_date_er").remove()
     //if (!(event.target instanceof SVGElement)) {
@@ -667,18 +660,12 @@ xo.listener.on('mutate::html', function ({ mutations }) {
     }
 })
 
-xover.listener.on('Response:failure?status=401', function ({ url }) {
-    if (['server.panax.io'].includes(url.host)) {
-        xo.session.status = 'unauthorized'
-    }
-})
-
 xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     let session_id = request.headers.get("x-session-id") || xo.session[`${request.url.host}:id`];
     session_id && request.headers.set("x-session-id", session_id);
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document }, parameters) {
+xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document, parameters }) {
     if (!document) return;
     delete parameters["@fecha_inicio"];
     delete parameters["@fecha_fin"];
@@ -709,7 +696,7 @@ xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#det
     }
 })
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
+xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document, parameters = {} }) {
     if (!document) return;
     delete parameters[`@order`]
     delete parameters[`@purchase_order`]
@@ -806,10 +793,9 @@ xover.listener.on(`change::@state:selected`, function ({ value, store }) {
 
 mostrarRegistros = function () {
     let scope = this.scope;
-    if (!(scope instanceof Attr)) return;
-    let store = this.store;
-    store.document.url.searchParams.set("@max_records", scope.value)
-    store.fetch()
+    let document = scope.ownerDocument;
+    document.url.searchParams.set("@max_records", scope.value)
+    document.fetch()
 }
 
 xover.listener.on('click::.filterable', function () {
@@ -847,7 +833,7 @@ xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], func
     for (let stylesheet of document.stylesheets || []) {
         let href = stylesheet.href;
         if (!href) continue;
-        stylesheet.href = location.origin + href.replace(/^([^/.])/, '/$1')
+        stylesheet.href = href.replace(/^([^/.])/, '/$1')
     }
 })
 
