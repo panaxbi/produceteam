@@ -13,7 +13,6 @@
     "#": "#shell",
     "#shell": null,
     "#login": null,
-    "#fletes": "fletes.xml",
     "#loading": null,
     "#settings": "settings.xml",
     "px-daterange": "widgets/daterange.xhtml",
@@ -21,6 +20,11 @@
     "google-chart": "widgets/google-chart.xhtml",
     "#menu": "menus.xml",
     "#formato_liquidacion": "templates/formato_liquidacion.htm",
+    "#reporte_liquidacion": {
+      "server:request": {
+        "FROM": "PanaxBI.reporte_liquidacion_alt"
+      }
+    },
     "#liquidation_report": "liquidation_report.xslt",
     "#globalization": [ "assets/globalization/headerText.${xo.session.locale.split('-').shift()}.resx", "assets/globalization/headerText.resx" ],
     "#sitemap": {
