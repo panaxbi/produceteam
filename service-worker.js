@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = `${location.hostname}_20250225_1608`,
+﻿const CACHE_NAME = `${location.hostname}_20250228_0837`,
 urlsToCache = [
     './'
     , './register-pwa.js'
@@ -7,7 +7,14 @@ urlsToCache = [
     , 'https://d3js.org/d3.v5.min.js'
     , 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'
     , 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'
-]
+    ]
+
+self.addEventListener('message', event => {
+    if (event.data === 'GET_CACHE_NAME') {
+        event.source.postMessage({ cacheName: CACHE_NAME });
+    }
+});
+
 self.addEventListener('install', e => {
     e.waitUntil(
         caches.open(CACHE_NAME)
