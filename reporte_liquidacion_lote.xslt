@@ -51,9 +51,9 @@ xmlns:debug="http://panax.io/debug"
 	</xsl:template>
 
 	<xsl:key name="datagrid:record" match="ventas/row" use="row/@xo:id"/>
-	<xsl:key name="datagrid:record-fields" match="ventas/row/@*" use="../row/@xo:id"/>
-	<xsl:key name="datagrid:record-fields" match="ventas/row/row/@*" use="../@xo:id"/>
-	<xsl:key name="datagrid:record-fields" match="ventas/row/row/row/@*" use="../../@xo:id"/>
+	<xsl:key name="datagrid:record-data" match="ventas/row/@*" use="../row/@xo:id"/>
+	<xsl:key name="datagrid:record-data" match="ventas/row/row/@*" use="../@xo:id"/>
+	<xsl:key name="datagrid:record-data" match="ventas/row/row/row/@*" use="../../@xo:id"/>
 
 	<!--<xsl:template mode="datagrid:row" match="*">
 		<xsl:param name="row" select="ancestor-or-self::row"/>
@@ -254,10 +254,11 @@ xmlns:debug="http://panax.io/debug"
 	<xsl:template mode="datagrid:cell" match="@cmmp">
 		<xsl:param name="row" select="ancestor-or-self::*[1]"/>
 		<xsl:param name="data" select="$row/@*"/>
+		<xsl:variable name="cmmp" select="$data[name()=name(current())]"/>
 		<td xo-scope="inherit" xo-slot="{local-name()}" class="text-nowrap cell domain-{local-name()}">
 			<xsl:call-template name="format-percent">
 				<xsl:with-param name="value">
-					<xsl:value-of select="$data[name()=name(current())]"/>
+					<xsl:value-of select="sum($cmmp) div count($cmmp)"/>
 				</xsl:with-param>
 			</xsl:call-template>
 		</td>
@@ -280,9 +281,12 @@ xmlns:debug="http://panax.io/debug"
 		<th>
 			<xsl:call-template name="format">
 				<xsl:with-param name="value">
-					<xsl:value-of select="sum($data/../@amt|$data/../@cmm|$data/../@cmma)"/>
+					<xsl:value-of select="sum($data/../@amt|$data/../@cmm)"/><!--|$data/../@cmma-->
 				</xsl:with-param>
 			</xsl:call-template>
+			<!--, <xsl:value-of select="sum($data/../@amt)"/>
+			, <xsl:value-of select="sum($data/../@cmm)"/>
+			, <xsl:value-of select="sum($data/../@cmma)"/>-->
 		</th>
 	</xsl:template>
 
