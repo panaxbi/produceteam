@@ -14,7 +14,7 @@
 								<i class="icon" style="justify-content: center; display: flex; align-items: center;">
 									<img src="{$js:icon}" class="ring_image" onerror="this.remove()"/>
 									<span class="details" style="position: absolute; top: 3rem; width: 100%;">
-										<progress style="display:none; width: 100%; accent-color: var(--progress-color, green);" max="100" value="0" aria-label="Loading…">0%</progress>
+										<progress style="width: 100%; accent-color: var(--progress-color, green);" max="100" value="0" aria-label="Loading…">0%</progress>
 									</span>
 								</i>
 								<div>

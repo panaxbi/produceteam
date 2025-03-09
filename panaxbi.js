@@ -41,7 +41,7 @@ formatDate = function (date) {
     return new Date((date instanceof Date) && date || Date.parse(`${date}T00:00:00`.replace(/(\d{4})-?(\d{2})-?(\d{2})T/, '$1-$2-$3T')))
 }
 
-xo.listener.on(['append::main > :not(slot)[xo-source][xo-stylesheet], body > :not(slot)[xo-source][xo-stylesheet]'], function ({ target }) {
+xo.listener.on(['append::main > [xo-source][xo-stylesheet], body > [xo-source][xo-stylesheet]'], function ({ target }) {
     const self = this;
     let mutually_inclusive_selector = `slot,script,dialog,[role=alertdialog],[role=alert],[role=dialog],[role=status],[role=progressbar],[role=complementary]`
     for (const node of [...target.children].filter(node => 
@@ -73,20 +73,22 @@ xo.listener.on(`fetch::model[*[@xsi:type="dimension"]]`, function ({ document })
     }
 })
 
-xo.listener.on(['fetch', 'Response:failure'], async function ({ settings = {} }) {
-    let progress = await settings.progress || [];
-    for (let render of progress) {
-        let progress = render.querySelector('i progress');
-        progress.value = 100;
-    }
-    progress.remove();
-})
+//xo.listener.on(['fetch', 'Response:failure'], async function ({ request }) {
+//    let trackers = request.trackers;
+//    for (let tracker of trackers) {
+//        let progress = tracker.querySelector('i progress');
+//        progress.value = 100;
+//    }
+//    trackers.clear();
+//})
 
-xo.listener.on(['beforeFetch::?FROM=^PanaxBI.#server:request'], async function ({ settings = {} }) {
-    for (progress of settings.progress || []) {
-        progress.remove()
+xo.listener.on(['beforeFetch::?FROM=^PanaxBI.#server:request'], async function ({ request }) {
+    let trackers = request.trackers;
+    for (let tracker of trackers) {
+        tracker.remove()
     }
-    settings.progress = await xo.sources["loading.xslt"].render()
+    trackers.clear();
+    trackers.add(await xo.sources["loading.xslt"].render())
 })
 
 xover.listener.on('Response:failure?status=401', function ({ url }) {
@@ -122,9 +124,13 @@ xo.listener.on(['transform'], ({ result }) => {
 xo.listener.on('progress', function({ percent }) {
     if (percent >= 100) {
         this.remove()
-    } else {
-        for (let progress_bar of this.querySelectorAll(`progress,[role=progress][value]`)) {
-            progress_bar.style.display = 'inline'
-        }
+    }
+})
+
+xo.listener.on(`remove::[role=alert]`, function () {
+    let request = this.request;
+    if (!request) return;
+    if (request.progress < 100) {
+        request.abort()
     }
 })

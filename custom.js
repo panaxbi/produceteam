@@ -189,12 +189,12 @@ async function generateExcelFile(table, name) {
     await xover.delay(500);
     //if (this.Interval) window.clearInterval(this.Interval);
     let _progress = 0;
-    let progress_bar = progress[0].querySelector('progress');
-    progress_bar.style.display = 'inline';
+    let tracker = progress[0].querySelector('progress');
+    tracker.style.display = 'inline';
 
     //this.Interval = setInterval(function () {
-    //    if (progress_bar) {
-    //        progress_bar.value = _progress;
+    //    if (tracker) {
+    //        tracker.value = _progress;
     //        console.log(_progress);
     //    }
     //}, 500);
@@ -230,7 +230,7 @@ async function generateExcelFile(table, name) {
         _progress = r / rows.length * 100;
         [...row.getElementsByTagName("td")].forEach(el => set_computed_background(el));
         if (r % (rows.length / 10) == 0) {
-            progress_bar.value = _progress;
+            tracker.value = _progress;
             await xover.delay(500);
         }
     }
@@ -787,7 +787,7 @@ xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_
 })
 
 xover.listener.on(`change::@state:selected`, function ({ value, store }) {
-    store.url.searchParams.set(`@${this.parentNode.localName}`,value)
+    store.url.searchParams.set(`@${this.parentNode.localName}`, value)
     store.fetch()
 })
 
@@ -837,11 +837,12 @@ xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], func
     }
 })
 
-xo.listener.on(["fetch::*"], function ({ document }) {
+xo.listener.on(["fetch::*"], function ({ document, request }) {
     //if (document instanceof Comment && document.data == 'ack:empty') {
     //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     //}
-    let tr = this.selectFirst('//ventas|//movimientos|//trouble');
+    if (!instanceOf.call(request.context, Node)) return;
+    let tr = request.context.selectFirst('//ventas|//movimientos|//trouble');
     if (tr) {
         let node = document.selectFirst('//ventas|//movimientos|//trouble');
         //node.ownerDocument.disconnect();

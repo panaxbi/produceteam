@@ -191,6 +191,11 @@ button.close {
 
 progress {
     accent-color: green;
+    display: inline;
+}
+
+progress[value="0"] {
+    display: none;
 }
 
 .skeleton {
