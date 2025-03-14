@@ -152,7 +152,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 				</xsl:otherwise>
 			</xsl:choose>
 		</fieldset>
-		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente|../*[not(self::fechas)]/@navbar:filter"/>
+		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente|../vendor|../*[not(self::fechas)]/@navbar:filter"/>
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model[@env:store='#liquidacion_detalle']/@*">
