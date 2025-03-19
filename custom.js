@@ -847,7 +847,7 @@ xo.listener.on(["fetch::*"], function ({ document, request }) {
         let node = document.selectFirst('//ventas|//movimientos|//trouble');
         //node.ownerDocument.disconnect();
         if (!node) return;
-        let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || ["http://panax.io/state/filter", "http://panax.io/state/group"].includes(attr.namespaceURI)).map(slot => slot.cloneNode());
+        let attributes = tr.attributes.toArray().filter(attr => !attr.namespaceURI || ["http://panax.io/state/filter", "http://panax.io/state/group", "http://panax.io/state/hidden"].includes(attr.namespaceURI)).map(slot => slot.cloneNode());
         [...node.attributes].filter(attr => !attr.namespaceURI).remove();
         attributes.forEach(attr => node.setAttributeNode(attr));
     }
