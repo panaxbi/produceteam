@@ -2,7 +2,7 @@
 xmlns:session="http://panax.io/session"
 xmlns:state="http://panax.io/state"
 xmlns:x="urn:schemas-microsoft-com:office:excel"
-xmlns:v="urn:schemas-microsoft-com:office:excel"
+xmlns:v="urn:schemas-microsoft-com:vml"
 xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="common.xslt"/>

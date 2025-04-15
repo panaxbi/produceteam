@@ -18,9 +18,13 @@ xmlns:combobox="http://panax.io/widget/combobox"
 	<xsl:import href="widgets/page_navbar.xslt"/>
 	<xsl:import href="widgets/combobox.xslt"/>
 
-	<xsl:template mode="widget" match="@*"/>
+	<xsl:template mode="widget" match="@*|*"/>
 
 	<xsl:param name="state:filterBy"></xsl:param>
+	<xsl:param name="state:filterBy_1"></xsl:param>
+	<xsl:param name="state:filterBy_2"></xsl:param>
+	<xsl:param name="state:filterBy_3"></xsl:param>
+	<xsl:param name="state:filterBy_4"></xsl:param>
 
 	<xsl:key name="data" match="model/movimientos" use="'*'"/>
 	<xsl:key name="data" match="model/ventas" use="'*'"/>
@@ -75,7 +79,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 			</style>
 			<nav class="navbar navbar-expand-md">
 				<form action="javascript:void(0);" onsubmit="section.source.fetch()">
-					<xsl:apply-templates mode="widget" select="model/@xo:id"/>
+					<xsl:apply-templates mode="widget" select="model"/>
 					<!--<xsl:apply-templates mode="button" select="key('data','*')[not(*)]/@state:record_count[.&gt;0]"/>-->
 				</form>
 				<ul id="shell_buttons" class="nav col-md justify-content-end list-unstyled d-flex">
@@ -88,7 +92,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 	<xsl:key name="year" match="fechas/fecha/@mes" use="substring(.,1,4)"/>
 	<xsl:template mode="buttons" match="*"/>
 
-	<xsl:template mode="widget" match="model[@env:store='#ventas_por_fecha_embarque' or @env:store='#KPI_ventas']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#KPI_ventas']"><!-- @env:store='#ventas_por_fecha_embarque' or  -->
 		<style>
 			:root { --sections-filter-height: 86px; }
 			filter_by option {
@@ -152,10 +156,10 @@ xmlns:combobox="http://panax.io/widget/combobox"
 				</xsl:otherwise>
 			</xsl:choose>
 		</fieldset>
-		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente|../vendor|../*[not(self::fechas)]/@navbar:filter"/>
+		<xsl:apply-templates mode="navbar:widget" select="agricultor|commodity|variedad|cliente|vendor"/>
 	</xsl:template>
 
-	<xsl:template mode="widget" match="model[@env:store='#liquidacion_detalle']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#liquidacion_detalle']">
 		<style>
 			:root { --sections-filter-height: 86px; }
 			filter_by option {
@@ -208,7 +212,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 				</xsl:otherwise>
 			</xsl:choose>
 		</fieldset>
-		<xsl:apply-templates mode="widget" select="../agricultor|../commodity|../variedad|../cliente|../*[not(self::fechas)]/@navbar:filter"/>
+		<xsl:apply-templates mode="widget" select="agricultor|commodity|variedad|cliente"/>
 	</xsl:template>
 
 	<xsl:key name="state:selected" match="model/*/row[@id=../@state:selected]/@desc" use="generate-id()"/>
@@ -216,40 +220,6 @@ xmlns:combobox="http://panax.io/widget/combobox"
 	<xsl:key name="state:selected" match="model/commodity/row[@id=../../@state:commodity]/@desc" use="generate-id()"/>
 	<xsl:key name="state:selected" match="model/variedad/row[@id=../../@state:variedad]/@desc" use="generate-id()"/>
 	<xsl:key name="state:selected" match="model/cliente/row[@id=../../@state:cliente]/@desc|model/agricultor/row[@id=../../@state:agricultor]/@desc" use="generate-id()"/>
-
-	<xsl:template mode="widget" match="model/*">
-		<style>
-			:root { --sections-filter-height: 86px; }
-			filter_by option {
-			font-size: 16pt;
-			}
-		</style>
-		<fieldset>
-			<legend style="text-transform:capitalize">
-				<xsl:apply-templates mode="headerText" select="."/>
-			</legend>
-			<xsl:variable name="state:selected" select="@state:selected"/>
-			<xsl:apply-templates mode="combobox:widget" select=".">
-				<xsl:with-param name="dataset" select="row/@desc"/>
-				<xsl:with-param name="xo-slot">state:selected</xsl:with-param>
-				<xsl:with-param name="selected-value" select="$state:selected"/>
-			</xsl:apply-templates>
-			<!--<select name="{name()}" class="form-select" xo-scope="{@xo:id}" xo-slot="state:selected">
-				<option value=""></option>
-				<xsl:for-each select="row/@desc">
-					<xsl:variable name="value" select="../@id|../@key"/>
-					<xsl:variable name="desc" select="translate(.,'*','')"/>
-					<xsl:variable name="state:selected" select="key('state:selected',generate-id())"/>
-					<option value="{$value}">
-						<xsl:if test="$state:selected">
-							<xsl:attribute name="selected"/>
-						</xsl:if>
-						<xsl:value-of select="$desc"/>
-					</option>
-				</xsl:for-each>
-			</select>-->
-		</fieldset>
-	</xsl:template>
 
 	<xsl:template mode="headerText" match="model[@env:store='#ventas_por_fecha_embarque' or @env:store='#KPI_ventas']/fechas">
 		<select style="font-weight: bold; padding: 1px 5px;" class="form-select" onchange="xo.state.filterBy=this.value">
@@ -349,7 +319,7 @@ xmlns:combobox="http://panax.io/widget/combobox"
 		</fieldset>
 	</xsl:template>
 
-	<xsl:template mode="widget" match="model[@env:store='#estado_resultados_semanal']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#estado_resultados_semanal']">
 		<xsl:variable name="default_date">
 			<xsl:choose>
 				<xsl:when test="../weeks/@state:current_date_er">
@@ -504,19 +474,19 @@ xmlns:combobox="http://panax.io/widget/combobox"
 		</fieldset>
 	</xsl:template>
 
-	<xsl:template mode="widget" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#detalle_gastos_operativos' or @env:store='#detalle_ingresos_operativos']">
 		<xsl:comment>debug:info</xsl:comment>
-		<xsl:apply-templates mode="widget" select="../account|../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']"/>
+		<xsl:apply-templates mode="widget" select="account|semanas[not($state:filterBy='dates')]|fechas[$state:filterBy='dates']"/>
 	</xsl:template>
 
-	<xsl:template mode="widget" match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas' or @env:store='#detalle_movimientos']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#ingresos_operativos' or @env:store='#gastos_operativos' or @env:store='#balance_operativo' or @env:store='#auxiliar_cuentas' or @env:store='#detalle_movimientos']">
 		<xsl:comment>debug:info</xsl:comment>
-		<xsl:apply-templates mode="widget" select="../semanas[not($state:filterBy='dates')]|../fechas[$state:filterBy='dates']|../account"/>
+		<xsl:apply-templates mode="widget" select="semanas[not($state:filterBy='dates')]|fechas[$state:filterBy='dates']|account"/>
 	</xsl:template>
 
-	<xsl:template mode="widget" match="model[@env:store='#detalle_problemas']/@*">
+	<xsl:template mode="widget" match="model[@env:store='#detalle_problemas']">
 		<xsl:comment>debug:info</xsl:comment>
-		<xsl:apply-templates mode="widget" select="../semanas[$state:filterBy='weeks' or string($state:filterBy)='']|../fechas[$state:filterBy='dates']|../@state:trouble[$state:filterBy='trouble']|../@state:purchase_order[$state:filterBy='purchase_order']|../@state:order[$state:filterBy='order']|../commodity|../variedad|../cliente"/>
+		<xsl:apply-templates mode="widget" select="semanas[$state:filterBy='weeks' or string($state:filterBy)='']|fechas[$state:filterBy='dates']|@state:trouble[$state:filterBy='trouble']|@state:purchase_order[$state:filterBy='purchase_order']|@state:order[$state:filterBy='order']|commodity|variedad|cliente"/>
 	</xsl:template>
 
 	<xsl:template mode="widget" match="model/@state:*">
