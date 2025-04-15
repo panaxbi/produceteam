@@ -665,67 +665,67 @@ xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     session_id && request.headers.set("x-session-id", session_id);
 })
 
-xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document, parameters }) {
-    if (!document) return;
-    delete parameters["@fecha_inicio"];
-    delete parameters["@fecha_fin"];
-    delete parameters["@start_week"];
-    delete parameters["@end_week"];
-    delete parameters[`@trouble`]
-    delete parameters[`@order`]
-    delete parameters[`@purchase_order`]
-    delete parameters[`@grower_lot`]
+//xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document, parameters }) {
+//    if (!document) return;
+//    delete parameters["@fecha_inicio"];
+//    delete parameters["@fecha_fin"];
+//    delete parameters["@start_week"];
+//    delete parameters["@end_week"];
+//    delete parameters[`@trouble`]
+//    delete parameters[`@order`]
+//    delete parameters[`@purchase_order`]
+//    delete parameters[`@grower_lot`]
 
-    if (xo.state.filterBy == 'order') {
-        parameters[`@order`] = document.selectFirst("//@state:order");
-    } else if (xo.state.filterBy == 'purchase_order') {
-        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
-    } else if (xo.state.filterBy == 'grower_lot') {
-        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
-    } else if (xo.state.filterBy == 'trouble') {
-        parameters[`@trouble`] = document.selectFirst("//@state:trouble");
-    } else if (xo.state.filterBy == 'dates') {
-        parameters["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
-        parameters["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
-    } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
-        parameters["@start_week"] = document.selectFirst("//semanas/@state:start_week")
-        parameters["@end_week"] = document.selectFirst("//semanas/@state:end_week")
-    }
-    for (let [key, value] of xo.site.searchParams.params) {
-        parameters[key] = value
-    }
-})
+//    if (xo.state.filterBy == 'order') {
+//        parameters[`@order`] = document.selectFirst("//@state:order");
+//    } else if (xo.state.filterBy == 'purchase_order') {
+//        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+//    } else if (xo.state.filterBy == 'grower_lot') {
+//        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
+//    } else if (xo.state.filterBy == 'trouble') {
+//        parameters[`@trouble`] = document.selectFirst("//@state:trouble");
+//    } else if (xo.state.filterBy == 'dates') {
+//        parameters["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
+//        parameters["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
+//    } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
+//        parameters["@start_week"] = document.selectFirst("//semanas/@state:start_week")
+//        parameters["@end_week"] = document.selectFirst("//semanas/@state:end_week")
+//    }
+//    for (let [key, value] of xo.site.searchParams.params) {
+//        parameters[key] = value
+//    }
+//})
 
-xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document, parameters = {} }) {
-    if (!document) return;
-    delete parameters[`@order`]
-    delete parameters[`@purchase_order`]
-    delete parameters[`@grower_lot`]
-    delete parameters["@fecha_embarque_inicio"];
-    delete parameters["@fecha_embarque_fin"];
-    delete parameters["@fecha_recepcion_inicio"];
-    delete parameters["@fecha_recepcion_fin"];
-    delete parameters["@start_week"];
-    delete parameters["@end_week"];
+//xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document, parameters = {} }) {
+//    if (!document) return;
+//    delete parameters[`@order`]
+//    delete parameters[`@purchase_order`]
+//    delete parameters[`@grower_lot`]
+//    delete parameters["@fecha_embarque_inicio"];
+//    delete parameters["@fecha_embarque_fin"];
+//    delete parameters["@fecha_recepcion_inicio"];
+//    delete parameters["@fecha_recepcion_fin"];
+//    delete parameters["@start_week"];
+//    delete parameters["@end_week"];
 
-    if (xo.state.filterBy == 'order') {
-        parameters[`@order`] = document.selectFirst("//@state:order");
-    } else if (xo.state.filterBy == 'purchase_order') {
-        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
-    } else if (xo.state.filterBy == 'grower_lot') {
-        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
-    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
-        parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
-        parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
-    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
-        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
-        parameters["@fecha_recepcion_inicio"] = fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio");
-        parameters["@fecha_recepcion_fin"] = fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin");
-    }
-    for (let [key, value] of xo.site.searchParams.params) {
-        parameters[key] = value
-    }
-})
+//    if (xo.state.filterBy == 'order') {
+//        parameters[`@order`] = document.selectFirst("//@state:order");
+//    } else if (xo.state.filterBy == 'purchase_order') {
+//        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
+//    } else if (xo.state.filterBy == 'grower_lot') {
+//        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
+//    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
+//        parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
+//        parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
+//    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
+//        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
+//        parameters["@fecha_recepcion_inicio"] = fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio");
+//        parameters["@fecha_recepcion_fin"] = fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin");
+//    }
+//    for (let [key, value] of xo.site.searchParams.params) {
+//        parameters[key] = value
+//    }
+//})
 
 //xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
 //    if (!document) return;
@@ -786,11 +786,6 @@ xover.listener.on(`change?xo.site.seed=#estado_resultados_semanal::@state:start_
     event.stopImmediatePropagation()
 })
 
-xover.listener.on(`change::@state:selected`, function ({ value, store }) {
-    store.url.searchParams.set(`@${this.parentNode.localName}`, value)
-    store.fetch()
-})
-
 mostrarRegistros = function () {
     let scope = this.scope;
     let document = scope.ownerDocument;
@@ -834,6 +829,11 @@ xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], func
         let href = stylesheet.href;
         if (!href) continue;
         stylesheet.href = href.replace(/^([^/.])/, '/$1')
+    }
+    // backwards compatibility
+    for (let control of document.select(`//*[not(@navbar:control)]/@navbar:filter`)) {
+        control.parentNode.removeAttribute("navbar:position")
+        control.remove()
     }
 })
 

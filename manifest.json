@@ -44,7 +44,7 @@
       ]
     }
   },
-  "start": [ "loading.xslt", "#ws" ],
+  "start": [ "loading.xslt", "#ws", "px-combobox", "px-daterange"],
   "settings": {
     "^#.*": {
       "headers": {

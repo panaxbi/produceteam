@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = `${location.hostname}_20250321_1605`,
+﻿const CACHE_NAME = `${location.hostname}_250415_1145`,
 urlsToCache = [
     './'
     , './register-pwa.js'
@@ -16,35 +16,48 @@ self.addEventListener('message', event => {
 });
 
 self.addEventListener('install', e => {
+    console.log(`Installing... ${CACHE_NAME}`);
+
     e.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                return cache.addAll(urlsToCache)
-                    .then(() => self.skipWaiting())
-            })
-            .catch(err => console.log('Falló registro de cache', err))
-    )
-})
+        caches.open(CACHE_NAME).then(cache => {
+            return Promise.all(
+                urlsToCache.map(url =>
+                    fetch(url, { mode: 'no-cors' }) // Fetch first to avoid CORS issues
+                        .then(response => {
+                            if (!response.ok && response.type !== 'opaque') {
+                                throw new Error(`Failed to fetch ${url}: ${response.status}`);
+                            }
+                            return cache.put(url, response.clone()); // Store in cache
+                        })
+                        .catch(err => console.warn(`Skipping cache for ${url}:`, err))
+                )
+            );
+        })
+            .then(() => self.skipWaiting())
+            .catch(err => console.error('Cache installation failed:', err))
+    );
+});
 
 //una vez que se instala el SW, se activa y busca los recursos para hacer que funcione sin conexión
 self.addEventListener('activate', e => {
-    const cacheWhitelist = [CACHE_NAME]
+    console.log(`Activating... ${CACHE_NAME}`);
+
     e.waitUntil(
-        caches.keys()
-            .then(cacheNames => {
-                return Promise.all(
-                    cacheNames.map(cacheName => {
-                        //Eliminamos lo que ya no se necesita en cache
-                        if (cacheWhitelist.indexOf(cacheName) === -1) {
-                            return caches.delete(cacheName)
-                        }
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames
+                    .filter(name => name !== CACHE_NAME)
+                    .map(name => {
+                        console.log(`Deleting old cache: ${name}`);
+                        return caches.delete(name);
                     })
-                )
-            })
-            // Le indica al SW activar el cache actual
-            .then(() => self.clients.claim())
-    )
-})
+            );
+        }).then(() => {
+            console.log(`Cache cleanup complete, claiming clients...`);
+            return self.clients.claim(); // Take control immediately
+        })
+    );
+});
 
 self.addEventListener('fetch', e => {
     e.respondWith(
@@ -52,6 +65,7 @@ self.addEventListener('fetch', e => {
             .then(response => {
                 let from_cache = (!navigator.onLine || ['force-cache', 'only-if-cached'].includes(e.request.headers.get("Cache-Control")) || !["reload"].includes(e.request.cache) && (['image', 'style', 'script'].includes(e.request.destination) || e.request.url.indexOf('.xsl') != -1));
                 return from_cache && response || fetch(e.request).then(response => {
+                    //console.log(response.url)
                     if (!(e.request.method == 'GET' && response && response.status == 200 && !['no-store', 'no-cache', 'reload'].includes(e.request.cache) /*&& ['basic','cors'].includes(response.type)*/)) {
                         return response;
                     }

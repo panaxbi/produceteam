@@ -48,6 +48,9 @@ xmlns:xo="http://panax.io/xover"
 	</xsl:template>
 
 	<xsl:key name="datagrid:record" match="ventas/row" use="row/@xo:id"/>
+	<xsl:key name="datagrid:record-data" match="ventas/row/@*" use="../row/@xo:id"/>
+	<xsl:key name="datagrid:record-data" match="ventas/row/row/@*" use="../@xo:id"/>
+	<xsl:key name="datagrid:record-data" match="ventas/row/row/row/@*" use="../../@xo:id"/>
 
 	<!--<xsl:template mode="datagrid:row" match="*">
 		<xsl:param name="row" select="ancestor-or-self::row"/>
@@ -121,7 +124,7 @@ xmlns:xo="http://panax.io/xover"
 				PROFIT &amp; LOSS
 			</th>-->
 		</tr>
-		<xsl:if test="$y-dimension">
+		<!--<xsl:if test="$y-dimension">-->
 			<tr style="text-align: center;">
 				<th scope="col">
 					<div class="dropdown non-printable">
@@ -130,43 +133,16 @@ xmlns:xo="http://panax.io/xover"
 								<path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
 							</svg>
 						</button>
-						<ul class="dropdown-menu">
-							<xsl:if test="$state:hide_empty!=''">
-								<li>
-									<a class="dropdown-item" href="#" onclick="xo.state.hide_empty = !xo.state.hide_empty">
-										<xsl:choose>
-											<xsl:when test="$state:hide_empty='true'">Mostrar registros en ceros</xsl:when>
-											<xsl:otherwise>Ocultar registros en ceros</xsl:otherwise>
-										</xsl:choose>
-									</a>
-								</li>
-							</xsl:if>
-							<xsl:if test="//@group:*[1]|//@filter:*[1]">
-								<li>
-									<a class="dropdown-item" href="#" onclick="xo.stores.active.select(`//@group:*|//@filter:*`).remove()">Borrar filtros y agrupaciones</a>
-								</li>
-							</xsl:if>
-							<xsl:if test="//@group:*[1]">
-								<li>
-									<a class="dropdown-item" href="#" onclick="xo.state.collapse_all = true">
-										<xsl:choose>
-											<xsl:when test="$state:collapse_all = 'true'">
-												<xsl:attribute name="onclick">xo.state.collapse_all = false</xsl:attribute>
-												Expandir todo
-											</xsl:when>
-											<xsl:otherwise>Colapsar todo</xsl:otherwise>
-										</xsl:choose>
-									</a>
-								</li>
-							</xsl:if>
-						</ul>
+						<xsl:apply-templates mode="datagrid:header-row-config" select=".">
+							<xsl:with-param name="fields" select="$x-dimension/../@*[namespace-uri()='']"/>
+						</xsl:apply-templates>
 					</div>
 				</th>
 				<xsl:apply-templates mode="datagrid:header-cell" select="$x-dimension">
 					<xsl:sort select="namespace-uri()" order="descending"/>
 				</xsl:apply-templates>
 			</tr>
-		</xsl:if>
+		<!--</xsl:if>-->
 	</xsl:template>
 
 	<!--<xsl:template mode="datagrid:widget" match="ventas[@filter:po]">
@@ -235,6 +211,21 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:for-each select="$fields">
 			<th scope="col">
 				<xsl:value-of select="../@desc"/>
+			</th>
+		</xsl:for-each>
+		<!--<xsl:if test="$fields[2]">-->
+		<th class="text-uppercase">
+			Total <xsl:apply-templates mode="headerText" select="$classification"/>
+		</th>
+		<!--</xsl:if>-->
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="@product_adjustments|@charges|@absorbed_expenses">
+		<xsl:variable name="classification" select="key('classification', name())"/>
+		<xsl:variable name="fields" select="//concepto/row[key('classification',concat($classification,':',@id))]/@id"/>
+		<xsl:for-each select="$fields">
+			<th scope="col">
+				
 			</th>
 		</xsl:for-each>
 		<!--<xsl:if test="$fields[2]">-->
