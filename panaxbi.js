@@ -117,7 +117,7 @@ xo.listener.on('beforeRender?!store.stylesheets.length::model[not(//processing-i
 })
 
 xo.listener.on(['transform'], ({ result }) => {
-    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN d�as" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
+    result.$$('//text()[.="Infinity" or .="-Infinity" or .="NaN" or .="NaN días" or .="0.0" or .="0.0%" or .="(0.0)" or .="0.00" or .="0" or .="(0)" or .="$0"]').remove();
     xo.state.hide_empty && result.$$('//*[contains(@class,"remove-row-if-empty")][not(.//text())]//ancestor-or-self::html:tr').remove()
 })
 
@@ -133,4 +133,29 @@ xo.listener.on(`remove::[role=alert]`, function () {
     if (request.progress < 100) {
         request.abort()
     }
+})
+
+xo.listener.on(`versionChange`, function (onAccept) {
+    const toast = document.createElement('div');
+    toast.innerHTML = `
+        <div class="toast show position-fixed bottom-0 end-0 m-3" style="z-index: 9999;">
+            <div class="toast-header">
+                <strong class="me-auto">Actualización disponible</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Hay una nueva versión disponible 
+                <button class="btn btn-sm btn-primary ms-2">Actualizar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    toast.querySelector('button.btn-primary').addEventListener('click', () => {
+        onAccept(); // Triggers SKIP_WAITING
+    });
+
+    // Optional auto-dismiss handler
+    toast.querySelector('.btn-close').addEventListener('click', () => toast.remove());
+    event.stopImmediatePropagation()
 })

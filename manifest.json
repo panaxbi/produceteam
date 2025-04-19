@@ -17,6 +17,7 @@
     "#settings": "settings.xml",
     "px-daterange": "widgets/daterange.xhtml",
     "px-combobox": "widgets/combobox.xhtml",
+    "px-printer": "widgets/printer.xhtml",
     "google-chart": "widgets/google-chart.xhtml",
     "#menu": "menus.xml",
     "#formato_liquidacion": "templates/formato_liquidacion.htm",
@@ -44,7 +45,7 @@
       ]
     }
   },
-  "start": [ "loading.xslt", "#ws", "px-combobox", "px-daterange"],
+  "start": [ "loading.xslt", "#ws", "px-combobox", "px-daterange", "px-printer" ],
   "settings": {
     "^#.*": {
       "headers": {
