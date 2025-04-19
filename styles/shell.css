@@ -611,6 +611,10 @@ a.text-dark.sidebar-link {
 .navbar-light .navbar-nav .nav-link:hover {
     color: rgba(0,0,0,.5) !important;
 }
+
+.navbar fieldset:has(px-daterange) {
+    min-width: 269px;
+}
 /*
 .simplebar-wrapper {
 	margin: 0px;

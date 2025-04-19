@@ -220,21 +220,6 @@ xmlns:xo="http://panax.io/xover"
 		<!--</xsl:if>-->
 	</xsl:template>
 
-	<xsl:template mode="datagrid:tbody-header-cell" match="@product_adjustments|@charges|@absorbed_expenses">
-		<xsl:variable name="classification" select="key('classification', name())"/>
-		<xsl:variable name="fields" select="//concepto/row[key('classification',concat($classification,':',@id))]/@id"/>
-		<xsl:for-each select="$fields">
-			<th scope="col">
-				
-			</th>
-		</xsl:for-each>
-		<!--<xsl:if test="$fields[2]">-->
-		<th class="text-uppercase">
-			Total <xsl:apply-templates mode="headerText" select="$classification"/>
-		</th>
-		<!--</xsl:if>-->
-	</xsl:template>
-
 	<xsl:template mode="datagrid:cell" match="@product_adjustments|@charges|@absorbed_expenses">
 		<xsl:param name="row" select="ancestor-or-self::*[1]"/>
 		<xsl:variable name="classification" select="key('classification', name())"/>
@@ -256,6 +241,28 @@ xmlns:xo="http://panax.io/xover"
 				</xsl:with-param>
 			</xsl:call-template>
 		</td>
+		<!--</xsl:if>-->
+	</xsl:template>
+
+	<xsl:template mode="datagrid:tbody-header-cell" match="@product_adjustments|@charges|@absorbed_expenses">
+		<xsl:param name="rows" select="ancestor-or-self::*[1]"/>
+		<xsl:variable name="classification" select="key('classification', name())"/>
+		<xsl:variable name="fields" select="//concepto/row[key('classification',concat($classification,':',@id))]/@id"/>
+		<xsl:for-each select="$fields">
+			<th class="text-center" scope="col">
+				<xsl:call-template name="format">
+					<xsl:with-param name="value" select="sum($rows//row[@cls=$classification][@cnp=current()]/@amt)"/>
+				</xsl:call-template>
+			</th>
+		</xsl:for-each>
+		<!--<xsl:if test="$fields[2]">-->
+		<th class="text-center">
+			<xsl:call-template name="format">
+				<xsl:with-param name="value">
+					<xsl:value-of select="sum($rows//row[@cls=$classification]/@amt)"/>
+				</xsl:with-param>
+			</xsl:call-template>
+		</th>
 		<!--</xsl:if>-->
 	</xsl:template>
 

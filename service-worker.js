@@ -1,17 +1,22 @@
-﻿const CACHE_NAME = `${location.hostname}_250416_0730`,
-urlsToCache = [
-    './'
-    , './register-pwa.js'
-    , './assets/favicon.png'
-    , './assets/icon.png'
-    , 'https://d3js.org/d3.v5.min.js'
-    , 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'
-    , 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'
+﻿const CACHE_NAME = `${location.hostname}_250418_2048`,
+    urlsToCache = [
+        './'
+        , './register-pwa.js'
+        , './assets/favicon.png'
+        , './assets/icon.png'
+        , 'https://d3js.org/d3.v5.min.js'
+        , 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'
+        , 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'
     ]
 
 self.addEventListener('message', event => {
     if (event.data === 'GET_CACHE_NAME') {
         event.source.postMessage({ cacheName: CACHE_NAME });
+    } else if (event.data?.type === 'SKIP_WAITING') {
+        console.log('[SW] Skipping waiting...');
+        self.skipWaiting().then(() => {
+            console.log('[SW] skipWaiting resolved');
+        });
     }
 });
 
