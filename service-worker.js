@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = `${location.hostname}_250418_2048`,
+﻿const CACHE_NAME = `${location.hostname}_250422_0755`,
     urlsToCache = [
         './'
         , './register-pwa.js'
@@ -70,7 +70,6 @@ self.addEventListener('fetch', e => {
             .then(response => {
                 let from_cache = (!navigator.onLine || ['force-cache', 'only-if-cached'].includes(e.request.headers.get("Cache-Control")) || !["reload"].includes(e.request.cache) && (['image', 'style', 'script'].includes(e.request.destination) || e.request.url.indexOf('.xsl') != -1));
                 return from_cache && response || fetch(e.request).then(response => {
-                    //console.log(response.url)
                     if (!(e.request.method == 'GET' && response && response.status == 200 && !['no-store', 'no-cache', 'reload'].includes(e.request.cache) /*&& ['basic','cors'].includes(response.type)*/)) {
                         return response;
                     }
