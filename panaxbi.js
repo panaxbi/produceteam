@@ -88,7 +88,7 @@ xo.listener.on(['beforeFetch::?FROM=^PanaxBI.#server:request'], async function (
         tracker.remove()
     }
     trackers.clear();
-    trackers.add(await xo.sources["loading.xslt"].render())
+    trackers.add(document.body.appendChild(document.createElement("px-loader")));
 })
 
 xover.listener.on('Response:failure?status=401', function ({ url }) {
