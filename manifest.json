@@ -1,8 +1,12 @@
 {
   "server": {
-    "request": "https://server.panax.io/request.asp",
-    "login": "POST https://server.panax.io/login.asp",
-    "logout": "https://server.panax.io/logout.asp"
+    "request": "${xover.session.server}/request.asp",
+    "login": "POST ${xover.session.server}/login.asp",
+    "logout": "${xover.session.server}/logout.asp",
+    "ngrok": "https://7b97-2806-264-548e-8043-ddd0-3453-c83f-9e27.ngrok-free.app"
+  },
+  "session": {
+    "server": "https://7b97-2806-264-548e-8043-ddd0-3453-c83f-9e27.ngrok-free.app"
   },
   "sources": {
     "^#([^?]+)(\\?.*)?": {
@@ -18,6 +22,7 @@
     "px-daterange": "widgets/daterange.xhtml",
     "px-combobox": "widgets/combobox.xhtml",
     "px-printer": "widgets/printer.xhtml",
+    "px-loader": "widgets/loader.xhtml",
     "google-chart": "widgets/google-chart.xhtml",
     "#menu": "menus.xml",
     "#formato_liquidacion": "templates/formato_liquidacion.htm",
@@ -45,7 +50,7 @@
       ]
     }
   },
-  "start": [ "loading.xslt", "#ws", "px-combobox", "px-daterange", "px-printer" ],
+  "start": [ "loading.xslt", "#ws", "px-combobox", "px-daterange", "px-printer", "px-loader" ],
   "settings": {
     "^#.*": {
       "headers": {
@@ -58,6 +63,9 @@
       "headers": {
         "authorization": "${xover.session.user_login}:${xover.session.id_token}"
       }
+    },
+    "*ngrok-free.app*": {
+      "headers": { "ngrok-skip-browser-warning": true }
     },
     "#estado_resultados_semanal": {
       "stylesheets": [

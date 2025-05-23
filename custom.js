@@ -920,3 +920,29 @@ xo.listener.on('keyup', function () {
         xover.stores.active.select(`//ventas/@filter:*`).remove()
     }
 })
+
+xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
+    let rows = document.select(`//ventas/row`);
+    let page_size = 400;
+    rows.slice(page_size).filter((row, ix) => (ix % page_size) > 0).remove();
+    rows.filter(el => el.parentNode).slice(page_size).forEach((el, ix) => {
+        el.setAttribute("page:index", ix + 2)
+        el.setAttribute("page:size", page_size)
+    });
+})
+
+xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
+    let scope = this.scope;
+    if (scope.nodeType != Node.ELEMENT_NODE) return;
+    let document = scope.ownerDocument.cloneNode(true);
+    document.disconnect();
+    document.dispatch('filter');
+    scope = document.findById(scope.attribute["xo:id"])
+    let rows = document.select(`//ventas/row`);
+    let ix = rows.indexOf(scope);
+    let page_size = 400;
+    rows.splice(0, ix).forEach(node => node.remove());
+    rows.splice(page_size).forEach(node => node.remove());
+    let html = await document.transform(this.section.stylesheet)
+    this.replaceWith(html.querySelector("tbody"))
+})
