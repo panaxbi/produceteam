@@ -824,7 +824,8 @@ xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#
     }
 })
 
-xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*", "fetch?href=*.ngrok*"], function ({ response, document, url }) {
+xo.listener.on(["fetch?href=^server/::*", "fetch?host=^server.panax.io::*", "fetch?host=*.ngrok*"], function ({ response, document, url }) {
+    if (!(document && document.nodeType === Node.DOCUMENT_NODE)) return;
     for (let stylesheet of document.stylesheets || []) {
         let href = stylesheet.href;
         if (!href) continue;
