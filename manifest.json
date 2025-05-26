@@ -2,11 +2,10 @@
   "server": {
     "request": "${xover.session.server}/request.asp",
     "login": "POST ${xover.session.server}/login.asp",
-    "logout": "${xover.session.server}/logout.asp",
-    "ngrok": "https://7b97-2806-264-548e-8043-ddd0-3453-c83f-9e27.ngrok-free.app"
+    "logout": "${xover.session.server}/logout.asp"
   },
   "session": {
-    "server": "https://7b97-2806-264-548e-8043-ddd0-3453-c83f-9e27.ngrok-free.app"
+    "server": "https://35b0-2806-264-548e-8043-adf6-95bb-917f-18cc.ngrok-free.app"
   },
   "sources": {
     "^#([^?]+)(\\?.*)?": {
