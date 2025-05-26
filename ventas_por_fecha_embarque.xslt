@@ -64,7 +64,7 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:param name="state:groupBy">*</xsl:param>
 
 	<xsl:template match="/">
-		<main xmlns="http://www.w3.org/1999/xhtml">
+		<main xmlns="http://www.w3.org/1999/xhtml" xo-source="seed">
 			<xsl:apply-templates mode="datagrid:widget" select="model/ventas"/>
 		</main>
 	</xsl:template>

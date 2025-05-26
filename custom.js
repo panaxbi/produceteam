@@ -835,6 +835,13 @@ xo.listener.on(["fetch?href=^server::*", "fetch?host=^server.panax.io::*"], func
         control.parentNode.removeAttribute("navbar:position")
         control.remove()
     }
+    for (let row of document.select(`//row[@state:page]`)) {
+        let url = document.url.clone();
+        url.searchParams.set("@page_index", row.getAttributeNodeNS("http://panax.io/state", "page"));
+        url.fetch().then(document => {
+            row.replaceWith(...document.select(`//${row.parentNode.nodeName}/*`))
+        })
+    }
 })
 
 xo.listener.on(["fetch::*"], function ({ document, request }) {
