@@ -5,7 +5,7 @@
     "logout": "${xover.session.server}/logout.asp"
   },
   "session": {
-    "server": "https://35b0-2806-264-548e-8043-adf6-95bb-917f-18cc.ngrok-free.app"
+    "gist": "https://gist.githubusercontent.com/uriel-online/31def1f46f8b5c5bac068fa14f1eacb5/raw/produce_team.json"
   },
   "sources": {
     "^#([^?]+)(\\?.*)?": {
@@ -49,7 +49,15 @@
       ]
     }
   },
-  "start": [ "loading.xslt", "#ws", "px-combobox", "px-daterange", "px-printer", "px-loader" ],
+  "start": [
+    "loading.xslt",
+    "#ws",
+    "px-combobox",
+    "px-daterange",
+    "px-printer",
+    "px-loader",
+    { "updateNgrok": [] }
+  ],
   "settings": {
     "^#.*": {
       "headers": {
