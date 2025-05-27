@@ -954,3 +954,14 @@ xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
     let html = await document.transform(this.section.stylesheet)
     this.replaceWith(html.querySelector("tbody"))
 })
+
+function updateNgrok() {
+    try {
+        fetch(xover.meta["gist-file"])
+            .then(res => res.json())
+            .then(json => xover.session.server = json["ngrokUrl"])
+    } catch (e) {
+        console.error(e)
+    }
+}
+updateNgrok()
