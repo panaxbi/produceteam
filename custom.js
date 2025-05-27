@@ -957,11 +957,12 @@ xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
 
 function updateNgrok() {
     try {
-        fetch(xover.meta["gist-file"])
+        let gist = xover.session.gist;
+        if (!gist) return;
+        fetch(gist)
             .then(res => res.json())
             .then(json => xover.session.server = json["ngrokUrl"])
     } catch (e) {
         console.error(e)
     }
 }
-updateNgrok()
