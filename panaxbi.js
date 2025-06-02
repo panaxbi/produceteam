@@ -1,3 +1,4 @@
+//xover.disablePolyfill.toString = true
 var datediff = function (intervalType, first_date, last_date = new Date()) {
     // Parse the input dates
     if (!(first_date && last_date)) return undefined;
@@ -135,27 +136,36 @@ xo.listener.on(`remove::[role=alert]`, function () {
     }
 })
 
-xo.listener.on(`versionChange`, function (onAccept) {
+function createToast({ header, body }) {
     const toast = document.createElement('div');
     toast.innerHTML = `
         <div class="toast show position-fixed bottom-0 end-0 m-3" style="z-index: 9999;">
             <div class="toast-header">
-                <strong class="me-auto">Actualización disponible</strong>
+                <strong class="me-auto">${header || 'Aviso'}</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
             </div>
-            <div class="toast-body">
-                Hay una nueva versión disponible 
-                <button class="btn btn-sm btn-primary ms-2">Actualizar</button>
-            </div>
+            <div class="toast-body">${body}</div>
         </div>
     `;
     document.body.appendChild(toast);
+}
+
+xover.listener.on('NetworkError', function ({ url }) {
+    createToast({
+        header: "Error de red"
+        , body: `No se pudo acceder al servidor ${url.host}` })
+})
+
+xo.listener.on(`versionChange`, function (onAccept) {
+    const toast = createToast({
+        header: "Actualización disponible"
+        , body: `Hay una nueva versión disponible 
+                <button class="btn btn-sm btn-primary ms-2">Actualizar</button>` })
 
     toast.querySelector('button.btn-primary').addEventListener('click', () => {
-        onAccept(); // Triggers SKIP_WAITING
+        onAccept();
     });
 
-    // Optional auto-dismiss handler
     toast.querySelector('.btn-close').addEventListener('click', () => toast.remove());
     event.stopImmediatePropagation()
 })
