@@ -932,6 +932,7 @@ xo.listener.on('keyup', function () {
 xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
     let rows = document.select(`//ventas/row`);
     let page_size = 400;
+    if (rows.length <= page_size) return;
     rows.slice(page_size).filter((row, ix) => (ix % page_size) > 0).remove();
     rows.filter(el => el.parentNode).slice(page_size).forEach((el, ix) => {
         el.setAttribute("page:index", ix + 2)
