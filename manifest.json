@@ -5,7 +5,7 @@
     "logout": "${xover.session.server}/logout.asp"
   },
   "session": {
-    "gist": "https://gist.githubusercontent.com/uriel-online/31def1f46f8b5c5bac068fa14f1eacb5/raw/produce_team.json"
+    "gist": "https://gist.githubusercontent.com/uriel-online/17685de3e6ff832b0cc499c82949d336/raw/produce_team.json"
   },
   "sources": {
     "^#([^?]+)(\\?.*)?": {
