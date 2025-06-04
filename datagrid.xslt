@@ -8,7 +8,7 @@
 >
 	<xsl:import href="widgets/datagrid/datagrid.xslt"/>
 
-	<xsl:key name="datagrid:caption" match="@state:data_date" use="generate-id(..)"/>
+	<xsl:key name="datagrid:caption" match="@state:data_date" use="../@xo:id"/>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 	<xsl:key name="filter" match="@filter:*" use="local-name()"/>
