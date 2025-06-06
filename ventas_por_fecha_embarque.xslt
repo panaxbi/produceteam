@@ -78,9 +78,9 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:value-of select="ancestor::ventas[1]/@state:avg_pce"/>
 	</xsl:template>-->
 
-	<xsl:template mode="datagrid:footer-cell" match="@ucos" priority="1">
+	<!--<xsl:template mode="datagrid:footer-cell" match="@ucos" priority="1">
 		<td></td>
-	</xsl:template>
+	</xsl:template>-->
 
 	<xsl:template match="@total:upce">
 		<xsl:param name="data" select="node-expected"/>
