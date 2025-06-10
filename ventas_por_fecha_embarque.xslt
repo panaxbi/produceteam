@@ -69,19 +69,6 @@ xmlns:xo="http://panax.io/xover"
 		</main>
 	</xsl:template>
 
-
-	<!--<xsl:template mode="datagrid:aggregate" match="@upce" priority="1">
-		<xsl:value-of select="ancestor::ventas[1]/@state:avg_upce"/>
-	</xsl:template>-->
-
-	<!--<xsl:template mode="datagrid:aggregate" match="@pce" priority="1">
-		<xsl:value-of select="ancestor::ventas[1]/@state:avg_pce"/>
-	</xsl:template>-->
-
-	<!--<xsl:template mode="datagrid:footer-cell" match="@ucos" priority="1">
-		<td></td>
-	</xsl:template>-->
-
 	<xsl:template match="@total:upce">
 		<xsl:param name="data" select="node-expected"/>
 		<xsl:variable name="rows" select="$data/ancestor-or-self::*[1][@qtym and @amt]"/>
