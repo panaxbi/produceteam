@@ -8,80 +8,6 @@ xover.listener.on('xover-initialized', function () {
     }, 900000);
 })
 
-async function progressiveRequest(params) {
-    if (params instanceof Array) {
-        params = Object.fromEntries(params);
-    }
-    let store = xo.stores.seed;
-    if (store.selectFirst(`/model/fechas`)) {
-        params["@get_dims"] = 0;
-    }
-    let response = {};
-    let source = this;
-    let loading, progress;
-    if (Object.keys(params).filter(key => key.match(/@get_n\d/)).length) {
-        this.settings.progress = await xo.sources["loading.xslt"].render();
-        progress = this.settings.progress[0].querySelector('i progress');
-        progress.style.display = 'inline';
-    }
-    let requested_levels = Object.entries(params).filter(([key, value]) => key.match(/@get_n\d/) && value == 1).map(([key]) => key.replace(/@get_n(\d+)/, '$1')).order();
-    //Object.keys(params).filter(key => key.match(/@get_n\d/)).forEach((key, ix) => {
-    //    if (ix == 0) {
-    let new_params = params;//Object.fromEntries(Object.entries(params).filter(([key]) => !key.match(/@get_n\d/)));
-    //new_params[key] = params[key];
-    progress && progress.appendAfter(xo.xml.createNode(`<label xmlns="http://www.w3.org/1999/xhtml" style="white-space: nowrap; font-size: xx-small; transform: translateY(-40px); color: white; font-weight: bolder;">Cargando nivel ${requested_levels.join(', ')}...</label>`));
-    response = xo.server.request.call(this, new_params, { source: source, progress: progress }).then(document => {
-        //delete params[key];
-        let items = document.select(`/model/polizas|/model/presupuesto`).filter(item => item.firstElementChild);
-        document.seed();
-
-        let current_date_er = new Date().toISOString().replace('-', '').substring(0, 6);
-        let fechas = document.selectFirst(`model/fechas`);
-        if (fechas) {
-            fechas.set("state:current_date_er", current_date_er);
-        }
-
-        let target_model = store.selectFirst(`/model`);
-        if (target_model) {
-            //store.document.disconnect();
-            for (item of items) {
-                let dims = item.select(`@div|@rs|@un`);
-                let levels = [...new Set(item.select(`*/@n1|*/@n2|*/@n3|*/@n4|*/@n5|*/@n6`).map(n => n.value))];
-                let matches = target_model.select(`${item.nodeName}${dims.map(el => `[@${el.name}="${el.value}"]`).join('')}`);
-                if (!matches.length) {
-                    target_model.append(item)
-                } else {
-                    for (let target of matches) {
-                        target.select(`*/@n1|*/@n2|*/@n3|*/@n4|*/@n5|*/@n6`).filter(attr => levels.includes(attr.value)).forEach(attr => attr.remove({ silent: true }));
-                        target.select(`*[not(@n1 or @n2 or @n3 or @n4 or @n5 or @n6)]`).forEach(el => el.remove({ silent: true }));
-                        target.append(...item.select('*'));
-                    }
-                }
-                //xo.stores.seed.select(`/model/polizas/*/@n${key.substring(6)}`).forEach(el => Element.remove.apply(el.parentNode));
-                //xo.stores.seed.select(`/model/presupuesto/*/@n${key.substring(6)}`).forEach(el => Element.remove.apply(el.parentNode));
-                //xo.stores.seed.select('//model').forEach(polizas => polizas.append(...document.select('//model/polizas'), { silent: true }));
-                //xo.stores.seed.select('/model').forEach(polizas => polizas.append(...document.select('/model/presupuesto'), { silent: true }));
-            }
-            xo.stores.seed.document.connect();
-        }
-
-        //progressiveRequest.call(this, params);
-        xo.stores.seed.render();
-        if (xo.stores.seed.documentElement) {
-            return Promise.resolve(xo.stores.seed.document);
-        } else {
-            return Promise.resolve(document);
-        }
-    }).catch(e => {
-        return Promise.reject(e);
-    }).finally(() => {
-        loading && loading.forEach(el => el.remove());
-    });
-    //    }
-    //});
-    return response;
-}
-
 xo.listener.on('set::fecha/@state:checked', function ({ value, event }) {
     this.parentNode.select("//model/fechas/@state:current_date_er").remove()
     //if (!(event.target instanceof SVGElement)) {
@@ -120,52 +46,6 @@ xo.listener.on('change::divisiones/division/@state:checked', function ({ target,
     }
 })
 
-//function DynamicObject(obj) {
-//    if (!(this instanceof DynamicObject)) return new DynamicObject(obj);
-//    let proxy_manager = function (target, name) {
-//        let return_value
-//        if (["getValue", "hasOwnProperty", "realValue"].includes(name) || typeof target[name] === 'function') {
-//            return target[name];
-//        }
-//        if (name in target && target[name] !== undefined && target[name] !== null) {
-//            if (typeof (target[name]) == 'string') {
-//                return_value = new String(target[name]);
-//            } else if (typeof (target[name]) == 'number') {
-//                return_value = new Number(target[name]);
-//            } else if (typeof (target[name]) == 'boolean') {
-//                return_value = new Boolean(target[name]);
-//            } else if (target[name].constructor === {}.constructor) {
-//                return_value = new Proxy(target[name], { get: proxy_manager });
-//            } else {
-//                return_value = target[name];
-//            }
-//        } else {
-//            return_value = new Proxy({}, { get: proxy_manager });
-//            Object.setPrototypeOf(return_value, Array.prototype)
-//            Object.defineProperty(return_value, 'realValue', {
-//                value: undefined,
-//                writable: true, enumerable: false, configurable: false
-//            });
-//        }
-//        if (!(return_value.hasOwnProperty('getValue'))) {
-//            Object.defineProperty(return_value, 'getValue', {
-//                value: function () {
-//                    if (this.hasOwnProperty('realValue')) {
-//                        return this.realValue;
-//                    } else {
-//                        return target[name];
-//                    }
-//                },
-//                writable: false, enumerable: false, configurable: false
-//            });
-//        }
-//        return return_value;
-//    }
-//    let new_obj = new Proxy(obj, { get: proxy_manager });
-//    Object.setPrototypeOf(new_obj, this);
-//    return new_obj;
-//}
-
 xo.listener.on(['replaceWith::[xo-stylesheet="page_controls.mantenibles.xslt"]'], ({ new_node, old }) => {
     if (!new_node.childNodes.length) {
         new_node.replaceChildren(...old.childNodes)
@@ -182,61 +62,6 @@ async function submit(node) {
         return Promise.reject("No implementado")
     }
     progress.remove();
-}
-
-async function generateExcelFile(table, name) {
-    let progress = await xo.sources["loading.xslt"].render();
-    await xover.delay(500);
-    //if (this.Interval) window.clearInterval(this.Interval);
-    let _progress = 0;
-    let tracker = progress[0].querySelector('progress');
-    tracker.style.display = 'inline';
-
-    //this.Interval = setInterval(function () {
-    //    if (tracker) {
-    //        tracker.value = _progress;
-    //        console.log(_progress);
-    //    }
-    //}, 500);
-    table = table.cloneNode(true);
-    table.querySelectorAll('del,.hidden').toArray().remove();
-    let set_computed_background = function (cell) {
-        let border = cell.style.border;
-        let backgroundColor = cell.style.backgroundColor;
-        let color = cell.style.color;
-        let styleSheets = document.styleSheets;
-        for (let styleSheet of [...styleSheets]) {
-            try {
-                for (let rule of [...styleSheet.rules].filter(rule => rule.selectorText && (rule.style.border || rule.style.backgroundColor || rule.style.color) && cell.matches(rule.selectorText))) {
-                    if (!border && rule.style.border) {
-                        cell.style.border = rule.style.border;
-                    }
-                    if (!backgroundColor && rule.style.backgroundColor) {
-                        cell.style.backgroundColor = rule.style.backgroundColor;
-                    }
-                    if (!color && rule.style.color) {
-                        cell.style.color = rule.style.color;
-                    }
-                }
-            } catch (e) {
-                console.warn(e)
-            }
-        }
-    }
-    let rows = table.getElementsByTagName("tr");
-    let r = 0;
-    for (let row of rows) {
-        ++r;
-        _progress = r / rows.length * 100;
-        [...row.getElementsByTagName("td")].forEach(el => set_computed_background(el));
-        if (r % (rows.length / 10) == 0) {
-            tracker.value = _progress;
-            await xover.delay(500);
-        }
-    }
-    xo.dom.toExcel(table, name.split("?")[0])
-    progress.remove();
-    if (this.Interval) window.clearInterval(this.Interval);
 }
 
 xo.listener.on("mousedown", function (event) {
@@ -373,7 +198,7 @@ selectCells = function (selection_started, selection_end) {
     //return xover.manager.delay.get(selection_started);
 }
 
-selection = {};
+let selection = {};
 Object.defineProperty(selection, 'cells', {
     get: function () {
         let result = [...document.querySelectorAll(".selected")];
@@ -664,99 +489,6 @@ xover.listener.on(`beforeFetch?request`, function ({ request, settings }) {
     let session_id = request.headers.get("x-session-id") || xo.session[`${request.url.host}:id`];
     session_id && request.headers.set("x-session-id", session_id);
 })
-
-//xover.listener.on([`beforeFetch::#detalle_gastos_operativos`, `beforeFetch::#detalle_ingresos_operativos`, `beforeFetch::#ingresos_operativos`, `beforeFetch::#gastos_operativos`, `beforeFetch::#auxiliar_cuentas`, `beforeFetch::#detalle_movimientos`, `beforeFetch::#balance_operativo`, `beforeFetch::#detalle_problemas`, `beforeFetch::#ordenes_compra_detalle`], function ({ document, parameters }) {
-//    if (!document) return;
-//    delete parameters["@fecha_inicio"];
-//    delete parameters["@fecha_fin"];
-//    delete parameters["@start_week"];
-//    delete parameters["@end_week"];
-//    delete parameters[`@trouble`]
-//    delete parameters[`@order`]
-//    delete parameters[`@purchase_order`]
-//    delete parameters[`@grower_lot`]
-
-//    if (xo.state.filterBy == 'order') {
-//        parameters[`@order`] = document.selectFirst("//@state:order");
-//    } else if (xo.state.filterBy == 'purchase_order') {
-//        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
-//    } else if (xo.state.filterBy == 'grower_lot') {
-//        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
-//    } else if (xo.state.filterBy == 'trouble') {
-//        parameters[`@trouble`] = document.selectFirst("//@state:trouble");
-//    } else if (xo.state.filterBy == 'dates') {
-//        parameters["@fecha_inicio"] = document.selectFirst("//@state:fecha_inicio");
-//        parameters["@fecha_fin"] = document.selectFirst("//@state:fecha_fin");
-//    } else if ((xo.state.filterBy || 'weeks') == 'weeks') {
-//        parameters["@start_week"] = document.selectFirst("//semanas/@state:start_week")
-//        parameters["@end_week"] = document.selectFirst("//semanas/@state:end_week")
-//    }
-//    for (let [key, value] of xo.site.searchParams.params) {
-//        parameters[key] = value
-//    }
-//})
-
-//xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document, parameters = {} }) {
-//    if (!document) return;
-//    delete parameters[`@order`]
-//    delete parameters[`@purchase_order`]
-//    delete parameters[`@grower_lot`]
-//    delete parameters["@fecha_embarque_inicio"];
-//    delete parameters["@fecha_embarque_fin"];
-//    delete parameters["@fecha_recepcion_inicio"];
-//    delete parameters["@fecha_recepcion_fin"];
-//    delete parameters["@start_week"];
-//    delete parameters["@end_week"];
-
-//    if (xo.state.filterBy == 'order') {
-//        parameters[`@order`] = document.selectFirst("//@state:order");
-//    } else if (xo.state.filterBy == 'purchase_order') {
-//        parameters[`@purchase_order`] = document.selectFirst("//@state:purchase_order");
-//    } else if (xo.state.filterBy == 'grower_lot') {
-//        parameters[`@grower_lot`] = document.selectFirst("//@state:grower_lot");
-//    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
-//        parameters["@fecha_embarque_inicio"] = document.selectFirst("//@state:fecha_embarque_inicio");
-//        parameters["@fecha_embarque_fin"] = document.selectFirst("//@state:fecha_embarque_fin");
-//    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
-//        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
-//        parameters["@fecha_recepcion_inicio"] = fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio");
-//        parameters["@fecha_recepcion_fin"] = fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin");
-//    }
-//    for (let [key, value] of xo.site.searchParams.params) {
-//        parameters[key] = value
-//    }
-//})
-
-//xover.listener.on([`beforeFetch::#ventas_por_fecha_embarque`, `beforeFetch::#KPI_ventas`, `beforeFetch::#liquidacion_detalle`], function ({ document }, parameters = {}) {
-//    if (!document) return;
-//    parameters.delete(`@order`)
-//    parameters.delete(`@purchase_order`)
-//    parameters.delete(`@grower_lot`)
-//    parameters.delete("@fecha_embarque_inicio");
-//    parameters.delete("@fecha_embarque_fin");
-//    parameters.delete("@fecha_recepcion_inicio");
-//    parameters.delete("@fecha_recepcion_fin");
-//    parameters.delete("@start_week");
-//    parameters.delete("@end_week");
-
-//    if (xo.state.filterBy == 'order') {
-//        parameters.set(`@order`, document.selectFirst("//@state:order"));
-//    } else if (xo.state.filterBy == 'purchase_order') {
-//        parameters.set(`@purchase_order`, document.selectFirst("//@state:purchase_order"));
-//    } else if (xo.state.filterBy == 'grower_lot') {
-//        parameters.set(`@grower_lot`, document.selectFirst("//@state:grower_lot"));
-//    } else if ((xo.state.filterBy || 'ship_date') == 'ship_date') {
-//        parameters.set("@fecha_embarque_inicio", document.selectFirst("//@state:fecha_embarque_inicio"));
-//        parameters.set("@fecha_embarque_fin", document.selectFirst("//@state:fecha_embarque_fin"));
-//    } else if ((xo.state.filterBy || 'fecha_recepcion') == 'fecha_recepcion') {
-//        let [fecha_inicio, fecha_fin] = (document.selectFirst("//@state:fecha_recepcion") || { value: '' }).value.split(/[-~]/)
-//        parameters.set("@fecha_recepcion_inicio", fecha_inicio || document.selectFirst("//@state:fecha_recepcion_inicio"));
-//        parameters.set("@fecha_recepcion_fin", fecha_fin || document.selectFirst("//@state:fecha_recepcion_fin"));
-//    }
-//    for (let [key, value] of xo.site.searchParams.params) {
-//        parameters.set(key, value)
-//    }
-//})
 
 xover.listener.on(`change::@state:fecha_embarque|@state:fecha_embarque_inicio|@state:fecha_embarque_fin`, function ({ value, store }) {
     xo.state.filterBy = 'ship_date'
