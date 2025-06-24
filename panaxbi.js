@@ -148,6 +148,7 @@ function createToast({ header, body }) {
         </div>
     `;
     document.body.appendChild(toast);
+    return toast;
 }
 
 xover.listener.on('NetworkError', function ({ url }) {
@@ -168,4 +169,9 @@ xo.listener.on(`versionChange`, function (onAccept) {
 
     toast.querySelector('.btn-close').addEventListener('click', () => toast.remove());
     event.stopImmediatePropagation()
+})
+
+xover.listener.on('unhandledrejection?reason*=Error loading script https://accounts.google.com/gsi/client', async (event) => {
+    event.preventDefault();
+    throw (`#google_error`);
 })
