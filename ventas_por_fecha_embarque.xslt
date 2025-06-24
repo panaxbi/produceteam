@@ -50,15 +50,15 @@ xmlns:xo="http://panax.io/xover"
 	<xsl:key name="data_type" match="ventas//@qtys" use="'integer'"/>
 	<xsl:key name="data_type" match="ventas//@qty_rcv" use="'integer'"/>
 
-	<xsl:key name="rows" match="//ventas/row[not(@xsi:type)]" use="name(..)"/>
-	<xsl:key name="facts" match="//ventas/row/@*[.!='' and namespace-uri()='']" use="name()"/>
+	<xsl:key name="rows" match="/model/ventas/row[not(@xsi:type)]" use="name(..)"/>
+	<xsl:key name="facts" match="/model/ventas/row/@*[.!='' and namespace-uri()='']" use="name()"/>
 
 	<xsl:key name="data" match="/model/ventas[not(row/@xsi:type)]/row" use="'*'"/>
 
 	<xsl:key name="data:group" match="model/ventas[not(@group:*)][row]" use="'*'"/>
 
-	<xsl:key name="x-dimension" match="//ventas[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
-	<xsl:key name="y-dimension" match="//ventas[not(row/@xsi:type)]/*" use="name(..)"/>
+	<xsl:key name="x-dimension" match="/model/ventas[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
+	<xsl:key name="y-dimension" match="/model/ventas[not(row/@xsi:type)]/*" use="name(..)"/>
 
 	<xsl:param name="data_node">'ventas'</xsl:param>
 	<xsl:param name="state:groupBy">*</xsl:param>

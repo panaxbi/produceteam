@@ -2,6 +2,12 @@ xo.spaces["expanded"] = "http://panax.io/state/expanded";
 xo.spaces["visible"] = "http://panax.io/state/visible";
 xo.spaces["hidden"] = "http://panax.io/state/hidden";
 
+xo.listener.on('xover-initialized', function ({ progress_renders }) {
+    if ('#loading' in xover.manifest.sources) {
+        progress_renders.concat(xover.sources['#loading'].render());
+    }
+})
+
 xover.listener.on('xover-initialized', function () {
     window.setInterval(function () {
         xover.session.checkStatus();
@@ -94,7 +100,7 @@ xo.listener.on("mousedown", function (event) {
 })
 
 xo.listener.on("mousemove::*[ancestor-or-self::@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
-    if (!(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
+    if (this.closest(`dialog,menu,ul`) || !(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (parent_container) {
         let selection_started = parent_container.querySelector(".selection-begin");
@@ -114,7 +120,7 @@ xo.listener.on("mousemove::*[ancestor-or-self::@class[contains(.,'validation-') 
 })
 
 xo.listener.on("mouseup", function (event) {
-    if (!(this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell')) return;
+    if (this.closest(`dialog,menu,ul`) || !(this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell')) return;
     if (this instanceof HTMLTableCellElement && this.matches(".cell") && !(this.matches(".presupuesto"))) {
         [...this.querySelectorAll("a.auxiliar-polizas")].removeAll();
         let cell = this;
@@ -684,9 +690,81 @@ xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
     let page_size = 400;
     rows.splice(0, ix).forEach(node => node.remove());
     rows.splice(page_size).forEach(node => node.remove());
-    let html = await document.transform(this.section.stylesheet)
+    let html = await document.transform(this.section.stylesheet, {async: true})
     this.replaceWith(html.querySelector("tbody"))
 })
+
+//xo.listener.on(`beforeTransform?stylesheet.href=ventas_por_fecha_embarque.xslt`, function ({ document }) {
+//    const rows = document.select(`//ventas/row`);
+//    const groupAttrs = document.select(`//ventas/@group:*`);
+//    const page_size = 400;
+
+//    if (rows.length <= 2000) return;
+
+//    const assignPage = (page, groupRows) => {
+//        for (const row of groupRows) {
+//            row.setAttribute("page:index", page);
+//            row.setAttribute("page:size", page_size);
+//        }
+//    };
+
+//    if (groupAttrs.length) {
+//        // Agrupado: calcular clave compuesta por los atributos group:*
+//        const getGroupKey = row =>
+//            groupAttrs.map(attr => row.getAttribute(attr.name.split(':').pop()) || '').join('|');
+
+//        const grouped = new Map();
+//        for (const row of rows) {
+//            const key = getGroupKey(row);
+//            if (!grouped.has(key)) grouped.set(key, []);
+//            grouped.get(key).push(row);
+//        }
+
+//        let currentPage = 1;
+//        let currentPageRows = [];
+
+//        for (const groupRows of grouped.values()) {
+//            if (currentPageRows.length + groupRows.length > page_size) {
+//                assignPage(currentPage, currentPageRows);
+//                currentPage++;
+//                currentPageRows = [];
+//            }
+//            currentPageRows.push(...groupRows);
+//        }
+//        if (currentPageRows.length) assignPage(currentPage, currentPageRows);
+//    } else {
+//        // Sin agrupamiento: asignar páginas directamente
+//        rows.forEach((row, i) => {
+//            const page = Math.floor(i / page_size) + 1;
+//            row.setAttribute("page:index", page);
+//            row.setAttribute("page:size", page_size);
+//        });
+//    }
+
+//    // Eliminar filas que no pertenezcan a la primera página
+//    rows.filter(r => r.getAttribute("page:index") !== "1").forEach(r => r.remove());
+//});
+
+//xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
+//    let scope = this.scope;
+//    if (scope.nodeType != Node.ELEMENT_NODE) return;
+//    let document = scope.ownerDocument.cloneNode(true);
+//    document.disconnect();
+//    document.dispatch('filter');
+//    scope = document.findById(scope.attribute["xo:id"])
+//    let rows = document.select(`//ventas/row`);
+//    let ix = rows.indexOf(scope);
+//    let page_size = 400;
+//    let start = ix - (ix % page_size);
+//    let end = start + page_size;
+
+//    rows.forEach((node, i) => {
+//        if (i < start || i >= end) node.remove();
+//    });
+
+//    let html = await document.transform(this.section.stylesheet)
+//    this.replaceWith(html.querySelector("tbody"))
+//})
 
 function updateNgrok() {
     try {

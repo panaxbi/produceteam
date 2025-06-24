@@ -1,7 +1,7 @@
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         console.log('[SW] Controller changed - reloading...');
-        window.location.reload();
+//        window.location.reload();
     });
 
     navigator.serviceWorker.register('./service-worker.js')//, { scope: ' /' }
