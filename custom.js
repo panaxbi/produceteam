@@ -99,7 +99,7 @@ xo.listener.on("mousedown", function (event) {
     this.closest(".cell") && selection.cells.length && selection.cells.showInfo();
 })
 
-xo.listener.on("mousemove::*[ancestor-or-self::@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
+xo.listener.on("mousemove::*[ancestor-or-self::*/@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
     if (this.closest(`dialog,menu,ul`) || !(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (parent_container) {
