@@ -3,6 +3,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml"
 xmlns:data="http://panax.io/data"
+xmlns:document="http://panax.io/document"
 xmlns:session="http://panax.io/session"
 xmlns:sitemap="http://panax.io/sitemap"
 xmlns:state="http://panax.io/state"
@@ -15,6 +16,7 @@ xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="headers.xslt"/>
 	<xsl:import href="datagrid.xslt"/>
+	<xsl:param name="document:storeKey"></xsl:param>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
 	<xsl:key name="filter" match="@filter:*" use="local-name()"/>
@@ -85,5 +87,17 @@ xmlns:xo="http://panax.io/xover"
 		<xsl:param name="data" select="node-expected"/>
 		<xsl:variable name="rows" select="$data/ancestor-or-self::*[1][@qtym and @qtym]"/>
 		<xsl:value-of select="(sum($rows/@amt) - sum($rows/@amt_ad) - sum($rows/@pce_ad)) div sum($rows/@qtym)"/>
+	</xsl:template>
+
+	<xsl:template mode="datagrid:caption" match="@*">
+		<xsl:text>Vigencia de la información: </xsl:text>
+		<xsl:apply-templates select="."/>
+		<xsl:if test="$document:storeKey!=''"> (cached)</xsl:if>
+		<button class="btn" onclick="refreshStorehouse.call(this, '{$document:storeKey}')" title="Actualizar">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+				<path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+				<path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+			</svg>
+		</button>
 	</xsl:template>
 </xsl:stylesheet>

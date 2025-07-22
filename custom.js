@@ -99,7 +99,7 @@ xo.listener.on("mousedown", function (event) {
     this.closest(".cell") && selection.cells.length && selection.cells.showInfo();
 })
 
-xo.listener.on("mousemove::*[ancestor-or-self::@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
+xo.listener.on("mousemove::*[ancestor-or-self::*/@class[contains(.,'validation-') or contains(.,'selection-') or contains(.,'blacklist-')]]", async function (event) {
     if (this.closest(`dialog,menu,ul`) || !(event && event.buttons == 1 && (this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell'))) return
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (parent_container) {
@@ -138,22 +138,29 @@ xo.listener.on("mouseup", function (event) {
     if (parent_container) {
         let selection_started = parent_container.querySelector(".selection-begin");
         let cells = selection.cells;
+        let offcanvas = this.closest(".cell") && document.querySelector('#offcanvasSelection');
+        if (offcanvas) {
+            offcanvas = new bootstrap.Offcanvas(offcanvas);
+                offcanvas.show()
+            if (!cells.length) {
+                offcanvas.hide()
+            }
+        }
         if (selection_started) {
             let cell = window.getComputedStyle(this).cursor == 'cell' && this || this.closest(".cell");
             cell && cell.classList.add("selection-end");
-            let offcanvas = this.closest(".cell") && document.querySelector('#offcanvasSelection');
             if (offcanvas) {
-                new bootstrap.Offcanvas(offcanvas).toggle()
-                //let rows = parent_container.querySelectorAll("tr:has(.cell.selected)"); // Esta parte del código tiene problemas de rendimiento con datasets grandes por recálculos en estilos
-                //for (let [r, row] of rows.entries()) {
-                //    if (r == 0) row.classList.add("top-selection");
-                //    if (r == rows.length - 1) row.classList.add("bottom-selection");
-                //    let cols = row.querySelectorAll(".cell.selected");
-                //    for (let [c, col] of cols.entries()) {
-                //        if (c == 0) col.classList.add("left-selection");
-                //        if (c == cols.length - 1) col.classList.add("right-selection");
-                //    }
-                //}
+                //new bootstrap.Offcanvas(offcanvas).toggle()
+                ////let rows = parent_container.querySelectorAll("tr:has(.cell.selected)"); // Esta parte del código tiene problemas de rendimiento con datasets grandes por recálculos en estilos
+                ////for (let [r, row] of rows.entries()) {
+                ////    if (r == 0) row.classList.add("top-selection");
+                ////    if (r == rows.length - 1) row.classList.add("bottom-selection");
+                ////    let cols = row.querySelectorAll(".cell.selected");
+                ////    for (let [c, col] of cols.entries()) {
+                ////        if (c == 0) col.classList.add("left-selection");
+                ////        if (c == cols.length - 1) col.classList.add("right-selection");
+                ////    }
+                ////}
                 xo.state.validate = !!(xo.state.validations || cells.find(cell => cell.closest('.validation-enabled')));
                 xo.state.blacklist = !!(xo.state.blacklist_items || cells.find(cell => cell.closest('.blacklist-enabled')));
                 cells.showInfo();
@@ -690,7 +697,7 @@ xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
     let page_size = 400;
     rows.splice(0, ix).forEach(node => node.remove());
     rows.splice(page_size).forEach(node => node.remove());
-    let html = await document.transform(this.section.stylesheet, {async: true})
+    let html = await document.transform(this.section.stylesheet, { async: true })
     this.replaceWith(html.querySelector("tbody"))
 })
 
@@ -776,4 +783,12 @@ function updateNgrok() {
     } catch (e) {
         console.error(e)
     }
+}
+
+async function refreshStorehouse(key) {
+    if (key) {
+        let store = await xover.storehouse.sources;
+        await store.delete(key)
+    }
+    this.store.reload()
 }
