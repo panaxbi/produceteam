@@ -52,7 +52,8 @@ exclude-result-prefixes="#default session sitemap shell"
 					</div>
 				</li>
 
-				<px-printer></px-printer>
+				<px-to-excel/>
+				<px-printer/>
 
 				<!-- Nav Item - Notifications -->
 				<div class="dropdown">
