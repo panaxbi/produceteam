@@ -7,6 +7,7 @@
 	xmlns:xo="http://panax.io/xover"
 >
 	<xsl:import href="widgets/datagrid/datagrid.xslt"/>
+	<xsl:import href="datagrid-footer.xslt"/>
 
 	<xsl:key name="datagrid:caption" match="@state:data_date" use="../@xo:id"/>
 
@@ -33,5 +34,5 @@
 		<main xmlns="http://www.w3.org/1999/xhtml">
 			<xsl:apply-templates mode="datagrid:widget" select="model/data"/>
 		</main>
-	</xsl:template>
+	</xsl:template>	
 </xsl:stylesheet>
