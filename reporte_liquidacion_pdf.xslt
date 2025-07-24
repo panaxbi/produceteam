@@ -111,7 +111,7 @@ xmlns:xo="http://panax.io/xover"
 			    transform: scale(1.5);
 			}
 		</style>-->
-		<body xmlns="http://www.w3.org/1999/xhtml" xo-source="">
+		<body xmlns="http://www.w3.org/1999/xhtml">
 			<style id="PROPUESTA LIQ-1(1)_26760_Styles">
 				&amp;lt;!--table
 				{mso-displayed-decimal-separator:"\.";
