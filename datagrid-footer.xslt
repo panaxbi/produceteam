@@ -5,6 +5,7 @@
 	xmlns:file="http://panax.io/file"
 >
 	<xsl:import href="functions.xslt"/>
+	<xsl:output method="xml"/>
 	<xsl:key name="datagrid:record-data" match="row/@*" use="../@xo:id"/>
 	<xsl:key name="x-dimension" match="/model/ventas[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
 	<xsl:key name="y-dimension" match="/model/ventas[not(row/@xsi:type)]/*" use="name(..)"/>
