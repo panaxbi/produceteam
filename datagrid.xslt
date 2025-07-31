@@ -24,8 +24,10 @@
 
 	<xsl:key name="data:group" match="model/data[not(@group:*)][row]" use="'*'"/>
 
-	<xsl:key name="x-dimension" match="//data[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
-	<xsl:key name="y-dimension" match="//data[not(row/@xsi:type)]/*" use="name(..)"/>
+	<xsl:key name="x-dimension" match="/model/ventas[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
+	<xsl:key name="y-dimension" match="/model/ventas[not(row/@xsi:type)]/*" use="name(..)"/>
+	<xsl:key name="x-dimension" match="/model/data[not(row/@xsi:type)]/@*[namespace-uri()='']" use="name(..)"/>
+	<xsl:key name="y-dimension" match="/model/data[not(row/@xsi:type)]/*" use="name(..)"/>
 
 	<xsl:param name="data_node">'data'</xsl:param>
 	<xsl:param name="state:groupBy">*</xsl:param>

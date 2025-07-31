@@ -3,12 +3,11 @@
 >
 	<xsl:template match="/">
 		<main xmlns="http://www.w3.org/1999/xhtml">
-			<xsl:variable name="fecha_inicio" select="//dates/@state:fecha_inicio"/>
-			<xsl:variable name="fecha_fin" select="//dates/@state:fecha_fin"/>
+			<xsl:variable name="fecha_embarque" select="//fecha_embarque/@state:selected"/>
 			<xsl:value-of select="//month[@state:selected='true']/@desc"/>
 			<google-chart>
 				<xsl:attribute name="title">
-					Ventas x cultivo con cajas<xsl:apply-templates mode="title" select="$fecha_inicio"/><xsl:apply-templates mode="title" select="$fecha_fin"/>
+					Ventas x cultivo con cajas<xsl:apply-templates mode="title" select="$fecha_embarque"/>
 				</xsl:attribute>
 				<xsl:for-each select="//data/row">
 					<option value="{@qty}">
@@ -18,7 +17,7 @@
 			</google-chart>
 			<google-chart type="ComboChart">
 				<xsl:attribute name="title">
-					Ventas x cultivo con cajas<xsl:apply-templates mode="title" select="$fecha_inicio"/><xsl:apply-templates mode="title" select="$fecha_fin"/>
+					Ventas x cultivo con cajas<xsl:apply-templates mode="title" select="$fecha_embarque"/>
 				</xsl:attribute>
 				<xsl:attribute name="options">{vAxis: {title: 'Facturación'}, hAxis: {title: 'Variety'}, seriesType: 'bars', series: {1: {type: 'line'}}}</xsl:attribute>
 				<xsl:for-each select="//data/row">
@@ -38,10 +37,8 @@
 		</main>
 	</xsl:template>
 
-	<xsl:template mode="title" match="@state:fecha_inicio">
-		<xsl:text/> desde el <xsl:value-of select="."/>
-	</xsl:template>
-	<xsl:template mode="title" match="@state:fecha_fin">
-		<xsl:text/> al <xsl:value-of select="."/>
+	<xsl:template mode="title" match="@*">
+		<xsl:text/> desde el <xsl:value-of select="substring-before(.,'-')"/>
+		<xsl:text/> al <xsl:value-of select="substring-after(.,'-')"/>
 	</xsl:template>
 </xsl:stylesheet>
