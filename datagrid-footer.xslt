@@ -7,12 +7,10 @@
 	<xsl:import href="functions.xslt"/>
 	<xsl:output method="xml"/>
 	<xsl:key name="datagrid:record-data" match="row/@*" use="../@xo:id"/>
-	<xsl:key name="x-dimension" match="*/@*[namespace-uri()='']" use="name(..)"/>
-	<xsl:key name="y-dimension" match="*/*" use="name(..)"/>
 
 	<xsl:template match="/">
 		<xsl:param name="x-dimension" select="*/@*[namespace-uri()='']"/>
-		<xsl:param name="y-dimension" select="*/*"/>
+		<xsl:param name="y-dimension" select="*/row"/>
 		<xsl:param name="data" select="key('datagrid:record-data',$y-dimension/@xo:id)"/>
 		<tr>
 			<xsl:attribute name="xo-source">inherit</xsl:attribute>
@@ -20,7 +18,9 @@
 				<xsl:value-of select="file:href"/>
 			</xsl:attribute>
 			<th style="white-space: nowrap;">
-				<xsl:value-of select="count($y-dimension)"/> resultados
+				<xsl:if test="not(*/row/row)">
+					<xsl:value-of select="count($y-dimension)"/> resultados
+				</xsl:if>
 			</th>
 			<xsl:apply-templates mode="datagrid:footer-cell" select="$x-dimension">
 				<xsl:sort select="namespace-uri()" order="descending"/>
@@ -71,7 +71,9 @@
 		</xsl:variable>
 		<xsl:call-template name="format">
 			<xsl:with-param name="value" select="$value"/>
-			<xsl:with-param name="mask"><xsl:apply-templates mode="format-mask" select="."/></xsl:with-param>
+			<xsl:with-param name="mask">
+				<xsl:apply-templates mode="format-mask" select="."/>
+			</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
@@ -83,7 +85,7 @@
 	<xsl:template mode="datagrid:aggregate" match="@*[contains(.,'-')]">
 	</xsl:template>
 
-	<xsl:template mode="datagrid:aggregate" match="@sd|@on|@comm_p|@wh|@qty_rcv|@lbl|@rdt|@po|@rcv">
+	<xsl:template mode="datagrid:aggregate" match="@sd|@on|@comm_p|@wh|@qty_rcv|@lbl|@rdt|@po|@rcv|@rd">
 	</xsl:template>
 
 	<xsl:template mode="datagrid:aggregate" match="@upce">
