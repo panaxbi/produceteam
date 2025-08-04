@@ -538,24 +538,6 @@ mostrarRegistros = function () {
     document.fetch()
 }
 
-xover.listener.on('click::.filterable', function () {
-    if (!selection.cells.length || selection.cells.concat(this).includes(this.closest('td,.cell'))) {
-        let filters = selection.cells.concat(this).map(cell => cell.scope).reduce((result, scope) => { result[scope.localName] = (result[scope.localName] || []); result[scope.localName].push(scope.value); return result }, {});
-        let scope = this.scope;
-        let model = scope.closest("model");
-        let target = scope.selectSingleNode(`ancestor::*[parent::model]`);
-        if (target.hasAttributeNS('http://panax.io/state/filter', `${scope.localName}`)) {
-            target.removeAttributeNS('http://panax.io/state/filter', `${scope.localName}`)
-            delete filters[scope.localName]
-        }
-
-
-        for (let key of Object.keys(filters)) {
-            target.setAttributeNS('http://panax.io/state/filter', `filter:${key}`, filters[key].distinct().join("|"))
-        }
-    }
-})
-
 //xover.listener.on('click::table .groupable', function () {
 //    let groupBy = this.scope.nodeName.toLowerCase()
 //    xo.state.groupBy = xo.state.groupBy == groupBy ? null : groupBy;
@@ -663,7 +645,6 @@ xover.listener.on('Response:reject?status=401&bodyType=html', function ({ }) {
 xover.listener.on('change::@filter:*|@group:*', function ({ store }) {
     store.save()
 })
-
 //xo.listener.on(`change?!!srcElement.matches('[type=date]')`, function({ old }) {
 //    debugger
 //})
