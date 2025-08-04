@@ -1,7 +1,6 @@
 ﻿<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:data="http://panax.io/data"
 	xmlns:datagrid="http://widgets.panaxbi.com/datagrid"
-	xmlns:filter="http://panax.io/state/filter"
 	xmlns:group="http://panax.io/state/group"
 	xmlns:state="http://panax.io/state"
 	xmlns:xo="http://panax.io/xover"
@@ -12,7 +11,6 @@
 	<xsl:key name="datagrid:caption" match="@state:data_date" use="../@xo:id"/>
 
 	<xsl:key name="dates" match="fechas/row/@key" use="'active'"/>
-	<xsl:key name="filter" match="@filter:*" use="local-name()"/>
 
 	<xsl:key name="state:hidden" match="@xo:*" use="name()"/>
 	<xsl:key name="state:hidden" match="@state:*" use="name()"/>
