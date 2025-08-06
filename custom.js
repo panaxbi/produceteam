@@ -576,8 +576,8 @@ xo.listener.on(["fetch::*"], function ({ document, request }) {
     //if (document instanceof Comment && document.data == 'ack:empty') {
     //    throw (new Error(`La consulta no regresó un modelo válido. \nEsto es un error. Favor de reportarlo. \nCopie y pegue este código: \n${btoa(JSON.stringify(this.definition))}`));
     //}
-    if (!instanceOf.call(request.context, Node)) return;
-    let tr = request.context.selectFirst('//ventas|//movimientos|//trouble');
+    if (!instanceOf.call(request.contextNode, Node)) return;
+    let tr = request.contextNode.selectFirst('//ventas|//movimientos|//trouble');
     if (tr) {
         let node = document.selectFirst('//ventas|//movimientos|//trouble');
         //node.ownerDocument.disconnect();

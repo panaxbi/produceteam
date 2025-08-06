@@ -5,7 +5,7 @@
 	xmlns:file="http://panax.io/file"
 >
 	<xsl:import href="functions.xslt"/>
-	<xsl:output method="xml"/>
+	<xsl:output method="xml" standalone="yes"/>
 	<xsl:key name="datagrid:record-data" match="row/@*" use="../@xo:id"/>
 
 	<xsl:template match="/">
