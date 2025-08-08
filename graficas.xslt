@@ -7,7 +7,7 @@
 			<xsl:value-of select="//month[@state:selected='true']/@desc"/>
 			<google-chart>
 				<xsl:attribute name="title">
-					Ventas x cultivo con cajas<xsl:apply-templates mode="title" select="$fecha_embarque"/>
+					Ventas x cultivo con cajas <xsl:apply-templates mode="title" select="$fecha_embarque"/>
 				</xsl:attribute>
 				<xsl:for-each select="//data/row">
 					<option value="{@qty}">
@@ -17,7 +17,7 @@
 			</google-chart>
 			<google-chart type="ComboChart">
 				<xsl:attribute name="title">
-					Ventas x cultivo con cajas<xsl:apply-templates mode="title" select="$fecha_embarque"/>
+					Ventas x cultivo con cajas <xsl:apply-templates mode="title" select="$fecha_embarque"/>
 				</xsl:attribute>
 				<xsl:attribute name="options">{vAxis: {title: 'Facturación'}, hAxis: {title: 'Variety'}, seriesType: 'bars', series: {1: {type: 'line'}}}</xsl:attribute>
 				<xsl:for-each select="//data/row">
@@ -38,7 +38,22 @@
 	</xsl:template>
 
 	<xsl:template mode="title" match="@*">
-		<xsl:text/> desde el <xsl:value-of select="substring-before(.,'-')"/>
-		<xsl:text/> al <xsl:value-of select="substring-after(.,'-')"/>
+		<xsl:text>desde el </xsl:text>
+		<xsl:call-template name="format-date">
+			<xsl:with-param name="value" select="substring-before(.,'-')"/>
+		</xsl:call-template>
+		<xsl:text> al </xsl:text>
+		<xsl:call-template name="format-date">
+			<xsl:with-param name="value" select="substring-after(.,'-')"/>
+		</xsl:call-template>
+	</xsl:template>
+
+	<xsl:template name="format-date">
+		<xsl:param name="value"/>
+		<xsl:value-of select="substring($value,7,2)"/>
+		<xsl:text>/</xsl:text>
+		<xsl:value-of select="substring($value,5,2)"/>
+		<xsl:text>/</xsl:text>
+		<xsl:value-of select="substring($value,1,4)"/>
 	</xsl:template>
 </xsl:stylesheet>

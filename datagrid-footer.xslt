@@ -6,12 +6,12 @@
 >
 	<xsl:import href="functions.xslt"/>
 	<xsl:output method="xml" standalone="yes"/>
-	<xsl:key name="datagrid:record-data" match="row/@*" use="../@xo:id"/>
+	<!--<xsl:key name="datagrid:record-data" match="row/@*" use="../@xo:id"/>-->
 
 	<xsl:template match="/">
 		<xsl:param name="x-dimension" select="*/@*[namespace-uri()='']"/>
 		<xsl:param name="y-dimension" select="*/row"/>
-		<xsl:param name="data" select="key('datagrid:record-data',$y-dimension/@xo:id)"/>
+		<xsl:param name="data" select="to-be-removed"/>
 		<tr>
 			<xsl:attribute name="xo-source">inherit</xsl:attribute>
 			<xsl:attribute name="xo-stylesheet">
