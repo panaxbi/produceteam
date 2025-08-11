@@ -75,17 +75,19 @@ xo.listener.on("mousedown", function (event) {
     let parent_container = this.closest("table, tbody, .validation-enabled, .blacklist-enabled, .selection-enabled");
     if (!parent_container) return;
     let parent_cell = this.closest('.cell,td,th');
-    if (parent_cell && parent_container && !(event && (event.ctrlKey || event.shiftKey))) {
+    let cell = window.getComputedStyle(this).cursor == 'cell' && this || this.closest(".cell");
+    if (parent_cell && parent_container && !(cell.classList.contains("selected") || event && (event.ctrlKey || event.shiftKey))) {
         [...parent_container.querySelectorAll(".selected svg.bi-box-arrow-up-right")].filter(svg => !parent_cell.contains(svg)).forEach(svg => { svg.remove() });
         [...parent_container.querySelectorAll(".selected,.selection-begin,.selection-end,.top-selection,.bottom-selection,.left-selection,.right-selection")].forEach(cell => { cell.classList.remove("selected", "selection-begin", "selection-end", "top-selection", "bottom-selection", "left-selection", "right-selection") });
     }
-    let cell = window.getComputedStyle(this).cursor == 'cell' && this || this.closest(".cell");
     if (cell) {
-        if (event && (event.ctrlKey || event.shiftKey) && [...parent_cell.classList].some(el => ["selected", "selection-end", "selection-begin"].includes(el))) {
+        if (cell.classList.contains("selected") || event && (event.ctrlKey || event.shiftKey) && [...parent_cell.classList].some(el => ["selected", "selection-end", "selection-begin"].includes(el))) {
             parent_cell.classList.remove("selected", "selection-begin", "selection-end")
         } else {
             cell.classList.add("selected");
-            cell.classList.add("selection-begin");
+            if (!parent_container.querySelector('.selection-begin')) {
+                cell.classList.add("selection-begin");
+            }
         }
 
         //console.log(event.target);
@@ -120,7 +122,7 @@ xo.listener.on("mousemove::*[ancestor-or-self::*/@class[contains(.,'validation-'
 })
 
 xo.listener.on("mouseup", function (event) {
-    if (this.closest(`dialog,menu,ul`) || !(this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell')) return;
+    if (this.closest(`dialog,menu,ul,.filtered`) || !(this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell')) return;
     if (this instanceof HTMLTableCellElement && this.matches(".cell") && !(this.matches(".presupuesto"))) {
         [...this.querySelectorAll("a.auxiliar-polizas")].removeAll();
         let cell = this;
@@ -587,50 +589,6 @@ xo.listener.on(["fetch::*"], function ({ document, request }) {
         attributes.forEach(attr => node.setAttributeNode(attr));
     }
 })
-
-function sortRows(header) {
-    let index = header.$$("preceding-sibling::*").reduce((index, el) => { index += el.colSpan || 0; return index }, 0);
-    let direction = 1;
-    let getValue = (el) => {
-        let val = el.cells[index].getAttribute("value") || el.cells[index].textContent;
-        let parsed_value = +val.replace(/\$|^#|,/g, '');
-        return isNaN(parsed_value) ? val : parsed_value;
-    };
-    let compare = (next, curr) => {
-        if (curr.classList.contains("header") || next.classList.contains("header")) {
-            return 0;
-        }
-        let valueCurr = getValue(curr);
-        let valueNext = getValue(next);
-        if (typeof (valueNext.localeCompare) == 'function') {
-            return direction * valueNext.localeCompare(valueCurr, undefined, { sensitivity: 'accent', caseFirst: 'upper' });
-        } else {
-            return direction * (valueNext - valueCurr);
-        }
-    }
-    [...header.parentNode.querySelectorAll('.sorted')].filter(th => th != header).forEach(th => th.classList.remove('sorted-desc', 'sorted-asc', 'sorted'));
-    for (let tbody of header.closest('table').select('tbody')) {
-        let rows = [...tbody.querySelectorAll("tr")];
-        if (header.classList.contains("sorted-desc")) {
-            index = 0;
-            rows.sort(compare);
-        } else if (header.classList.contains("sorted")) {
-            direction = -1;
-            rows.sort(compare);
-        } else {
-            rows.sort(compare);
-        }
-        tbody.replaceChildren(...rows);
-    }
-    if (header.classList.contains("sorted-desc")) {
-        header.classList.remove("sorted", "sorted-desc");
-    } else if (header.classList.contains("sorted")) {
-        header.classList.remove("sorted-asc");
-        header.classList.add("sorted", "sorted-desc");
-    } else {
-        header.classList.add("sorted", "sorted-asc");
-    }
-}
 
 xo.listener.on('xover-initializing', function ({ progress_renders }) {
     if ('#loading' in xover.manifest.sources) {
