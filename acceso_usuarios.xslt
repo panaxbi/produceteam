@@ -14,10 +14,12 @@ xmlns:prev="http://panax.io/state/prev"
 		 indent="yes"/>
 
 	<xsl:template match="/">
-		<div class="container-fluid">
-			<xo-listener node="security"/>
-			<xsl:apply-templates/>
-		</div>
+		<main>
+			<div class="container-fluid">
+				<xo-listener node="security"/>
+				<xsl:apply-templates/>
+			</div>
+		</main>
 	</xsl:template>
 
 	<xsl:key name="access" match="access/@level" use="concat(../@user,'::',../@module)"/>
