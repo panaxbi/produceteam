@@ -2,7 +2,10 @@
   "server": {
     "request": "${xover.session.server}/request.asp",
     "login": "POST ${xover.session.server}/login.asp",
-    "logout": "${xover.session.server}/logout.asp"
+    "logout": "${xover.session.server}/logout.asp",
+    "applyPermissions": {
+      "POST server:request": { "FROM": "[$Security].[applyPermissions]" }
+    }
   },
   "session": {
     "gist": "https://gist.githubusercontent.com/uriel-online/17685de3e6ff832b0cc499c82949d336/raw/produce_team.json"
@@ -137,7 +140,7 @@
     },
     "server:applyPermissions": {
       "headers": {
-        "x-payload-parameter-name": "@input"
+        "x-payload-parameter-name": "@xml"
       }
     },
     "#shell": {
