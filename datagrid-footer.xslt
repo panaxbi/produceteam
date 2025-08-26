@@ -2,6 +2,7 @@
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:datagrid="http://widgets.panaxbi.com/datagrid"
 	xmlns:xo="http://panax.io/xover"
+	xmlns:data="http://panax.io/data"
 	xmlns:debug="http://panax.io/debug"
 	xmlns:group="http://panax.io/state/group"
 	xmlns:file="http://panax.io/file"
@@ -10,8 +11,9 @@
 	<xsl:output method="xml" standalone="yes"/>
 	<!--<xsl:key name="datagrid:record-data" match="row/@*" use="../@xo:id"/>-->
 
+	<xsl:key name="data:group" match="*[row]/@group:*" use="local-name()"/>
 	<xsl:template match="/">
-		<xsl:param name="x-dimension" select="*/@*[namespace-uri()='' or starts-with(namespace-uri(),'http://panax.io/state/group')]"/>
+		<xsl:param name="x-dimension" select="*/@*[namespace-uri()='' or starts-with(namespace-uri(),'http://panax.io/state/group')][not(key('data:group',name()))]"/>
 		<xsl:param name="y-dimension" select="*/row"/>
 		<xsl:param name="data" select="to-be-removed"/>
 		<tr>
