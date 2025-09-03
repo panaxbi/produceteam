@@ -122,7 +122,7 @@ xo.listener.on("mousemove::*[ancestor-or-self::*/@class[contains(.,'validation-'
 })
 
 xo.listener.on("mouseup", function (event) {
-    if (this.closest(`dialog,menu,ul,.filtered`) || !(this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell')) return;
+    if (this.closest(`dialog,menu,ul`) || !(this.closest('.validation-enabled, .blacklist-enabled, .selection-enabled') || window.getComputedStyle(this).cursor == 'cell')) return;
     if (this instanceof HTMLTableCellElement && this.matches(".cell") && !(this.matches(".presupuesto"))) {
         [...this.querySelectorAll("a.auxiliar-polizas")].removeAll();
         let cell = this;
@@ -141,9 +141,9 @@ xo.listener.on("mouseup", function (event) {
         let selection_started = parent_container.querySelector(".selection-begin");
         let cells = selection.cells;
         let offcanvas = this.closest(".cell") && document.querySelector('#offcanvasSelection');
-        if (offcanvas) {
+        if (offcanvas && (offcanvas.classList.contains("show") || cells.length)) {
             offcanvas = new bootstrap.Offcanvas(offcanvas);
-                offcanvas.show()
+            offcanvas.show()
             if (!cells.length) {
                 offcanvas.hide()
             }
@@ -167,7 +167,7 @@ xo.listener.on("mouseup", function (event) {
                 xo.state.blacklist = !!(xo.state.blacklist_items || cells.find(cell => cell.closest('.blacklist-enabled')));
                 cells.showInfo();
             }
-        } else {
+        } else if (cells.length) {
             cells.showInfo();
         }
     }
