@@ -8,7 +8,7 @@
     }
   },
   "session": {
-    "gist": "https://gist.githubusercontent.com/uriel-online/cd1aaa8d5835cdc24efe34dd1df1a8ce/raw/produce_team.json"
+    "gist": "https://gist.githubusercontent.com/produceteam-bot/846c2e6c0a7e818b08f1b867b64d498c/raw/produce_team.json"
   },
   "sources": {
     "^#([^?]+)(\\?.*)?": {
