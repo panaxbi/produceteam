@@ -553,7 +553,7 @@ xo.listener.on("fetch::#detalle_gastos_operativos|#detalle_ingresos_operativos|#
     }
 })
 
-xo.listener.on(["fetch?href=^server/::*", "fetch?host=^server.panax.io::*", "fetch?host=*.ngrok*"], function ({ response, document, url }) {
+xo.listener.on(["fetch?href=^server/::*", "fetch?host=^server.panax.io::*", "fetch?host=^server-produceteam.panaxbi.com::*"], function ({ response, document, url }) {
     if (!(document && document.nodeType === Node.DOCUMENT_NODE)) return;
     for (let stylesheet of document.stylesheets || []) {
         let href = stylesheet.href;
@@ -591,6 +591,7 @@ xo.listener.on(["fetch::*"], function ({ document, request }) {
 })
 
 xo.listener.on('xover-initializing', function ({ progress_renders }) {
+    xover.session.server = xover.manifest.session.server;
     if ('#loading' in xover.manifest.sources) {
         progress_renders.concat(xover.sources['#loading'].render());
     }
@@ -711,18 +712,6 @@ xo.listener.on(`intersect::tbody:has(.skeleton)`, async function () {
 //    let html = await document.transform(this.section.stylesheet)
 //    this.replaceWith(html.querySelector("tbody"))
 //})
-
-function updateNgrok() {
-    try {
-        let gist = xover.session.gist;
-        if (!gist) return;
-        fetch(gist)
-            .then(res => res.json())
-            .then(json => xover.session.server = json["ngrokUrl"])
-    } catch (e) {
-        console.error(e)
-    }
-}
 
 async function refreshStorehouse(key) {
     if (key) {
